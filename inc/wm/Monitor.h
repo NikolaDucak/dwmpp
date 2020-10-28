@@ -2,8 +2,9 @@
 
 #include <list>
 #include <array>
+#include "util/point.h"
 
-#include "Bar.h"
+//#include "Bar.h"
 #include "Workspace.h"
 
 /*
@@ -23,8 +24,8 @@ public:
 
 	inline void selectWorkspace(unsigned i)
 		{ if( i < Workspace::config.workspaces.size() ) selectedWorkspaceIndex_ = i; }
-	inline void updateBar()  { bar_.draw( workspaces_, selectedWorkspaceIndex_ );  }
-	inline Bar& getBar()     { return this->bar_; }
+	//inline void updateBar()  { bar_.draw( workspaces_, selectedWorkspaceIndex_ );  }
+	//inline Bar& getBar()     { return this->bar_; }
 
 	inline std::array<Workspace, 10>& getWorkspaces()  { return workspaces_; }
 	inline Workspace& getSelectedWorkspace()           { return workspaces_[selectedWorkspaceIndex_]; }
@@ -42,6 +43,6 @@ private:
 
 	std::array<Workspace,10> workspaces_;
 	int selectedWorkspaceIndex_;
-	Bar bar_;
+	//Bar bar_;
 };
 

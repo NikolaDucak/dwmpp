@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Client.h"
-
+#include "util/point.h"
 #include <vector>
+#include <list>
 
 class Monitor;
 
@@ -12,27 +13,29 @@ class Monitor;
  */
 class Workspace {
 public:
-
-	// configuration
-	struct Config{
-		std::vector< std::string > workspaces;
-		int innerGap, outerGap;
-		int factor, mastersNum;
-	};
-	// default config;
+    // configuration
+    struct Config {
+        std::vector<std::string> workspaces;
+        int innerGap, outerGap;
+        int factor, mastersNum;
+    };
+    // default config;
 	static const Config config;
-	// specific config for this workspace, allows for workspace specific factor gap changes
+	// specific config for this workspace, allows for 
+    // workspace specific factor, gap etc changes
 	Config config_;
+
+    static void configure(const config::WorkspaceConfig& conf);
 
 public:
 
-	Workspace( Monitor& m, unsigned index );
-	Workspace( Workspace& m ) = delete;
-	Workspace( Workspace&& m ) = delete;
-	Workspace& operator = ( Workspace& m ) = delete;
-	Workspace& operator = ( Workspace&& m ) = delete;
+	Workspace(Monitor& m, unsigned index);
+	Workspace(Workspace& m) = delete;
+	Workspace(Workspace&& m) = delete;
+    Workspace& operator=(Workspace& m) = delete;
+    Workspace& operator=(Workspace&& m) = delete;
 
-	// move focus to client in stack
+    // move focus to client in stack
 	void moveFocus(int i);
 	void focusFront();// restart forcus
 
@@ -49,12 +52,12 @@ public:
 	void hideAllClients();
 
 	// creating clients & destroying them
-	void addClient( Window w );
-	void removeClient( Client& c );
-	void removeClient( Window w );
+	void createClientForWindow(Window w);
+	void removeClient(Client& c);
+	void removeClient(Window w);
 
 	// master
-	void resizeMaster( int i );
+	void resizeMaster(int i);
 
 
 	// TODO: pass arranger
@@ -63,13 +66,13 @@ public:
 	 * and with width & height specified in point dim,
 	 * gaps will be applied inside specified area
 	 */
-	void arrangeClients( int barHeight, point dim );
-	void moveSelectedClientToWorkspace( Workspace& ws );
+	void arrangeClients(int barHeight, point dim);
+	void moveSelectedClientToWorkspace(Workspace& ws);
 
 	// getters
 	inline Monitor& getMonitor()            { return *monitorRef_; }
 	inline uint getIndex() const            { return index_; }
-	inline List<Client>& getClients()       { return clients_; }
+	inline std::list<Client>& getClients()  { return clients_; }
 	inline Client& getSelectedClient()      { return *selectedClientIter_; }
 	inline Config& getConfig()              { return config_; };
 
@@ -77,20 +80,20 @@ public:
 	inline Client* getFullscreenClient() const { return fullscreenClient_; }
 	void setSelectedClient(Client& c);
 
-
 private:
 
 	// arranger
-	void arrange( int barHeight, int screenW, int screenH);
+	void arrange(int barHeight, int screenW, int screenH);
 	
 	// helper method to treat regular iterator like cirulator
 	using ClientListIterator = typename std::list<Client>::iterator;
-	ClientListIterator circulate( std::list<Client>& list, ClientListIterator& curr, int i );
-	ClientListIterator circulateWithEndIterator( std::list<Client>& list, ClientListIterator& curr, int i );
+
+	static ClientListIterator circulate(std::list<Client>& list, ClientListIterator& curr, int i);
+	static ClientListIterator circulateWithEndIterator(std::list<Client>& list, ClientListIterator& curr, int i);
 	
 	Monitor* monitorRef_;
 	uint index_;
-	List<Client> clients_;
+    std::list<Client> clients_;
 	ClientListIterator selectedClientIter_;	
 	Client* fullscreenClient_;
 };
