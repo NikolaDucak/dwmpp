@@ -16,7 +16,26 @@ all the neccesary features for a window manager!
 ## Building
 ----
 Dependencies:
-    libxft
+- xorg
+- make
+- g++
+- libx11-deb
+- libxfg-dev
+- libxinerma-dev
+
+For creating a X session within a window of existing X session for testing, `debug_run.sh` is used after `make` comand generates a binary.
+In order for that script to work he needs: 
+- xephyr
 
 
+You can install them with the following command on a Debian based distro:
+```bash
+sudo apt install make g++ libx11-dev libxft-dev libxinerama-dev xorg
+```
+and for xephyr:
+```bash
+sudo apt install xserver-xephyr
+```
+After you have sorted out the dependencies `make` will create a binary.
+Default make recipe is debug build
 
