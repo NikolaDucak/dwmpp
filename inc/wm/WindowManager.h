@@ -4,6 +4,8 @@
 #include "config/Config.h"
 #include "Monitor.h"
 
+#define DEBUG_LOG
+
 #ifdef DEBUG_LOG
 #    include <iostream>
 #    define LOG(x) std::cout << (x) << std::endl;
@@ -18,7 +20,22 @@ public:
 
     void run();
 
-private: // functions 
+    /* methods called on key events, interface with the user */
+    void quit();
+    void moveFocus(int i);
+    void moveFocusedClient(int i);
+    void moveFocusedClientToTop();
+    void moveFocusedClientToWorkspace(uint i);
+    void killFocused();
+    void fullscreenToggle();
+    void floatToggle();
+    void goToWorkspace(int i);
+    void resizeMaster(int i);
+    void resizeFloating();
+    void moveFloating();
+    void toggleBar();
+
+private: // event functions 
 
     /** Method called when user mooves the crusor. */
 	void onMotionNotify     (const XMotionEvent& e);       
@@ -45,9 +62,15 @@ private: // functions
 	void onExpose           (const XExposeEvent& e);
 	void onFocusIn          (const XFocusChangeEvent& e);
 
+private: // utility methods
+
+    //TODO: description
+    void grabKeys();
+
 private: // variables
     bool m_running;
     xlib::XCore& m_x;
 
+    std::list<Monitor> m_monitors;
     Monitor* m_focusedMonitorPtr;
 };

@@ -92,6 +92,12 @@ static const WMConfig windowManager {
 };
 static const BarConfig bar{ };
 static const ClientConfig client{ };
-static const WorkspaceConfig workspace { };
+static const WorkspaceConfig workspace {
+	.workspaces = { "1", "2", "3", "4", "5", "6", "7", "8", "9" "+" },
+	.innerGap = 10,
+	.outerGap = 10,
+	.factor   = 60,
+	.mastersNum = 1,
+};
 
 } // namespace config

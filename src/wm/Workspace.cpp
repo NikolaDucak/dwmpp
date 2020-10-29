@@ -1,9 +1,9 @@
 #include "wm/Workspace.h"
 #include "config/Config.h"
 
+using ClientListIterator = typename std::list<Client>::iterator;
 
 void Workspace::configure(const config::WorkspaceConfig&) {
-
 }
 
 void Workspace::arrange( int barHeight, int screenW, int screenH ) {
@@ -15,11 +15,11 @@ void Workspace::arrange( int barHeight, int screenW, int screenH ) {
         return;
     }
     auto tiledClientsNum =
-        std::count_if(clients_.begin(), clients_.end(),
+        std::count_if(m_clients.begin(), m_clients.end(),
                       [](const Client& c) { return not c.isFloating(); });
 
     if (tiledClientsNum == 1) {
-        clients_.front().resize(
+        m_clients.front().resize(
             point { config.outerGap, config.outerGap + barHeight },
             point { screenW, screenH - barHeight } - config.outerGap * 2);
     } else {
@@ -40,7 +40,7 @@ void Workspace::arrange( int barHeight, int screenW, int screenH ) {
         int masterYInc  = masterH + config.innerGap;
 
         int arrangedMasters = 0;
-        for (auto& c : clients_) {
+        for (auto& c : m_clients) {
             if (c.isFloating()) {
                 c.raise();
             } else if (arrangedMasters < config.mastersNum) {
@@ -56,7 +56,6 @@ void Workspace::arrange( int barHeight, int screenW, int screenH ) {
     }
 }
 
-using ClientListIterator = typename std::list<Client>::iterator;
 ClientListIterator Workspace::circulate( std::list<Client>& list, ClientListIterator& curr, int i ){
 	// assume its not already on the end
 	auto temp = curr;
@@ -99,17 +98,21 @@ ClientListIterator Workspace::circulateWithEndIterator( std::list<Client>& list,
 	return temp;
 }
 
-Workspace::Workspace( Monitor& m, uint index ) : 
-	//config_( config ), // defualt config
-	monitorRef_( &m ),
-	index_( index ),
-	clients_(),
-	selectedClientIter_( clients_.begin() ), //TODO: is this safe?
-	fullscreenClient_( nullptr )
-{ }
+Workspace::Workspace(Monitor& m, uint index) :
+    // config_( config ), // defualt config
+    m_monitorPtr(&m), index_(index), m_clients(),
+    selectedClientIter_(m_clients.begin()),  // TODO: is this safe?
+    fullscreenClient_(nullptr) {}
 
 void Workspace::focusFront() {
-	selectedClientIter_ = clients_.begin();
+    // drop focus drop active atom and change window border
+    if (selectedClientIter_ != m_clients.end())
+        selectedClientIter_->dropInputFocus();
+    // get new focused client
+    selectedClientIter_ = m_clients.begin();
+    // give focus set active atom and change window border
+    if (selectedClientIter_ != m_clients.end())
+        selectedClientIter_->takeInputFocus();
 }
 
 void Workspace::toggleFullscreenOnSelectedClient() { 
@@ -117,70 +120,79 @@ void Workspace::toggleFullscreenOnSelectedClient() {
 }
 
 void Workspace::moveFocus(int i) {
-    selectedClientIter_ = circulate(clients_, selectedClientIter_, i);
+    // drop focus drop active atom and change window border
+    if(selectedClientIter_ != m_clients.end() )
+        selectedClientIter_->dropInputFocus();
+    // get new focused client
+    selectedClientIter_ = circulate(m_clients, selectedClientIter_, i);
+    // give focus set active atom and change window border
+    selectedClientIter_->takeInputFocus();
 }
 
 void Workspace::showAllClients() {
-    for (auto& client : clients_)
+    for (auto& client : m_clients)
         client.show();
 }
 
 void Workspace::hideAllClients() {
-    for (auto& client : clients_)
+    for (auto& client : m_clients)
         client.hide();
 }
+
 void Workspace::arrangeClients(int barHeight, point wh) {
     arrange(barHeight, wh.x, wh.y);
 }
 
-void Workspace::createClientForWindow( Window w ){
-	clients_.emplace_front( *this, w );
+void Workspace::createClientForWindow(Window w) {
+    // emplacing does not invalidate iterators
+    m_clients.emplace_front(*this, w);
+    m_clients.front().getXWindow().mapRaised();
 }
 
-void Workspace::removeClient( Window w ){
-    clients_.erase(
-        std::remove_if(clients_.begin(), clients_.end(), [&](Client& c) {
+void Workspace::removeClientForWindow(Window w) {
+    m_clients.erase(
+        std::remove_if(m_clients.begin(), m_clients.end(), [&](Client& c) {
             return c.getXWindow().get() == w;
         }));  // possibly revalidate iterator
-    selectedClientIter_ = clients_.begin();
+    focusFront();
 }
 
 void Workspace::removeClient(Client& w) { 
-    removeClient(w.getXWindow().get()); 
+    removeClientForWindow(w.getXWindow().get()); 
 }
 
 void Workspace::setSelectedClient(Client& c){
-    for (auto i = clients_.begin(); i != clients_.end(); i++) {
+    for (auto i = m_clients.begin(); i != m_clients.end(); i++) {
         if (&c == &(*i))
             selectedClientIter_ = i;
     }
 }
 
-void Workspace::moveSelectedClient( int i ) {
+void Workspace::moveFocusedClient( int i ) {
     auto& clientPosition = selectedClientIter_;
     // due to how splice works in case of i > 0 correction is needed so splice
     // doesn't leave the list unchanged
-    auto nextPosition = circulateWithEndIterator(clients_, selectedClientIter_,
+    auto nextPosition = circulateWithEndIterator(m_clients, selectedClientIter_,
                                                  (i > 0) ? i + 1 : i);
     //( pos, other, it)
-    clients_.splice(nextPosition, clients_, clientPosition);
+    m_clients.splice(nextPosition, m_clients, clientPosition);
 }
 
-void Workspace::moveSelectedClientToTop() {
-    clients_.splice(clients_.begin(), clients_, selectedClientIter_);
+void Workspace::moveFocusedClientToTop() {
+    m_clients.splice(m_clients.begin(), m_clients, selectedClientIter_);
 }
 
 void Workspace::moveSelectedClientToWorkspace( Workspace& other ){
-    if (this->selectedClientIter_ == this->clients_.end()) {
+    if (this->selectedClientIter_ == this->m_clients.end()) {
         // std::cout << "MOVE NOTHING" << std::endl;
         return;
     }
     // move client to beggining of the other list
-	other.clients_.splice( other.clients_.begin(), this->clients_, this->selectedClientIter_ );
+	other.m_clients.splice( other.m_clients.begin(), this->m_clients, this->selectedClientIter_ );
 	// assing moved clients reference to workspace to other workspace
-	other.clients_.begin()->assignToWorkspace( other );
+	other.m_clients.begin()->assignToWorkspace( other );
 	// reset iterators to focused clients
-	other.selectedClientIter_ = other.clients_.begin();
-	this->selectedClientIter_ = this->clients_.begin();
+	other.selectedClientIter_ = other.m_clients.begin();
+	this->selectedClientIter_ = this->m_clients.begin();
 }
 

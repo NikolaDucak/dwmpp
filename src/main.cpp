@@ -10,7 +10,7 @@
 #include "wm/WindowManager.h"
 #include "wm/Bar.h"
 
-WindowManager* wm;
+static WindowManager* wm;
 
 int main() {
     LOG("START");
@@ -35,40 +35,42 @@ int main() {
 
     // create WM instance
     WindowManager wm{x};
-    
-    // run insntace
-    wm.run();
     ::wm = &wm;
+    
+    // infine loop, run insntace
+    wm.run();
 
     return 0;
 }
 
 //TODO: move to separate file
 namespace config {
+#undef LOG
+#define LOG(x) std::cout << "AAAA" << (wm == nullptr) << std::endl
 
 void moveClient(const Argument& arg){
-    LOG("moveClient");
+    LOG("Config func triggered: moveClient");
     //wm->moveClient(arg.i);
 }
 
 void moveClientToWorkspace(const Argument& arg){
-    LOG("moveClientToWorkspace");
+    LOG("Config func triggered: moveClientToWorkspace");
 	//wm->moveClientToWorkspace(arg.i);
 }
 
 void focus(const Argument& arg){
-    LOG("focus");
-	//wm->moveFocus(arg.i);
+    LOG("Config func triggered: focus");
+	wm->moveFocus(arg.i);
 }
 
 void pkill(const Argument& /*unused*/){
-    LOG("pkill");
-	//wm->killFocused();
+    LOG("Config func triggered: pkill");
+	wm->killFocused();
 }
 
 void quitDWMPP(const Argument& /*unused*/){
-    LOG("Quit");
-	//wm->quit();
+    LOG("Config func triggered: Quit");
+	wm->quit();
 }
 
 void fullscreen(const Argument& /*unused*/){
@@ -112,7 +114,7 @@ void moveToTop(const Argument& /*unused*/){
 }
 
 void spawn(const Argument& arg){
-    LOG("spawn");
+    LOG("Config func triggered: spawn");
 	if(fork() == 0){
 		static char* args[]{ NULL };
 		setsid();

@@ -41,14 +41,14 @@ public:
 	void hide();
 	void show();
 
-	//void setBorderColor(const xlib::XColor& c);
-
 	void setState(int s);
 	void takeInputFocus();
+    void dropInputFocus();
 
 	inline void assignToWorkspace(Workspace& ws) { workspaceRef_ = &ws; }
 	inline Workspace& getWorkspace() { return *workspaceRef_; }
 
+	inline xlib::XWindow& getXWindow() { return xwin_; }
 	inline const xlib::XWindow& getXWindow() const  { return xwin_; }
 
 	inline const point& getPosition() const { return xy_; }

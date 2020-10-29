@@ -40,8 +40,8 @@ public:
 	void focusFront();// restart forcus
 
 	// move selected client in stack by 'i' positions
-	void moveSelectedClient(int i);
-	void moveSelectedClientToTop();
+	void moveFocusedClient(int i);
+	void moveFocusedClientToTop();
 
 	// workspace handles fullscreen client instead of client himself
 	// so no need to search for fullscreen client
@@ -53,12 +53,13 @@ public:
 
 	// creating clients & destroying them
 	void createClientForWindow(Window w);
+	void removeClientForWindow(Window w);
 	void removeClient(Client& c);
-	void removeClient(Window w);
 
 	// master
 	void resizeMaster(int i);
 
+    // 
 
 	// TODO: pass arranger
 	/*
@@ -70,13 +71,13 @@ public:
 	void moveSelectedClientToWorkspace(Workspace& ws);
 
 	// getters
-	inline Monitor& getMonitor()            { return *monitorRef_; }
+	inline Monitor& getMonitor()            { return *m_monitorPtr; }
 	inline uint getIndex() const            { return index_; }
-	inline std::list<Client>& getClients()  { return clients_; }
+	inline std::list<Client>& getClients()  { return m_clients; }
 	inline Client& getSelectedClient()      { return *selectedClientIter_; }
 	inline Config& getConfig()              { return config_; };
 
-	inline bool hasSelectedClient() const   { return selectedClientIter_ != clients_.end(); }
+	inline bool hasSelectedClient() const   { return selectedClientIter_ != m_clients.end(); }
 	inline Client* getFullscreenClient() const { return fullscreenClient_; }
 	void setSelectedClient(Client& c);
 
@@ -85,15 +86,15 @@ private:
 	// arranger
 	void arrange(int barHeight, int screenW, int screenH);
 	
-	// helper method to treat regular iterator like cirulator
 	using ClientListIterator = typename std::list<Client>::iterator;
 
+	// helper methods to treat regular iterator like cirulator
 	static ClientListIterator circulate(std::list<Client>& list, ClientListIterator& curr, int i);
 	static ClientListIterator circulateWithEndIterator(std::list<Client>& list, ClientListIterator& curr, int i);
 	
-	Monitor* monitorRef_;
+	Monitor* m_monitorPtr;
 	uint index_;
-    std::list<Client> clients_;
+    std::list<Client> m_clients;
 	ClientListIterator selectedClientIter_;	
 	Client* fullscreenClient_;
 };

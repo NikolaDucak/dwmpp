@@ -8,6 +8,14 @@
 
 #include <algorithm>
 
+#define DEBUG_LOG
+#ifdef DEBUG_LOG
+#    include <iostream>
+#    define LOG(x) std::cout << (x) << std::endl;
+#else 
+#    define LOG(x)
+#endif
+
 namespace xlib {
 
 class XWindow {

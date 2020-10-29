@@ -4,8 +4,8 @@ namespace xlib {
 
 XCore* XWindow::xcore;
 
-XWindow::XWindow(Window w) : m_w(w) { }
-
+XWindow::XWindow(Window w) : m_w(w) { 
+} 
 //TODO: sredi border podesavanja
 XWindow::XWindow(int x, int y, unsigned width, unsigned height) {
     XCreateSimpleWindow(xcore->getDpyPtr(), xcore->getRoot(),
