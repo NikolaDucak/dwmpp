@@ -4,20 +4,39 @@
 
 #define DEBUG_LOG
 
-#include "config/Config.h"
 
-#include "wm/Client.h"
+#include "xlib/X.h"
 #include "wm/WindowManager.h"
-#include "wm/Bar.h"
 
+// xlibinitalization firs
+static xlib::XCore& x = xlib::initializeXlib();
 static WindowManager* wm;
+
+const Client::Config Client::config {
+	.borderWidth       = 2,
+	.borderClr         {"#2e2e2e"},
+	.selecetedBorderClr{"#ff0000"},
+};
+
+// after xlib has been initialized, configuration can be set
+Bar::Config Bar::config {
+    .barBG        {"#2e2e2e"},
+	.barFG        {"#999999"},
+
+	.selectedBarBG{"#dddddd"},
+	.selectedBarFG{"#dd9999"},
+
+	.usedTagBG    {"#5f5f5f"},
+	.usedTagFG    {"#afafaf"},
+
+	.emptyTagBG   {"#3d3d3d"},
+	.emptyTagFG   {"#4d4d4d"},
+
+	.font         {"Iosevka"},
+};
 
 int main() {
     LOG("START");
-    using namespace xlib;
-    // initialize xlib (open display etc)
-    XCore x{0};
-    XWindow::xcore = &x;
 
     //TODO: xlib atoms
     //x.changeProperity() // change root name
@@ -26,27 +45,17 @@ int main() {
     // check for other window manager
     // err::otherWMCheck();
     
-    // copy config to internal config struct for
-    // WM, Workspace, Client, Bar and do necessary prep and processing
-    Bar::configure(config::bar);
-    Client::configure(config::client);
-    Workspace::configure(config::workspace);
-    WindowManager::configure(config::windowManager);
-
     // create WM instance
-    WindowManager wm{x};
+    static WindowManager wm{x};
     ::wm = &wm;
     
     // infine loop, run insntace
     wm.run();
-
     return 0;
 }
 
 //TODO: move to separate file
 namespace config {
-#undef LOG
-#define LOG(x) std::cout << "AAAA" << (wm == nullptr) << std::endl
 
 void moveClient(const Argument& arg){
     LOG("Config func triggered: moveClient");
@@ -84,8 +93,8 @@ void floatToggle(const Argument& /*unused*/){
 }
 
 void goToWorkspace(const Argument& arg){
-    LOG("gotoWS");
-	//wm->goToWorkspace(arg.i);
+    LOG("Config func triggered: gotoWS");
+	wm->goToWorkspace(arg.i);
 }
 
 void toggleBar(const Argument& /*unused*/){
@@ -115,13 +124,13 @@ void moveToTop(const Argument& /*unused*/){
 
 void spawn(const Argument& arg){
     LOG("Config func triggered: spawn");
-	if(fork() == 0){
-		static char* args[]{ NULL };
-		setsid();
-		execvp(arg.str, args);
-		fprintf(stderr, "dwm: execvp %s", arg.str);
-		perror(" failed");
-		exit(EXIT_SUCCESS);
-	}
+    if (fork() == 0) {
+        static char* args[] { NULL };
+        setsid();
+        execvp(arg.str, args);
+        fprintf(stderr, "dwm: execvp %s", arg.str);
+        perror("failed");
+        exit(EXIT_SUCCESS);
+    }
 }
 } // namespace config

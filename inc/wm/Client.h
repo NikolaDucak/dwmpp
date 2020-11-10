@@ -3,6 +3,8 @@
 #include "config/ConfigTypes.h"
 #include "util/point.h"
 #include "xlib/XWindow.h"
+#include "xlib/XColor.h"
+#include <sstream>
 
 #include <list>
 #include <algorithm>
@@ -13,7 +15,6 @@ class Workspace;
 class Client {
 public:
 
-    /*
 	// Configuration
 	struct Config {
 		int borderWidth;
@@ -21,14 +22,17 @@ public:
         xlib::XColor selecetedBorderClr;
 	};
 	static const Config config;
-    */
-
-    static void configure( const config::ClientConfig& conf );
 
 public:
 
 	Client(Workspace& ws, Window w, XWindowAttributes& wa);
 	Client(Workspace& ws, Window w);
+    /*
+    Client(Client&&) = delete;
+    Client(Client&) = delete;
+    Client& operator = (Client&&) = delete;
+    Client& operator = (Client&) = delete;
+    */
 
 	void resize(point xy, point wh);
 	void resize(point wh);
@@ -36,6 +40,7 @@ public:
 
 	bool sendEvent(Atom atom);
 
+    std::string getTitle();
 	void raise();
 
 	void hide();

@@ -1,16 +1,16 @@
 #include "xlib/XWindow.h"
+#include <X11/Xutil.h>
 
 namespace xlib {
 
 XCore* XWindow::xcore;
 
 XWindow::XWindow(Window w) : m_w(w) { 
-} 
-//TODO: sredi border podesavanja
-XWindow::XWindow(int x, int y, unsigned width, unsigned height) {
-    XCreateSimpleWindow(xcore->getDpyPtr(), xcore->getRoot(),
-            x, y, width, height, 0, 0, 0 );
 }
+
+XWindow::XWindow(int x, int y, unsigned width, unsigned height) :
+    m_w(XCreateSimpleWindow(xcore->getDpyPtr(), xcore->getRoot(), 
+                x, y, width, height, 0, 0x0, 0x0)) {}
 
 void XWindow::moveWindow(int x, int y) {
     XMoveWindow(xcore->getDpyPtr(), m_w, x, y);
@@ -120,6 +120,29 @@ bool XWindow::supportsProtocol(Atom proto) {
         XFree(protocols);
     }
     return exists;
+}
+
+std::string XWindow::getTextProperity(AtomType at) {
+    Atom atom = xcore->getAtom(at);
+    XTextProperty name;
+    std::string str;
+
+    if (!XGetTextProperty(xcore->getDpyPtr(), m_w, &name, atom) || !name.nitems)
+        return { "" };
+    if (name.encoding == XA_STRING)
+        str = (char*)(name.value);
+    else {
+        char** list = NULL;
+        int n;
+        if (XmbTextPropertyToTextList(xcore->getDpyPtr(), &name, &list, &n) >=
+                Success &&
+            n > 0 && *list) {
+            str = (char*)(name.value);
+            XFreeStringList(list);
+        }
+    }
+    XFree(name.value);
+    return str;
 }
 
 void XWindow::getWindowAttrinbutes(XWindowAttributes* wa) {

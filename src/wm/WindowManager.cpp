@@ -1,4 +1,24 @@
 #include "wm/WindowManager.h"
+#include <X11/X.h>
+
+Client* WindowManager::getClientForWindow(Window w) {
+#if 0
+    // idea relying on clients not moving in memory
+    LOG("--Finding client for w");
+    auto it = m_windowClientMap.find(w);
+    if (it != m_windowClientMap.end())
+        return it->second;
+    return nullptr;
+#else
+    //TODO: make this work
+    for (auto& m : m_monitors)
+        for (auto& ws : m.getWorkspaces())
+            for (auto& c: ws.getClients())
+                if (c.getXWindow().get() == w)
+                    return &c;
+    return nullptr;
+#endif
+}
 
 void WindowManager::grabKeys() {
     LOG("--Keys grabbed--");
@@ -10,8 +30,12 @@ WindowManager::WindowManager(xlib::XCore& x) : m_running(false), m_x(x) {
     Monitor::updateMonitors(m_monitors);
     m_focusedMonitorPtr = &m_monitors.front();
 
-    x.selectInput(SubstructureRedirectMask | SubstructureNotifyMask |
-                  PropertyChangeMask);
+    // selecting wich events we want to reive
+    x.selectInput(
+            SubstructureRedirectMask | 
+            SubstructureNotifyMask |
+            FocusChangeMask |          // onFocusIn
+            PropertyChangeMask);
 }
 
 void WindowManager::run(){
@@ -23,7 +47,6 @@ void WindowManager::run(){
     while (m_running) {
 		XEvent e;
 		m_x.nextEvent(&e);
-        LOG("EV");
         switch (e.type) {
             case ConfigureRequest: onConfigureRequest(e.xconfigurerequest); break;
             case MapRequest: onMapRequest(e.xmaprequest); break;
@@ -47,15 +70,18 @@ void WindowManager::run(){
 
 void WindowManager::onMapRequest(const XMapRequestEvent& e) {
     LOG("WM received: XMapRequestEvent");
+    auto& ws = m_focusedMonitorPtr->getSelectedWorkspace();
     // if window asking for mapping is already existing as a client
     // dont make a new client for it
     
     // workspace will automaticaly set focus for that client and 
     // add stuff
-    m_focusedMonitorPtr->getSelectedWorkspace().createClientForWindow(e.window);
-    m_focusedMonitorPtr->getSelectedWorkspace().arrangeClients(
-            10, m_focusedMonitorPtr->getSize());
-    m_focusedMonitorPtr->getSelectedWorkspace().focusFront();
+    ws.createClientForWindow(e.window);
+    ws.arrangeClients( 10, m_focusedMonitorPtr->getSize());
+    ws.focusFront();
+    m_windowClientMap[ws.getClients().front().getXWindow().get()] = 
+        &ws.getClients().front();
+    m_focusedMonitorPtr->getBar().update();
 }
 
 void WindowManager::onMotionNotify( const XMotionEvent& e ) {
@@ -64,7 +90,7 @@ void WindowManager::onMotionNotify( const XMotionEvent& e ) {
     // every time the cursor moves check if the cursor went
     // to the other monitor and switch focus to that monitor
     /* 
-    if (auto nextMonitorPtr = getMonitorPtrForCoords(e.x_root, e.y_root) ){
+    if (auto* nextMonitorPtr = getMonitorPtrForCoords(e.x_root, e.y_root) ){
         if (nextMonitorPtr != m_selectedMonitorRef) {
         }
     }
@@ -92,6 +118,14 @@ void WindowManager::onConfigureNotify(const XConfigureEvent& e) {
 
 void WindowManager::onDestroyNotify(const XDestroyWindowEvent& e) {
     LOG("WM notified: DestoryWindow ev");
+    if (auto* c = getClientForWindow(e.window)) {
+        LOG("\tfound client for DestroyNotify window");
+        auto& ws = c->getWorkspace();
+        ws.removeClient(*c);
+        //m_windowClientMap.erase(e.window);
+        ws.arrangeClients(10, ws.getMonitor().getSize());
+        ws.focusFront();
+    }
 }
 
 void WindowManager::onEnterNotify(const XCrossingEvent& e) {
@@ -126,7 +160,15 @@ void WindowManager::onExpose(const XExposeEvent& e) {
 }
 
 void WindowManager::onFocusIn(const XFocusChangeEvent& e) {
+    auto& m = *m_focusedMonitorPtr;
     LOG("WM received: XFocusChangeEvent");
+
+    return;
+    if (m.getSelectedWorkspace().hasSelectedClient())
+        m.getBar().setTitleString(
+            m.getSelectedWorkspace() .getSelectedClient() .getTitle());
+    //m.getBar().redraw();
+
 }
 
 void WindowManager::quit(){
@@ -155,6 +197,7 @@ void WindowManager::moveFocus(int i){
     LOG("WM User triggered: move focus");
     auto& ws = m_focusedMonitorPtr->getSelectedWorkspace();
     ws.moveFocus(i);
+    // bar is updaate in focusin event
 }
 
 void WindowManager::moveFocusedClient(int i){
@@ -164,20 +207,37 @@ void WindowManager::moveFocusedClient(int i){
     ws.arrangeClients(10,ws.getMonitor().getSize());
 }
 
-void WindowManager::goToWorkspace(int i){}
-
+void WindowManager::goToWorkspace(int i) {
+    LOG("Going to workspace");
+    //TODO: consider holding this inside Monitor::selectWorkspace
+    m_focusedMonitorPtr->getSelectedWorkspace().hideAllClients();
+    m_focusedMonitorPtr->selectWorkspace(i);
+    m_focusedMonitorPtr->getSelectedWorkspace().showAllClients();
+    m_focusedMonitorPtr->getSelectedWorkspace().arrangeClients(
+        10, m_focusedMonitorPtr->getSize());
+}
 
 void WindowManager::moveFocusedClientToTop() {
+    auto& ws = m_focusedMonitorPtr->getSelectedWorkspace();
+    ws.moveFocusedClientToTop();
+    ws.arrangeClients( 10, ws.getMonitor().getSize());
 }
-void WindowManager::moveFocusedClientToWorkspace(uint i){}
+
+void WindowManager::moveFocusedClientToWorkspace(uint i){
+    auto& ws = m_focusedMonitorPtr->getSelectedWorkspace();
+    ws.moveSelectedClientToWorkspace(
+            m_focusedMonitorPtr->getWorkspaces()[i]);
+}
+
 void WindowManager::fullscreenToggle(){}
+
 void WindowManager::floatToggle(){}
+
 void WindowManager::resizeMaster(int i){}
+
 void WindowManager::resizeFloating(){}
+
 void WindowManager::moveFloating(){}
+
 void WindowManager::toggleBar(){}
-
-void WindowManager::configure(const config::WMConfig&) {
-
-}
 

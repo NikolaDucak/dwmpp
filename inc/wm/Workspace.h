@@ -2,6 +2,7 @@
 
 #include "Client.h"
 #include "util/point.h"
+#include "util/focus_list.h"
 #include <vector>
 #include <list>
 
@@ -23,9 +24,6 @@ public:
 	static const Config config;
 	// specific config for this workspace, allows for 
     // workspace specific factor, gap etc changes
-	Config config_;
-
-    static void configure(const config::WorkspaceConfig& conf);
 
 public:
 
@@ -73,11 +71,11 @@ public:
 	// getters
 	inline Monitor& getMonitor()            { return *m_monitorPtr; }
 	inline uint getIndex() const            { return index_; }
-	inline std::list<Client>& getClients()  { return m_clients; }
-	inline Client& getSelectedClient()      { return *selectedClientIter_; }
-	inline Config& getConfig()              { return config_; };
+	inline util::focus_list<Client>& getClients()  { return m_clients; }
+	inline Client& getSelectedClient()      { return *m_clients.focused(); }
+	inline Config& getConfig()              { return m_config; };
 
-	inline bool hasSelectedClient() const   { return selectedClientIter_ != m_clients.end(); }
+	inline bool hasSelectedClient() const   { return m_clients.focused() != m_clients.end(); }
 	inline Client* getFullscreenClient() const { return fullscreenClient_; }
 	void setSelectedClient(Client& c);
 
@@ -86,15 +84,9 @@ private:
 	// arranger
 	void arrange(int barHeight, int screenW, int screenH);
 	
-	using ClientListIterator = typename std::list<Client>::iterator;
-
-	// helper methods to treat regular iterator like cirulator
-	static ClientListIterator circulate(std::list<Client>& list, ClientListIterator& curr, int i);
-	static ClientListIterator circulateWithEndIterator(std::list<Client>& list, ClientListIterator& curr, int i);
-	
 	Monitor* m_monitorPtr;
 	uint index_;
-    std::list<Client> m_clients;
-	ClientListIterator selectedClientIter_;	
+    util::focus_list<Client> m_clients;
 	Client* fullscreenClient_;
+	Config m_config;
 };

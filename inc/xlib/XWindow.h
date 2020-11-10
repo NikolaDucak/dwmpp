@@ -53,6 +53,7 @@ public:
     void getWindowAttrinbutes(XWindowAttributes* wa);
 
     // atom related stuff
+    std::string getTextProperity(AtomType);
     void setFullscreen(bool fullscreen) ;
     void setActive();
     bool getWMProtocols(Atom** protocols, int* n);
@@ -66,10 +67,8 @@ public:
     // get raw window
     inline Window get() const { return m_w; }
 
-
 private:
     Window m_w;
-
 };
 
 }

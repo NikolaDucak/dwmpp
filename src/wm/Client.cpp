@@ -1,9 +1,4 @@
 #include "wm/Client.h"
-#include <X11/Xlib.h>
-
-void Client::configure(const config::ClientConfig&){
-
-}
 
 Client::Client(Workspace& ws, Window w, XWindowAttributes& wa) :
 	workspaceRef_(&ws),
@@ -32,7 +27,6 @@ Client::Client(Workspace& ws, Window w) :
 	old_xy_ = {wa.x, wa.y};
    	old_wh_ = {wa.width, wa.height};
     old_bw_ = wa.border_width;
-    
 }
 
 
@@ -79,18 +73,19 @@ void Client::takeInputFocus() {
     xwin_.changeProperty( xlib::NetActiveWindow, xlib::XAWindow,
 		reinterpret_cast<unsigned char *>(&xwin_), 1);
     xwin_.setActive();
-    xwin_.setWindowBorder(0xffffff);
+    xwin_.setWindowBorder(config.selecetedBorderClr.get().pixel);
     //TODO: move send event to xwin_
     this->sendEvent(xwin_.xcore->getAtom(xlib::WMTakeFocus));
 }
 
 void Client::dropInputFocus() {
     //TODO: focus root window
-    xwin_.setWindowBorder(0x0000aa);
+    xwin_.setWindowBorder(config.borderClr.get().pixel);
 }
 
 void Client::hide() {
     hidden_ = true;
+    xwin_.setWindowBorder(config.selecetedBorderClr.get().pixel);
     xwin_.moveWindow(-(wh_.x + 2 * 20) * 2, xy_.y);
 }
 
@@ -129,6 +124,10 @@ void Client::setFullscreen(bool f) {
 void Client::setState(int state) {
     long data[] = { state, None };
     xwin_.changeProperty(xlib::WMState, xlib::WMState, (unsigned char*)data, 2);
+}
+
+std::string Client::getTitle() {
+    return xwin_.getTextProperity(xlib::NetWMName);
 }
 
 void Client::move(point xy) { resize(xy, wh_); }

@@ -3,9 +3,6 @@
 
 using ClientListIterator = typename std::list<Client>::iterator;
 
-void Workspace::configure(const config::WorkspaceConfig&) {
-}
-
 void Workspace::arrange( int barHeight, int screenW, int screenH ) {
     //TODO: use configure(..) static method
     auto& config = config::workspace;
@@ -56,77 +53,36 @@ void Workspace::arrange( int barHeight, int screenW, int screenH ) {
     }
 }
 
-ClientListIterator Workspace::circulate( std::list<Client>& list, ClientListIterator& curr, int i ){
-	// assume its not already on the end
-	auto temp = curr;
-	if( i > 0 ){
-		while( i-- ){
-			temp++;
-			if( temp == list.end() )
-				temp = list.begin();
-		}
-	}
-	else if( i < 0 ){
-		while( i++ ){
-			if( temp == list.begin() || temp == list.end() )
-				temp = --list.end();
-			else
-				temp--;
-		}
-	}
-	return temp;
-}
-
-ClientListIterator Workspace::circulateWithEndIterator( std::list<Client>& list, ClientListIterator& curr, int i){
-	auto temp = curr;
-	if( i > 0 ){
-		while( i-- > 0 ){
-			if( temp == list.end() )
-				temp = list.begin();
-			else
-				temp++;
-		}
-	}
-	else if( i < 0 ) {
-		while( i++ < 0 ){
-			if( temp == list.begin() )
-				temp = list.end();
-			else
-				temp--;
-		}
-	}
-	return temp;
-}
 
 Workspace::Workspace(Monitor& m, uint index) :
     // config_( config ), // defualt config
     m_monitorPtr(&m), index_(index), m_clients(),
-    selectedClientIter_(m_clients.begin()),  // TODO: is this safe?
     fullscreenClient_(nullptr) {}
 
 void Workspace::focusFront() {
     // drop focus drop active atom and change window border
-    if (selectedClientIter_ != m_clients.end())
-        selectedClientIter_->dropInputFocus();
+    if (hasSelectedClient())
+        m_clients.focused()->dropInputFocus();
     // get new focused client
-    selectedClientIter_ = m_clients.begin();
+    m_clients.focus_front();
     // give focus set active atom and change window border
-    if (selectedClientIter_ != m_clients.end())
-        selectedClientIter_->takeInputFocus();
+    if (hasSelectedClient())
+        m_clients.focused()->takeInputFocus();
 }
 
 void Workspace::toggleFullscreenOnSelectedClient() { 
-	fullscreenClient_ = (fullscreenClient_) ? nullptr : & *selectedClientIter_; 
+	fullscreenClient_ = (fullscreenClient_) ? nullptr : & *m_clients.focused(); 
 }
 
 void Workspace::moveFocus(int i) {
     // drop focus drop active atom and change window border
-    if(selectedClientIter_ != m_clients.end() )
-        selectedClientIter_->dropInputFocus();
+    if (hasSelectedClient())
+        m_clients.focused()->dropInputFocus();
     // get new focused client
-    selectedClientIter_ = circulate(m_clients, selectedClientIter_, i);
+    m_clients.circulate_focus(i);
     // give focus set active atom and change window border
-    selectedClientIter_->takeInputFocus();
+    if (hasSelectedClient())
+        m_clients.focused()->takeInputFocus();
 }
 
 void Workspace::showAllClients() {
@@ -151,9 +107,10 @@ void Workspace::createClientForWindow(Window w) {
 
 void Workspace::removeClientForWindow(Window w) {
     m_clients.erase(
-        std::remove_if(m_clients.begin(), m_clients.end(), [&](Client& c) {
+        std::remove_if(m_clients.begin(), m_clients.end(), [&](const Client& c) {
             return c.getXWindow().get() == w;
-        }));  // possibly revalidate iterator
+        }));  
+    // possibly revalidate iterator
     focusFront();
 }
 
@@ -162,37 +119,34 @@ void Workspace::removeClient(Client& w) {
 }
 
 void Workspace::setSelectedClient(Client& c){
+    /*
     for (auto i = m_clients.begin(); i != m_clients.end(); i++) {
         if (&c == &(*i))
             selectedClientIter_ = i;
     }
+    */
 }
 
 void Workspace::moveFocusedClient( int i ) {
-    auto& clientPosition = selectedClientIter_;
+    auto& clientPosition = m_clients.focused();
     // due to how splice works in case of i > 0 correction is needed so splice
     // doesn't leave the list unchanged
-    auto nextPosition = circulateWithEndIterator(m_clients, selectedClientIter_,
-                                                 (i > 0) ? i + 1 : i);
-    //( pos, other, it)
+    auto nextPosition = m_clients.circulate_next_with_end((i > 0) ? i + 1 : i);
+    //( newpos, other, currpos)
     m_clients.splice(nextPosition, m_clients, clientPosition);
 }
 
 void Workspace::moveFocusedClientToTop() {
-    m_clients.splice(m_clients.begin(), m_clients, selectedClientIter_);
+    m_clients.splice(m_clients.begin(), m_clients, m_clients.focused());
 }
 
 void Workspace::moveSelectedClientToWorkspace( Workspace& other ){
-    if (this->selectedClientIter_ == this->m_clients.end()) {
-        // std::cout << "MOVE NOTHING" << std::endl;
-        return;
-    }
     // move client to beggining of the other list
-	other.m_clients.splice( other.m_clients.begin(), this->m_clients, this->selectedClientIter_ );
+	other.m_clients.splice(other.m_clients.begin(), this->m_clients, this->m_clients.focused() );
 	// assing moved clients reference to workspace to other workspace
 	other.m_clients.begin()->assignToWorkspace( other );
 	// reset iterators to focused clients
-	other.selectedClientIter_ = other.m_clients.begin();
-	this->selectedClientIter_ = this->m_clients.begin();
+    other.m_clients.focus_front();
+    this->m_clients.focus_front();
 }
 

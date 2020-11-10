@@ -67,9 +67,5 @@ private:
     Atom m_atoms[AtomLast];
 };
 
-class XGraphics {};
-class XFont {};
-class XColor {};
-
 } // namespace xlib
 

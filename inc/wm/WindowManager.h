@@ -3,6 +3,7 @@
 #include "xlib/Xlib.h" 
 #include "config/Config.h"
 #include "Monitor.h"
+#include <unordered_map>
 
 #define DEBUG_LOG
 
@@ -16,7 +17,6 @@
 class WindowManager {
 public:
     WindowManager(xlib::XCore& x);
-    static void configure(const config::WMConfig& conf);
 
     void run();
 
@@ -66,6 +66,8 @@ private: // utility methods
 
     //TODO: description
     void grabKeys();
+    Client* getClientForWindow(Window W);
+    std::unordered_map<Window, Client*> m_windowClientMap;
 
 private: // variables
     bool m_running;
