@@ -66,7 +66,6 @@ public:
 	 * and with width & height specified in point dim,
 	 * gaps will be applied inside specified area
 	 */
-	void arrangeClients(int barHeight, point dim);
 	void arrangeClients();
 	void moveSelectedClientToWorkspace(Workspace& ws);
 
