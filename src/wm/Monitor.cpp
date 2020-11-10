@@ -20,3 +20,11 @@ Monitor::Monitor(int num, point xy, point wh, point win_xy, point win_wh) :
     selectedWorkspaceIndex_(0)
 //	bar_( wh.x )
 {}
+
+void Monitor::selectWorkspace(unsigned i) {
+    if (i < Workspace::config.workspaces.size()) {
+        getSelectedWorkspace().hideAllClients();
+        selectedWorkspaceIndex_ = i;
+        getSelectedWorkspace().showAllClients();
+    }
+}

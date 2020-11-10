@@ -21,16 +21,8 @@ public:
     Monitor& operator=(Monitor&) = delete;
     Monitor& operator=(Monitor&&) = delete;
 
-    inline void selectWorkspace(unsigned i) {
-        //TODO: custom number of workspaces
-        if (i < Workspace::config.workspaces.size()) {
-            getSelectedWorkspace().hideAllClients();
-            selectedWorkspaceIndex_ = i;
-            getSelectedWorkspace().showAllClients();
-        }
-        
-    }
-	//inline void updateBar()  { bar_.draw( workspaces_, selectedWorkspaceIndex_ );  }
+    void selectWorkspace(unsigned i);
+    void updateBar();
 	inline Bar& getBar()     { return this->m_bar; }
 
 	inline std::array<Workspace, 10>& getWorkspaces()  { return workspaces_; }

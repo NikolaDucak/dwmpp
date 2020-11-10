@@ -92,7 +92,17 @@ void Workspace::hideAllClients() {
         client.hide();
 }
 
+void Workspace::arrangeClients() {
+    arrange(
+            10,
+    //m_monitorPtr->getBar().getHeight(),
+    m_monitorPtr->getSize().x,
+    m_monitorPtr->getSize().y
+    );
+}
 void Workspace::arrangeClients(int barHeight, point wh) {
+
+    m_monitorPtr->getBar();
     arrange(barHeight, wh.x, wh.y);
 }
 
@@ -118,7 +128,7 @@ void Workspace::removeClient(Client& w) {
     removeClientForWindow(w.getXWindow().get());
 }
 
-void Workspace::setSelectedClient(Client& c) {
+void Workspace::setSelectedClient(Client& ) {
     /*
     for (auto i = m_clients.begin(); i != m_clients.end(); i++) {
         if (&c == &(*i))

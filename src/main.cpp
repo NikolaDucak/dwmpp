@@ -13,7 +13,6 @@ static xlib::XCore& x = xlib::initializeXlib();
 // window manager uses config witch uses xlib so this order is necessary
 static WindowManager* wm;
 
-
 int main() {
     LOG("START");
 
@@ -38,12 +37,12 @@ namespace config {
 
 void moveClient(const Argument& arg){
     LOG("Config func triggered: moveClient");
-    //wm->moveClient(arg.i);
+    wm->moveFocusedClient(arg.i);
 }
 
 void moveClientToWorkspace(const Argument& arg){
     LOG("Config func triggered: moveClientToWorkspace");
-	//wm->moveClientToWorkspace(arg.i);
+	wm->moveFocusedClientToWorkspace(arg.i);
 }
 
 void focus(const Argument& arg){
@@ -63,12 +62,12 @@ void quitDWMPP(const Argument& /*unused*/){
 
 void fullscreen(const Argument& /*unused*/){
     LOG("fullscreen");
-	//wm->fullscreenToggle();
+	wm->fullscreenToggle();
 }
 
 void floatToggle(const Argument& /*unused*/){
     LOG("floatToggle");
-	//wm->floatToggle();
+	wm->floatToggle();
 }
 
 void goToWorkspace(const Argument& arg){
@@ -78,27 +77,27 @@ void goToWorkspace(const Argument& arg){
 
 void toggleBar(const Argument& /*unused*/){
     LOG("toggleBar");
-	//wm->toggleBar();
+	wm->toggleBar();
 }
 
 void resizeMaster(const Argument& arg){
     LOG("resizeMaster");
-	//wm->resizeMaster(arg.i);
+	wm->resizeMaster(arg.i);
 }
 
 void moveFloating(const Argument& /*unused*/){
     LOG("moveFloating");
-	//wm->moveFloating();
+	wm->moveFloating();
 }
 
 void resizeFloating(const Argument& /*unused*/){
     LOG("resizeFloating");
-	//wm->resizeFloating();
+	wm->resizeFloating();
 }
 
 void moveToTop(const Argument& /*unused*/){
     LOG("floatToTop");
-	//wm->moveFocusedToTop();
+	wm->moveFocusedClientToTop();
 }
 
 void spawn(const Argument& arg){

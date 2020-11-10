@@ -68,7 +68,7 @@ void WindowManager::onMapRequest(const XMapRequestEvent& e) {
         return;
     }
     ws.createClientForWindow(e.window);
-    ws.arrangeClients(10, m_monitors.focused()->getSize());
+    ws.arrangeClients();
     ws.focusFront();
     m_monitors.focused()->getBar().update();
 }
@@ -123,7 +123,7 @@ void WindowManager::onDestroyNotify(const XDestroyWindowEvent& e) {
         LOG("\tfound client for DestroyNotify window");
         auto& ws = c->getWorkspace();
         ws.removeClient(*c); // removig a client focuses the first client
-        ws.arrangeClients(10, ws.getMonitor().getSize());
+        ws.arrangeClients();
     }
 }
 
@@ -207,10 +207,10 @@ void WindowManager::killFocused() {
     }
     // removing a client causes focus of front
     ws.removeClient(c);
-    ws.arrangeClients( 10, ws.getMonitor().getSize() );
+    ws.arrangeClients();
 }
 
-void WindowManager::moveFocus(int i){
+void WindowManager::moveFocus(int i) {
     LOG("WM User triggered: move focus");
     auto& ws = m_monitors.focused()->getSelectedWorkspace();
     ws.moveFocus(i);
@@ -221,7 +221,7 @@ void WindowManager::moveFocusedClient(int i) {
     LOG("WM User triggered: move focused client");
     auto& ws = m_monitors.focused()->getSelectedWorkspace();
     ws.moveFocusedClient(i);
-    ws.arrangeClients(10,ws.getMonitor().getSize());
+    ws.arrangeClients();
 }
 
 void WindowManager::goToWorkspace(int i) {
@@ -230,14 +230,13 @@ void WindowManager::goToWorkspace(int i) {
     m_monitors.focused()->getSelectedWorkspace().hideAllClients();
     m_monitors.focused()->selectWorkspace(i);
     m_monitors.focused()->getSelectedWorkspace().showAllClients();
-    m_monitors.focused()->getSelectedWorkspace().arrangeClients(
-        10, m_monitors.focused()->getSize());
+    m_monitors.focused()->getSelectedWorkspace().arrangeClients();
 }
 
 void WindowManager::moveFocusedClientToTop() {
     auto& ws = m_monitors.focused()->getSelectedWorkspace();
     ws.moveFocusedClientToTop();
-    ws.arrangeClients( 10, ws.getMonitor().getSize());
+    ws.arrangeClients();
 }
 
 void WindowManager::moveFocusedClientToWorkspace(uint i) {
