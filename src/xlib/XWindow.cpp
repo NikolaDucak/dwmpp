@@ -103,8 +103,7 @@ void XWindow::setFullscreen(bool fullscreen) {
         XChangeProperty(xcore->getDpyPtr(), m_w, xcore->getAtom(NetWMState), XA_ATOM, 32,
                         PropModeReplace,
                         (unsigned char*)&temp, 1);
-    }
-    else {
+    } else {
         XChangeProperty(xcore->getDpyPtr(), m_w, xcore->getAtom(NetWMState), XA_ATOM, 32,
                         PropModeReplace, (unsigned char*)0, 0);
     }

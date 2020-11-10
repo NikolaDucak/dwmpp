@@ -55,17 +55,14 @@ private: // event functions
 	void onUnmapNotify      (const XUnmapEvent& e);
     /** Event triggered when client is reconfigured (size, position etc.).*/
 	void onConfigureNotify  (const XConfigureEvent& e);
-
+    /** Event triggered when process using that window has ended. */
 	void onDestroyNotify    (const XDestroyWindowEvent& e);
     /** Event triggered when mouse cursor enters client area. */
 	void onEnterNotify      (const XCrossingEvent& e);
-	// requests
 	void onConfigureRequest (const XConfigureRequestEvent& e);
 	void onMapRequest       (const XMapRequestEvent& e);
-	// input
 	void onKeyPress         (const XKeyEvent& e);
 	void onButtonPress      (const XButtonPressedEvent& e);
-	// events
 	void onClientMessage    (const XClientMessageEvent& e);
 	void onExpose           (const XExposeEvent& e);
 	void onFocusIn          (const XFocusChangeEvent& e);

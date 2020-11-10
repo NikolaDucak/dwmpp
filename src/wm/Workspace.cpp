@@ -106,8 +106,12 @@ void Workspace::removeClientForWindow(Window w) {
     m_clients.erase(std::remove_if(
         m_clients.begin(), m_clients.end(),
         [&](const Client& c) { return c.getXWindow().get() == w; }));
-    // possibly revalidate iterator
-    focusFront();
+    // NOTE: not using ws focus front since selected client could be
+    // the one removed and checking for end or dropInputFocus could cause 
+    // and error
+    m_clients.focus_front();
+    if (hasSelectedClient()) // if focused is not end iter
+        m_clients.focused()->takeInputFocus();
 }
 
 void Workspace::removeClient(Client& w) {

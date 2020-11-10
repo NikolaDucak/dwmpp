@@ -97,7 +97,7 @@ void WindowManager::onProperityNotify(const XPropertyEvent& ev) {
         auto& m = *m_monitors.focused();
         if (m.getSelectedWorkspace().hasSelectedClient())
             m.getBar().setTitleString(
-                m.getSelectedWorkspace() .getSelectedClient() .getTitle());
+                m.getSelectedWorkspace().getSelectedClient().getTitle());
         m.getBar().redraw();
     }
 }
@@ -122,10 +122,8 @@ void WindowManager::onDestroyNotify(const XDestroyWindowEvent& e) {
     if (auto* c = getClientForWindow(e.window)) {
         LOG("\tfound client for DestroyNotify window");
         auto& ws = c->getWorkspace();
-        ws.removeClient(*c);
-        //m_windowClientMap.erase(e.window);
+        ws.removeClient(*c); // removig a client focuses the first client
         ws.arrangeClients(10, ws.getMonitor().getSize());
-        ws.focusFront();
     }
 }
 
@@ -190,7 +188,7 @@ void WindowManager::onFocusIn(const XFocusChangeEvent& e) {
 
 /* =============================== USER ACTION HANDLERS ===================== */
 
-void WindowManager::quit(){
+void WindowManager::quit() {
     m_running = false;
 }
 
@@ -219,7 +217,7 @@ void WindowManager::moveFocus(int i){
     // bar is updaate in focusin event
 }
 
-void WindowManager::moveFocusedClient(int i){
+void WindowManager::moveFocusedClient(int i) {
     LOG("WM User triggered: move focused client");
     auto& ws = m_monitors.focused()->getSelectedWorkspace();
     ws.moveFocusedClient(i);
