@@ -80,5 +80,6 @@ private: // utility methods
 private: // variables
     bool m_running;
     xlib::XCore& m_x;
+
     util::focus_list<Monitor> m_monitors;
 };

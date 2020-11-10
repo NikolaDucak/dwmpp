@@ -1,4 +1,5 @@
 #include "wm/WindowManager.h"
+#include "xlib/Xlib.h"
 #include <X11/X.h>
 
 WindowManager::WindowManager(xlib::XCore& x) : m_running(false), m_x(x) {
@@ -85,8 +86,20 @@ void WindowManager::onMotionNotify( const XMotionEvent& ) {
     */
 }
 
-void WindowManager::onProperityNotify(const XPropertyEvent& ) {
+void WindowManager::onProperityNotify(const XPropertyEvent& ev) {
     LOG("WM notified: ProperityEvent ev");
+    if( ev.window == m_x.getRoot() && ev.atom == XA_WM_NAME ){
+		LOG("	 root name / status string" );
+		m_monitors.focused()->getBar().redraw();	
+	}
+    else if (ev.atom == m_x.getAtom(xlib::NetActiveWindow)) {
+		LOG("    net active" );
+        auto& m = *m_monitors.focused();
+        if (m.getSelectedWorkspace().hasSelectedClient())
+            m.getBar().setTitleString(
+                m.getSelectedWorkspace() .getSelectedClient() .getTitle());
+        m.getBar().redraw();
+    }
 }
 
 void WindowManager::onMappingNotify(XMappingEvent& e) {
@@ -171,12 +184,8 @@ void WindowManager::onExpose(const XExposeEvent& e) {
 
 void WindowManager::onFocusIn(const XFocusChangeEvent& e) {
     auto& m = *m_monitors.focused();
-    return;
-    //TODO: won't work
-    if (m.getSelectedWorkspace().hasSelectedClient())
-        m.getBar().setTitleString(
-            m.getSelectedWorkspace() .getSelectedClient() .getTitle());
-    m.getBar().redraw();
+    LOG("WM received: XFocusChangeEvent");
+
 }
 
 /* =============================== USER ACTION HANDLERS ===================== */

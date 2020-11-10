@@ -23,7 +23,7 @@ public:
 
     inline void selectWorkspace(unsigned i) {
         //TODO: custom number of workspaces
-        if (i < workspaces_.size()) {
+        if (i < Workspace::config.workspaces.size()) {
             getSelectedWorkspace().hideAllClients();
             selectedWorkspaceIndex_ = i;
             getSelectedWorkspace().showAllClients();
