@@ -1,7 +1,8 @@
 #pragma once
 
+#include "util/focus_list.h"
 #include "xlib/Xlib.h" 
-#include "config/Config.h"
+#include "config/ConfigTypes.h"
 #include "Monitor.h"
 #include <unordered_map>
 
@@ -15,6 +16,13 @@
 #endif
 
 class WindowManager {
+public:
+    // Configuration
+    struct Config {
+        std::vector<config::KeyBinding> keybindings;
+        std::vector<config::MouseBinding> mouseBindings;
+    };
+        static const Config config;
 public:
     WindowManager(xlib::XCore& x);
 
@@ -72,7 +80,5 @@ private: // utility methods
 private: // variables
     bool m_running;
     xlib::XCore& m_x;
-
-    std::list<Monitor> m_monitors;
-    Monitor* m_focusedMonitorPtr;
+    util::focus_list<Monitor> m_monitors;
 };

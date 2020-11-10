@@ -4,36 +4,15 @@
 
 #define DEBUG_LOG
 
-
 #include "xlib/X.h"
 #include "wm/WindowManager.h"
 
 // xlibinitalization firs
 static xlib::XCore& x = xlib::initializeXlib();
+
+// window manager uses config witch uses xlib so this order is necessary
 static WindowManager* wm;
 
-const Client::Config Client::config {
-	.borderWidth       = 2,
-	.borderClr         {"#2e2e2e"},
-	.selecetedBorderClr{"#ff0000"},
-};
-
-// after xlib has been initialized, configuration can be set
-Bar::Config Bar::config {
-    .barBG        {"#2e2e2e"},
-	.barFG        {"#999999"},
-
-	.selectedBarBG{"#dddddd"},
-	.selectedBarFG{"#dd9999"},
-
-	.usedTagBG    {"#5f5f5f"},
-	.usedTagFG    {"#afafaf"},
-
-	.emptyTagBG   {"#3d3d3d"},
-	.emptyTagFG   {"#4d4d4d"},
-
-	.font         {"Iosevka"},
-};
 
 int main() {
     LOG("START");

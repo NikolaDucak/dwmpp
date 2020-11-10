@@ -1,11 +1,9 @@
 #include "wm/Workspace.h"
+
 #include "config/Config.h"
 
-using ClientListIterator = typename std::list<Client>::iterator;
-
-void Workspace::arrange( int barHeight, int screenW, int screenH ) {
-    //TODO: use configure(..) static method
-    auto& config = config::workspace;
+void Workspace::arrange(int barHeight, int screenW, int screenH) {
+    // TODO: use configure(..) static method
     if (fullscreenClient_) {
         fullscreenClient_->resize(point { 0, barHeight },
                                   point { screenW, screenH - barHeight });
@@ -53,11 +51,10 @@ void Workspace::arrange( int barHeight, int screenW, int screenH ) {
     }
 }
 
-
 Workspace::Workspace(Monitor& m, uint index) :
-    // config_( config ), // defualt config
-    m_monitorPtr(&m), index_(index), m_clients(),
-    fullscreenClient_(nullptr) {}
+    m_monitorPtr(&m), index_(index), m_clients(), fullscreenClient_(nullptr),
+    m_config(config)  // defualt config
+{}
 
 void Workspace::focusFront() {
     // drop focus drop active atom and change window border
@@ -70,8 +67,8 @@ void Workspace::focusFront() {
         m_clients.focused()->takeInputFocus();
 }
 
-void Workspace::toggleFullscreenOnSelectedClient() { 
-	fullscreenClient_ = (fullscreenClient_) ? nullptr : & *m_clients.focused(); 
+void Workspace::toggleFullscreenOnSelectedClient() {
+    fullscreenClient_ = (fullscreenClient_) ? nullptr : &*m_clients.focused();
 }
 
 void Workspace::moveFocus(int i) {
@@ -106,19 +103,18 @@ void Workspace::createClientForWindow(Window w) {
 }
 
 void Workspace::removeClientForWindow(Window w) {
-    m_clients.erase(
-        std::remove_if(m_clients.begin(), m_clients.end(), [&](const Client& c) {
-            return c.getXWindow().get() == w;
-        }));  
+    m_clients.erase(std::remove_if(
+        m_clients.begin(), m_clients.end(),
+        [&](const Client& c) { return c.getXWindow().get() == w; }));
     // possibly revalidate iterator
     focusFront();
 }
 
-void Workspace::removeClient(Client& w) { 
-    removeClientForWindow(w.getXWindow().get()); 
+void Workspace::removeClient(Client& w) {
+    removeClientForWindow(w.getXWindow().get());
 }
 
-void Workspace::setSelectedClient(Client& c){
+void Workspace::setSelectedClient(Client& c) {
     /*
     for (auto i = m_clients.begin(); i != m_clients.end(); i++) {
         if (&c == &(*i))
@@ -127,7 +123,7 @@ void Workspace::setSelectedClient(Client& c){
     */
 }
 
-void Workspace::moveFocusedClient( int i ) {
+void Workspace::moveFocusedClient(int i) {
     auto& clientPosition = m_clients.focused();
     // due to how splice works in case of i > 0 correction is needed so splice
     // doesn't leave the list unchanged
@@ -140,12 +136,13 @@ void Workspace::moveFocusedClientToTop() {
     m_clients.splice(m_clients.begin(), m_clients, m_clients.focused());
 }
 
-void Workspace::moveSelectedClientToWorkspace( Workspace& other ){
+void Workspace::moveSelectedClientToWorkspace(Workspace& other) {
     // move client to beggining of the other list
-	other.m_clients.splice(other.m_clients.begin(), this->m_clients, this->m_clients.focused() );
-	// assing moved clients reference to workspace to other workspace
-	other.m_clients.begin()->assignToWorkspace( other );
-	// reset iterators to focused clients
+    other.m_clients.splice(other.m_clients.begin(), this->m_clients,
+                           this->m_clients.focused());
+    // assing moved clients reference to workspace to other workspace
+    other.m_clients.begin()->assignToWorkspace(other);
+    // reset iterators to focused clients
     other.m_clients.focus_front();
     this->m_clients.focus_front();
 }

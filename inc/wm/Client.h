@@ -21,12 +21,14 @@ public:
         xlib::XColor borderClr;
         xlib::XColor selecetedBorderClr;
 	};
+
 	static const Config config;
 
 public:
 
 	Client(Workspace& ws, Window w, XWindowAttributes& wa);
 	Client(Workspace& ws, Window w);
+
     /*
     Client(Client&&) = delete;
     Client(Client&) = delete;
@@ -75,9 +77,7 @@ private:
 
 	Workspace *workspaceRef_;
     xlib::XWindow xwin_;
-	bool hidden_, floating_, urgent_, fullscreen_;
-	// saving current position and old position, for floation - tiled change
-    point xy_,     wh_,      old_xy_, old_wh_; 
-	// border w
-	int   bw_,     old_bw_; 
+    bool hidden_, floating_, urgent_, fullscreen_;
+    point xy_, wh_, old_xy_, old_wh_;
+    int bw_, old_bw_;
 };

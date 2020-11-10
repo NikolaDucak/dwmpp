@@ -23,7 +23,8 @@ public:
     // default config;
 	static const Config config;
 	// specific config for this workspace, allows for 
-    // workspace specific factor, gap etc changes
+    // workspace specific factor, gap, etc. changes
+	static Config this_config;
 
 public:
 
@@ -81,7 +82,6 @@ public:
 
 private:
 
-	// arranger
 	void arrange(int barHeight, int screenW, int screenH);
 	
 	Monitor* m_monitorPtr;

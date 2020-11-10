@@ -1,44 +1,40 @@
 #pragma once
 
-#include "config/ConfigTypes.h"
-#include "xlib/XWindow.h"
 #include "xlib/XGraphics.h"
+#include "xlib/XWindow.h"
 #include "xlib/Xlib.h"
 
 class Bar {
 public:
-    static void configure(const config::BarConfig& conf);
 
-	struct Config {
+    struct Config {
         xlib::XColor barBG, barFG;
         xlib::XColor selectedBarBG, selectedBarFG;
         xlib::XColor usedTagBG, usedTagFG;
         xlib::XColor emptyTagBG, emptyTagFG;
-        xlib::XFont  font;
-	};
-    static Config config;
+        xlib::XFont font;
+    };
 
     /*
      * Configuration for all bars.
      */
+    static Config config;
+
 public:
+
     Bar();
 
-    void setStatusString(const std::string& status)
-    { m_status = status; }
-    void setTitleString(const std::string& title)
-    { m_title = title; }
-    void redraw();
+    void setStatusString(const std::string& status) { m_status = status; }
+    void setTitleString(const std::string& title)   { m_title = title; }
     void update() { redraw(); }
+    void redraw();
 
     std::string& getStatusString();
     std::string& getTitleString();
 
     // Methods that call xlib wrapper to get atom properites
-    void updateTitle(const std::string& title) {
-        setTitleString(title);
-    }
-    void updateStatus();
+    void updateTitle(const std::string& title) { setTitleString(title); }
+    void updateStatus(const std::string& status);
 
 private:
 
