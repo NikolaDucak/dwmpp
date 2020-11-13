@@ -90,7 +90,7 @@ void WindowManager::onProperityNotify(const XPropertyEvent& ev) {
     LOG("WM notified: ProperityEvent ev");
     if( ev.window == m_x.getRoot() && ev.atom == XA_WM_NAME ){
 		LOG("	 root name / status string" );
-		m_monitors.focused()->getBar().redraw();	
+		m_monitors.focused()->updateBar();
 	}
     else if (ev.atom == m_x.getAtom(xlib::NetActiveWindow)) {
 		LOG("    net active" );
@@ -98,7 +98,8 @@ void WindowManager::onProperityNotify(const XPropertyEvent& ev) {
         if (m.getSelectedWorkspace().hasSelectedClient())
             m.getBar().setTitleString(
                 m.getSelectedWorkspace().getSelectedClient().getTitle());
-        m.getBar().redraw();
+        // in client class active atom is set but never cleared
+        m.updateBar();
     }
 }
 

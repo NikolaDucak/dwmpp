@@ -93,7 +93,8 @@ void Workspace::hideAllClients() {
 }
 
 void Workspace::arrangeClients() {
-    arrange(Bar::config.font.getHeight(), m_monitorPtr->getSize().x,
+    arrange(Bar::config.font.getHeight(),
+            m_monitorPtr->getSize().x,
             m_monitorPtr->getSize().y);
 }
 

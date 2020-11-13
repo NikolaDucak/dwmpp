@@ -3,13 +3,14 @@
 #include "xlib/XGraphics.h"
 #include "xlib/XWindow.h"
 #include "xlib/Xlib.h"
+#include "wm/Workspace.h"
 
 class Bar {
 public:
 
     struct Config {
         xlib::XColor barBG, barFG;
-        xlib::XColor selectedBarBG, selectedBarFG;
+        xlib::XColor selectedTagBG, selectedTagFG;
         xlib::XColor usedTagBG, usedTagFG;
         xlib::XColor emptyTagBG, emptyTagFG;
         xlib::XFont font;
@@ -28,6 +29,9 @@ public:
     void setTitleString(const std::string& title)   { m_title = title; }
     void update() { redraw(); }
     void redraw();
+
+    //void draw(const util::focus_list<Workspace> workspaces, uint selectedWSIndex);
+    void draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex);
 
     std::string& getStatusString();
     std::string& getTitleString();

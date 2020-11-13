@@ -7,7 +7,7 @@ void Monitor::updateMonitors( std::list<Monitor>& currentMonitors ) {
 
 Monitor::Monitor(int num, point xy, point wh, point win_xy, point win_wh) :
     num(num), xy_(xy), wh_(wh), win_xy_(win_xy),
-    win_wh_(win_wh), workspaces_ { { { *this, 0 },
+    win_wh_(win_wh), m_workspaces{ { { *this, 0 },
                                      { *this, 1 },
                                      { *this, 2 },
                                      { *this, 3 },
@@ -17,14 +17,18 @@ Monitor::Monitor(int num, point xy, point wh, point win_xy, point win_wh) :
                                      { *this, 7 },
                                      { *this, 8 },
                                      { *this, 9 } } },
-    selectedWorkspaceIndex_(0)
+    m_selectedWorkspaceIndex(0)
 //	bar_( wh.x )
 {}
 
 void Monitor::selectWorkspace(unsigned i) {
     if (i < Workspace::config.workspaces.size()) {
         getSelectedWorkspace().hideAllClients();
-        selectedWorkspaceIndex_ = i;
+        m_selectedWorkspaceIndex = i;
         getSelectedWorkspace().showAllClients();
     }
+}
+
+void Monitor::updateBar() {
+    m_bar.draw(m_workspaces, m_selectedWorkspaceIndex);
 }

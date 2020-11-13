@@ -25,8 +25,8 @@ Bar::Config Bar::config {
     .barBG        {"#2e2e2e"},
 	.barFG        {"#999999"},
 
-	.selectedBarBG{"#dddddd"},
-	.selectedBarFG{"#dd9999"},
+	.selectedTagBG{"#dddddd"},
+	.selectedTagFG{"#dd9999"},
 
 	.usedTagBG    {"#5f5f5f"},
 	.usedTagFG    {"#afafaf"},

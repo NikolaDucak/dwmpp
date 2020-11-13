@@ -25,11 +25,11 @@ public:
     void updateBar();
 	inline Bar& getBar()     { return this->m_bar; }
 
-	inline std::array<Workspace, 10>& getWorkspaces()  { return workspaces_; }
-	inline Workspace& getSelectedWorkspace()           { return workspaces_[selectedWorkspaceIndex_]; }
-	inline Client& getSelectedClient()                 { return workspaces_[selectedWorkspaceIndex_].getSelectedClient(); }
-	inline bool    hasSelectedClient()                 { return workspaces_[selectedWorkspaceIndex_].hasSelectedClient(); }
-	inline int getSelectedWorkspaceIndex()             { return selectedWorkspaceIndex_; }
+	inline std::array<Workspace, 10>& getWorkspaces()  { return m_workspaces; }
+	inline Workspace& getSelectedWorkspace()           { return m_workspaces[m_selectedWorkspaceIndex]; }
+	inline Client& getSelectedClient()                 { return m_workspaces[m_selectedWorkspaceIndex].getSelectedClient(); }
+	inline bool    hasSelectedClient()                 { return m_workspaces[m_selectedWorkspaceIndex].hasSelectedClient(); }
+	inline int getSelectedWorkspaceIndex()             { return m_selectedWorkspaceIndex; }
 	inline const point& getSize()                      { return wh_; }
 	inline const point& getWinPos()  { return win_xy_; }
 	inline const point& getWinSize() { return win_xy_; }
@@ -39,8 +39,8 @@ private:
 	int num;
 	point xy_, wh_, win_xy_, win_wh_;
 
-	std::array<Workspace,10> workspaces_;
-	int selectedWorkspaceIndex_;
+	std::array<Workspace,10> m_workspaces;
+	int m_selectedWorkspaceIndex;
 	Bar m_bar;
 };
 

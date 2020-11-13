@@ -58,6 +58,8 @@ public:
 	// master
 	void resizeMaster(int i);
 
+    inline bool empty() const { return m_clients.empty(); };
+
     // 
 
 	// TODO: pass arranger
