@@ -17,7 +17,6 @@ Client::Client(Workspace& ws, Window w, XWindowAttributes& wa) :
                       FocusChangeMask | 
                       PropertyChangeMask |
                       StructureNotifyMask);
-
     clientWindowMap[xwin_.get()] = this;
 }
 
@@ -35,6 +34,10 @@ Client::Client(Workspace& ws, Window w) :
 	old_xy_ = {wa.x, wa.y};
    	old_wh_ = {wa.width, wa.height};
     old_bw_ = wa.border_width;
+    xwin_.selectInput(EnterWindowMask | 
+                      FocusChangeMask | 
+                      PropertyChangeMask |
+                      StructureNotifyMask);
     
     clientWindowMap[xwin_.get()] = this;
 }
@@ -90,7 +93,7 @@ void Client::takeInputFocus() {
 }
 
 void Client::dropInputFocus() {
-    //TODO: smels..
+    //TODO: smells..
     XSetInputFocus(xwin_.xcore->getDpyPtr(), xwin_.xcore->getRoot(),
                    RevertToPointerRoot, CurrentTime);
     xwin_.setWindowBorder(config.borderClr.get().pixel);
@@ -130,7 +133,13 @@ void Client::setFullscreen(bool f) {
     if (f == false) {
         xy_ = old_xy_;
         wh_ = old_wh_;
+        bw_ = old_bw_;
         resize(xy_, wh_);
+        xwin_.setWindowBorderWidth(bw_);
+    } else {
+        old_bw_ = bw_;
+        bw_ = 0;
+        xwin_.setWindowBorderWidth(config.borderWidth);
     }
 }
 

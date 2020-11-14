@@ -238,24 +238,14 @@ void WindowManager::onClientMessage(const XClientMessageEvent& e) {
 void WindowManager::onExpose(const XExposeEvent& e) {
     LOG("WM received: XExposeEvent");
     // if no more expose events are generated
-    if (e.count == 0 ) {
+    if (e.count == 0) {
         LOG("   - bar update");
         m_monitors.focused()->updateBar();
     }
 }
 
-void WindowManager::onFocusIn(const XFocusChangeEvent&) {
+void WindowManager::onFocusIn(const XFocusChangeEvent& e) {
     LOG("WM received: XFocusChangeEvent");
-
-    /*
-    auto& ws = m_monitors.focused()->getSelectedWorkspace();
-    if (ws.hasSelectedClient()) {
-        auto& client = ws.getSelectedClient();
-        if (e.window != client.getXWindow().get()) {
-            client.takeInputFocus();
-        }
-    }
-    */
 }
 
 /* =============================== USER ACTION HANDLERS ===================== */
@@ -266,6 +256,7 @@ void WindowManager::quit() {
 
 void WindowManager::killFocused() {
     LOG("WM User triggered: kill focused");
+
     auto& ws = m_monitors.focused()->getSelectedWorkspace();
     if (not ws.hasSelectedClient())
         return;
@@ -327,17 +318,10 @@ void WindowManager::resizeMaster(int i) {
     auto& factor = m_monitors.focused()->getSelectedWorkspace().getConfig().factor;
     if ((factor + i) > 10 && (factor + i) < 80)
         factor += i;
-    std::cout 
-        << m_monitors.focused()->getSelectedWorkspace().getConfig().factor 
-        << std::endl;
     m_monitors.focused()->getSelectedWorkspace().arrangeClients();
-
-
 }
 
-
 void WindowManager::floatToggle() { }
-
 
 void WindowManager::resizeFloating() {}
 

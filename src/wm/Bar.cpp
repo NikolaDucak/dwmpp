@@ -5,27 +5,40 @@ Bar::Bar() :
     m_hidden(false),
     m_width(1200), //TODO: dont hard code 
     m_xwin(0,0,1280,config.font.getHeight()),
-    m_status("TEMPRORAY STATUS"),
+    m_status("dwmpp 0.01"),
     m_title("") 
 { 
-   m_xwin.mapRaised(); 
+    // map window to root surface and raise it above other windows
+    m_xwin.mapRaised();
+    // tell x that for bar window only mouse button event and expose events
+    // shall be generated
+    m_xwin.selectInput(ButtonPressMask | ExposureMask);
 }
 
 void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex) {
 	static xlib::XGraphics graphics{};
 
-    int height = config.font.getHeight();
+    // height of bar & dimestions of tag square
+    static const int height = config.font.getHeight();
 
+    // dimesions of workspace tag square
+    static const point tag_size { height, height };
+
+    // first workspace tag square x,y location
+    point tag_position { 0, 0 };
+
+    // distance from left corner of one tag to left corner of other
+    int next_tag_position_inc = height + 1;
+
+    // fill bar background
 	graphics.fillRectangle( 
 			config.barBG , {0,0} , {m_width, height} );
 
-    point tag_position { 0, 0 };
-    point tag_size { height, height };
-    int next_tag_position_inc = height;
-
+    // draw all workspace tag quares
     for (const auto& ws : workspaces) {
         const xlib::XColor *tag_bg;
 
+        // select tag square color
         if (ws.getIndex() == selectedWSIndex)
             tag_bg = &config.selectedTagBG;
         else if (ws.empty())
@@ -33,14 +46,22 @@ void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex)
         else 
             tag_bg = &config.usedTagBG;
 
+        // draw tag square
         graphics.fillRectangle(*tag_bg, tag_position, tag_size);
+
+        // move tag position to next tag that's gonna be drawn
         tag_position.x += next_tag_position_inc;
     }
 
+    // display drawn bar on bar window
     graphics.copyArea(m_xwin.get(), { 0, 0 }, { m_width, height });
+
+    // display title of active window after workspace tags
     graphics.drawText(m_xwin, config.font, config.barFG,
                       tag_position,  // writing to position of last tag
                       m_title);
+
+    // display status in the rightmost corner of bar
     graphics.drawText(m_xwin, config.font, config.barFG,
         { m_width - config.font.getTextWidthInPixels(m_status), 0 }, 
         m_status);

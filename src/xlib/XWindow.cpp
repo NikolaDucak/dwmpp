@@ -20,6 +20,10 @@ void XWindow::resizeWindow(int w, int h) {
     XResizeWindow(xcore->getDpyPtr(), m_w, w, h);
 }
 
+void XWindow::setWindowBorderWidth(uint w) {
+    XSetWindowBorderWidth(xcore->getDpyPtr(), m_w, w);
+}
+
 void XWindow::setWindowBorder(unsigned long pixel) {
     XSetWindowBorder(xcore->getDpyPtr(), m_w, pixel);
 }

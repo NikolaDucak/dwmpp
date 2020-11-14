@@ -24,7 +24,6 @@ public:
 	static const Config config;
 	// specific config for this workspace, allows for 
     // workspace specific factor, gap, etc. changes
-	static Config this_config;
 
 public:
 

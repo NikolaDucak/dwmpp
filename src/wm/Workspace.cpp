@@ -69,7 +69,14 @@ void Workspace::focusFront() {
 }
 
 void Workspace::toggleFullscreenOnSelectedClient() {
-    fullscreenClient_ = (fullscreenClient_) ? nullptr : &*m_clients.focused();
+    //fullscreenClient_ = (fullscreenClient_) ? nullptr : &*m_clients.focused();
+    if (fullscreenClient_) {
+        fullscreenClient_->setFullscreen(true);
+        fullscreenClient_ = nullptr;
+    } else {
+        fullscreenClient_ = &*m_clients.focused();
+        fullscreenClient_->setFullscreen(false);
+    }
 }
 
 void Workspace::moveFocus(int i) {

@@ -26,6 +26,7 @@ public:
     void moveWindow(int x, int y);
     void resizeWindow(int w, int h);
     void setWindowBorder(unsigned long pixel);
+    void setWindowBorderWidth(uint w);
     void setClassHint(XClassHint ch);
 
     void selectInput(unsigned long mask);
