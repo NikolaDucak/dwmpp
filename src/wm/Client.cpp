@@ -10,7 +10,11 @@ Client::Client(Workspace& ws, Window w, XWindowAttributes& wa) :
    	old_wh_( {wa.width, wa.height} )
 	//bw_(config.borderWidth), old_bw_( wa.border_width)
 {
-	//XlibWrapper::instance().getWindowAttributes( w, wa );
+    // select events for that window
+    xwin_.selectInput(EnterWindowMask | 
+                      FocusChangeMask | 
+                      PropertyChangeMask |
+                      StructureNotifyMask);
 }
 
 Client::Client(Workspace& ws, Window w) :
@@ -79,7 +83,9 @@ void Client::takeInputFocus() {
 }
 
 void Client::dropInputFocus() {
-    //TODO: focus root window
+    //TODO: smels..
+    XSetInputFocus(xwin_.xcore->getDpyPtr(), xwin_.xcore->getRoot(),
+                   RevertToPointerRoot, CurrentTime);
     xwin_.setWindowBorder(config.borderClr.get().pixel);
 }
 

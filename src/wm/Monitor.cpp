@@ -22,7 +22,7 @@ Monitor::Monitor(int num, point xy, point wh, point win_xy, point win_wh) :
 {}
 
 void Monitor::selectWorkspace(unsigned i) {
-    if (i < Workspace::config.workspaces.size()) {
+    if (i < Workspace::config.workspaces.size() && i != m_selectedWorkspaceIndex) {
         getSelectedWorkspace().hideAllClients();
         m_selectedWorkspaceIndex = i;
         getSelectedWorkspace().showAllClients();

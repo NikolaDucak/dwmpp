@@ -2,8 +2,6 @@
 #include <unistd.h>
 #include <algorithm>
 
-#define DEBUG_LOG
-
 #include "xlib/X.h"
 #include "wm/WindowManager.h"
 

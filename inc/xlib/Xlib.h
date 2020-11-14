@@ -2,7 +2,9 @@
 
 #include <X11/X.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <X11/Xatom.h>
+#include <string>
 
 namespace xlib {
 
@@ -50,7 +52,7 @@ public:
     void ungrabPointer();
 
     void refreshKeyboardMapping(XMappingEvent& e);
-    void getTextProperity();
+    std::string getTextProperity(AtomType at);
     Atom getAtom(AtomType a) const;
 
     void nextEvent(XEvent* ev);

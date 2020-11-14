@@ -1,17 +1,20 @@
 #include "wm/WindowManager.h"
 #include "xlib/Xlib.h"
 #include <X11/X.h>
+#include <X11/Xutil.h>
 
 WindowManager::WindowManager(xlib::XCore& x) : m_running(false), m_x(x) {
     Monitor::updateMonitors(m_monitors);
     m_monitors.focus_front();
+    //TODO: update bars for all monitros;
+    m_monitors.focused()->updateBar();
 
-    // selecting wich events we want to reive
+    // selecting wich events we want to receive for root window
     x.selectInput(
             SubstructureRedirectMask | 
             SubstructureNotifyMask |
-            FocusChangeMask |          // onFocusIn
-            PropertyChangeMask);
+            PropertyChangeMask
+            );
 }
 
 Client* WindowManager::getClientForWindow(Window w) {
@@ -35,6 +38,7 @@ void WindowManager::run() {
     // tell x what key events we want
     grabKeys();
 
+    // main event loop
     while (m_running) {
 		XEvent e;
 		m_x.nextEvent(&e);
@@ -70,7 +74,6 @@ void WindowManager::onMapRequest(const XMapRequestEvent& e) {
     ws.createClientForWindow(e.window);
     ws.arrangeClients();
     ws.focusFront();
-    m_monitors.focused()->getBar().update();
 }
 
 void WindowManager::onMotionNotify( const XMotionEvent& ) {
@@ -88,18 +91,44 @@ void WindowManager::onMotionNotify( const XMotionEvent& ) {
 
 void WindowManager::onProperityNotify(const XPropertyEvent& ev) {
     LOG("WM notified: ProperityEvent ev");
-    if( ev.window == m_x.getRoot() && ev.atom == XA_WM_NAME ){
-		LOG("	 root name / status string" );
-		m_monitors.focused()->updateBar();
-	}
-    else if (ev.atom == m_x.getAtom(xlib::NetActiveWindow)) {
-		LOG("    net active" );
+
+    // properity holding information about the wm name - used for status string
+    if (ev.window == m_x.getRoot() && ev.atom == XA_WM_NAME) {
+        LOG("	 -  root name / status string");
+        m_monitors.focused()->getBar().setStatusString(
+            m_x.getTextProperity(xlib::NetWMName));
+        m_monitors.focused()->updateBar();
+    }
+    // properity holding information about currnet active window
+    else if (ev.window == m_x.getRoot() &&
+             ev.atom == m_x.getAtom(xlib::NetActiveWindow)) {
+        LOG("    - net active");
         auto& m = *m_monitors.focused();
+
         if (m.getSelectedWorkspace().hasSelectedClient())
             m.getBar().setTitleString(
                 m.getSelectedWorkspace().getSelectedClient().getTitle());
-        // in client class active atom is set but never cleared
+        else
+            m.getBar().setTitleString("");
+       
         m.updateBar();
+    } else {
+        LOG("	- client - ");
+        if (ev.atom == XA_WM_TRANSIENT_FOR) {
+            LOG("		TRANSIENT FOR - unimpl");
+        } else if (ev.atom == XA_WM_NORMAL_HINTS) {
+            LOG("		WM_NORMAL_HINTS - unimpl ");
+        } else if (ev.atom == XA_WM_HINTS) {
+            LOG("		WM_HINTS -unimpl ");
+        } else if (ev.atom == XA_WM_NAME ||
+                   ev.atom == m_x.getAtom(xlib::NetWMName)) {
+            LOG("		WM_NAME ");
+            m_monitors.focused()->getBar().setTitleString(
+                xlib::XWindow { ev.window }.getTextProperity(XA_WM_NAME));
+            m_monitors.focused()->updateBar();
+        } else if (ev.atom == m_x.getAtom(xlib::NetWMWindowType)) {
+            LOG("		WM_Window_type  -unimplemented");
+        }
     }
 }
 
@@ -177,14 +206,23 @@ void WindowManager::onExpose(const XExposeEvent& e) {
     LOG("WM received: XExposeEvent");
     // if no more expose events are generated
     if (e.count == 0 ) {
-        LOG(" bar update");
+        LOG("   - bar update");
+        m_monitors.focused()->updateBar();
     }
 }
 
 void WindowManager::onFocusIn(const XFocusChangeEvent& e) {
-    auto& m = *m_monitors.focused();
+    auto& ws = m_monitors.focused()->getSelectedWorkspace();
     LOG("WM received: XFocusChangeEvent");
 
+    /*
+    if (ws.hasSelectedClient()) {
+        auto& client = ws.getSelectedClient();
+        if (e.window != client.getXWindow().get()) {
+            client.takeInputFocus();
+        }
+    }
+    */
 }
 
 /* =============================== USER ACTION HANDLERS ===================== */
@@ -215,7 +253,7 @@ void WindowManager::moveFocus(int i) {
     LOG("WM User triggered: move focus");
     auto& ws = m_monitors.focused()->getSelectedWorkspace();
     ws.moveFocus(i);
-    // bar is updaate in focusin event
+    // no need to update bar, bar is updated in focusin event
 }
 
 void WindowManager::moveFocusedClient(int i) {
@@ -227,11 +265,10 @@ void WindowManager::moveFocusedClient(int i) {
 
 void WindowManager::goToWorkspace(int i) {
     LOG("Going to workspace");
-    //TODO: consider holding this inside Monitor::selectWorkspace
-    m_monitors.focused()->getSelectedWorkspace().hideAllClients();
-    m_monitors.focused()->selectWorkspace(i);
-    m_monitors.focused()->getSelectedWorkspace().showAllClients();
-    m_monitors.focused()->getSelectedWorkspace().arrangeClients();
+    auto& m = *m_monitors.focused();
+    m.selectWorkspace(i); // hides old and shows new workspace
+    m.getSelectedWorkspace().arrangeClients();
+    m.updateBar();
 }
 
 void WindowManager::moveFocusedClientToTop() {
@@ -246,15 +283,15 @@ void WindowManager::moveFocusedClientToWorkspace(uint i) {
             m_monitors.focused()->getWorkspaces()[i]);
 }
 
-void WindowManager::fullscreenToggle(){}
+void WindowManager::fullscreenToggle() { } 
 
-void WindowManager::floatToggle(){}
+void WindowManager::floatToggle() {}
 
 void WindowManager::resizeMaster(int) { }
 
-void WindowManager::resizeFloating(){}
+void WindowManager::resizeFloating() {}
 
-void WindowManager::moveFloating(){}
+void WindowManager::moveFloating() {}
 
 void WindowManager::toggleBar(){ }
 

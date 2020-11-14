@@ -27,8 +27,6 @@ public:
 
     void setStatusString(const std::string& status) { m_status = status; }
     void setTitleString(const std::string& title)   { m_title = title; }
-    void update() { redraw(); }
-    void redraw();
 
     //void draw(const util::focus_list<Workspace> workspaces, uint selectedWSIndex);
     void draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex);

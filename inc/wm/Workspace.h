@@ -60,8 +60,6 @@ public:
 
     inline bool empty() const { return m_clients.empty(); };
 
-    // 
-
 	// TODO: pass arranger
 	/*
 	 * Arranges clients in rectangular area with top left point 'topleft'

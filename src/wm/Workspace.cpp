@@ -85,11 +85,17 @@ void Workspace::moveFocus(int i) {
 void Workspace::showAllClients() {
     for (auto& client : m_clients)
         client.show();
+    if (hasSelectedClient())
+        m_clients.focused()->takeInputFocus();
 }
 
 void Workspace::hideAllClients() {
+    // hide all clients from visible surface
     for (auto& client : m_clients)
         client.hide();
+    // remove input focus from selected client
+    if (hasSelectedClient())
+        m_clients.focused()->dropInputFocus();
 }
 
 void Workspace::arrangeClients() {

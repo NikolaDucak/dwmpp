@@ -8,14 +8,6 @@
 
 #include <algorithm>
 
-#define DEBUG_LOG
-#ifdef DEBUG_LOG
-#    include <iostream>
-#    define LOG(x) std::cout << (x) << std::endl;
-#else 
-#    define LOG(x)
-#endif
-
 namespace xlib {
 
 class XWindow {
@@ -54,6 +46,7 @@ public:
 
     // atom related stuff
     std::string getTextProperity(AtomType);
+    std::string getTextProperity(Atom);
     void setFullscreen(bool fullscreen) ;
     void setActive();
     bool getWMProtocols(Atom** protocols, int* n);

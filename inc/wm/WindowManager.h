@@ -6,8 +6,6 @@
 #include "Monitor.h"
 #include <unordered_map>
 
-#define DEBUG_LOG
-
 #ifdef DEBUG_LOG
 #    include <iostream>
 #    define LOG(x) std::cout << (x) << std::endl;

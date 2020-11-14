@@ -73,4 +73,27 @@ Atom XCore::getAtom(AtomType type) const {
     return m_atoms[type];
 }
 
+std::string XCore::getTextProperity(AtomType at) {
+    Atom atom = getAtom(at);
+    XTextProperty name;
+    std::string str;
+
+    if (!XGetTextProperty(dpy_, root_, &name, atom) || !name.nitems)
+        return { "" };
+    if (name.encoding == XA_STRING)
+        str = (char*)(name.value);
+    else {
+        char** list = NULL;
+        int n;
+        if (XmbTextPropertyToTextList(dpy_, &name, &list, &n) >=
+                Success &&
+            n > 0 && *list) {
+            str = (char*)(name.value);
+            XFreeStringList(list);
+        }
+    }
+    XFree(name.value);
+    return str;
+}
+
 } // namespace xlib
