@@ -5,6 +5,8 @@
 #include "xlib/Xlib.h"
 #include "wm/Workspace.h"
 
+#include <iostream>
+
 class Bar {
 public:
 

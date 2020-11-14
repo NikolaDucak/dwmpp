@@ -1,5 +1,7 @@
 #include "wm/Client.h"
 
+std::map<Window, Client*> Client::clientWindowMap;
+
 Client::Client(Workspace& ws, Window w, XWindowAttributes& wa) :
 	workspaceRef_(&ws),
 	xwin_(w),
@@ -7,21 +9,23 @@ Client::Client(Workspace& ws, Window w, XWindowAttributes& wa) :
 	xy_( {wa.x, wa.y} ), 
 	wh_( {wa.width, wa.height} ),
 	old_xy_( {wa.x, wa.y} ),
-   	old_wh_( {wa.width, wa.height} )
-	//bw_(config.borderWidth), old_bw_( wa.border_width)
+   	old_wh_( {wa.width, wa.height} ),
+	bw_(config.borderWidth), old_bw_( wa.border_width)
 {
     // select events for that window
     xwin_.selectInput(EnterWindowMask | 
                       FocusChangeMask | 
                       PropertyChangeMask |
                       StructureNotifyMask);
+
+    clientWindowMap[xwin_.get()] = this;
 }
 
 Client::Client(Workspace& ws, Window w) :
 	workspaceRef_(&ws),
 	xwin_(w),
 	hidden_(false), floating_(false), urgent_(false), fullscreen_(false),
-	bw_(1) // TODO: take value from config
+	bw_(config.borderWidth) 
 {
     
     XWindowAttributes wa;
@@ -31,8 +35,11 @@ Client::Client(Workspace& ws, Window w) :
 	old_xy_ = {wa.x, wa.y};
    	old_wh_ = {wa.width, wa.height};
     old_bw_ = wa.border_width;
+    
+    clientWindowMap[xwin_.get()] = this;
 }
 
+Client::~Client() { clientWindowMap.erase(xwin_.get()); }
 
 void Client::resize(point xy, point wh) {
 	old_xy_ = xy_; 

@@ -18,11 +18,10 @@ WindowManager::WindowManager(xlib::XCore& x) : m_running(false), m_x(x) {
 }
 
 Client* WindowManager::getClientForWindow(Window w) {
-    for (auto& m : m_monitors)
-        for (auto& ws : m.getWorkspaces())
-            for (auto& c: ws.getClients())
-                if (c.getXWindow().get() == w)
-                    return &c;
+    auto it = Client::clientWindowMap.find(w);
+    if (it != Client::clientWindowMap.end()) {
+        return it->second;
+    }
     return nullptr;
 }
 
@@ -139,25 +138,38 @@ void WindowManager::onMappingNotify(XMappingEvent& e) {
         grabKeys();
 }
 
-void WindowManager::onUnmapNotify( const XUnmapEvent& ){
+void WindowManager::onUnmapNotify(const XUnmapEvent& e) {
     LOG("WM notified: UnmapEvent ev");
+	auto* c = getClientForWindow(e.window);
+	if (not c) return;
+    LOG("    - Found client! unmap came from send event: " << e.send_event );
+
+    // true if this event came from XSendEvent
+    // used only for withdrawn state
+    if (e.send_event) {
+        c->setState(WithdrawnState);
+    } else {
+        auto& ws = c->getWorkspace();
+        ws.removeClient(*c);
+        ws.arrangeClients();
+    }
 }
 
-void WindowManager::onConfigureNotify(const XConfigureEvent& ) {
+void WindowManager::onConfigureNotify(const XConfigureEvent&) {
     LOG("WM notified: ConfigureEvent ev");
 }
 
 void WindowManager::onDestroyNotify(const XDestroyWindowEvent& e) {
     LOG("WM notified: DestoryWindow ev");
     if (auto* c = getClientForWindow(e.window)) {
-        LOG("\tfound client for DestroyNotify window");
+        LOG("    - found client for DestroyNotify window");
         auto& ws = c->getWorkspace();
         ws.removeClient(*c); // removig a client focuses the first client
         ws.arrangeClients();
     }
 }
 
-void WindowManager::onEnterNotify(const XCrossingEvent& ) {
+void WindowManager::onEnterNotify(const XCrossingEvent&) {
     LOG("WM notified: CrossingEvent ev");
 }
 
@@ -179,12 +191,12 @@ void WindowManager::onConfigureRequest(const XConfigureRequestEvent& e){
         };
         xlib::XWindow{e.window}.configureWindow(changes, e.value_mask);
     }
-    m_x.sync( False );
+    m_x.sync(False);
 }
 
 void WindowManager::onKeyPress(const XKeyEvent& e){
-    auto key = std::find_if(config.keybindings.begin(),
-                     config.keybindings.end(),
+    auto key =
+        std::find_if(config.keybindings.begin(), config.keybindings.end(),
                      [&](const config::KeyBinding& kb) {
                          return m_x.keySymToKeyCode(kb.keySym) == e.keycode &&
                                 static_cast<int>(e.state) == kb.mod;
@@ -194,12 +206,33 @@ void WindowManager::onKeyPress(const XKeyEvent& e){
     LOG("WM received: XKeyPress Event for:");
 }
 
-void WindowManager::onButtonPress(const XButtonPressedEvent& e) {
+void WindowManager::onButtonPress(const XButtonPressedEvent&) {
     LOG("WM received: XButtonPressedEvent");
 }
 
 void WindowManager::onClientMessage(const XClientMessageEvent& e) {
     LOG("WM received: XClienMessageEvent");
+    static auto fullscreenAtom = static_cast<long>(m_x.getAtom(xlib::NetWMFullscreen));
+
+    auto* c = getClientForWindow(e.window);
+    if ( not c ) return;
+
+    // TODO: smells
+    // 2 messages aceppted
+    // NetWMState -> modify fullscreen state of client
+    if (e.message_type == m_x.getAtom(xlib::NetWMState)) {
+        if (e.data.l[1] == fullscreenAtom || e.data.l[2] == fullscreenAtom) {
+            // data.l[x] ==  1/2 netwmstateADD/toggle
+            c->setFullscreen( (e.data.l[0] == 1) ||
+                              (e.data.l[0] == 2  && !c->isFullscreen()));
+        }
+        // NerWMActiveWindow -> received when a client wants attention / is
+        // urgent
+    } else if (e.message_type == m_x.getAtom(xlib::NetActiveWindow)) {
+        if (c != &m_monitors.focused()->getSelectedWorkspace().getSelectedClient() 
+                && !c->isUrgent())
+            c->setUrgent(true);
+    }
 }
 
 void WindowManager::onExpose(const XExposeEvent& e) {
@@ -211,11 +244,11 @@ void WindowManager::onExpose(const XExposeEvent& e) {
     }
 }
 
-void WindowManager::onFocusIn(const XFocusChangeEvent& e) {
-    auto& ws = m_monitors.focused()->getSelectedWorkspace();
+void WindowManager::onFocusIn(const XFocusChangeEvent&) {
     LOG("WM received: XFocusChangeEvent");
 
     /*
+    auto& ws = m_monitors.focused()->getSelectedWorkspace();
     if (ws.hasSelectedClient()) {
         auto& client = ws.getSelectedClient();
         if (e.window != client.getXWindow().get()) {
@@ -285,9 +318,10 @@ void WindowManager::moveFocusedClientToWorkspace(uint i) {
 
 void WindowManager::fullscreenToggle() { } 
 
-void WindowManager::floatToggle() {}
+void WindowManager::resizeMaster(int ) { }
 
-void WindowManager::resizeMaster(int) { }
+void WindowManager::floatToggle() { }
+
 
 void WindowManager::resizeFloating() {}
 

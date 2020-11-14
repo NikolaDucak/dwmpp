@@ -111,7 +111,9 @@ void Workspace::createClientForWindow(Window w) {
 }
 
 void Workspace::removeClientForWindow(Window w) {
-    m_clients.erase(std::remove_if(
+    // NOTE: not using std::remove_if since remove if relies on Client class
+    // having a move operator
+    m_clients.erase(std::find_if(
         m_clients.begin(), m_clients.end(),
         [&](const Client& c) { return c.getXWindow().get() == w; }));
     // NOTE: not using ws focus front since selected client could be

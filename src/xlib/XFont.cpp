@@ -45,7 +45,7 @@ XFont::XFont(const std::string& fontname) :
 
 int XFont::getTextWidthInPixels(const std::string& text) const {
     XGlyphInfo ext;
-    XftTextExtentsUtf8(xcore->getDpyPtr(), xfont_, (XftChar8*)text.c_str(),
+    XftTextExtentsUtf8(xcore->getDpyPtr(), xfont_, reinterpret_cast<const XftChar8*>(text.c_str()),
                        text.size(), &ext);
     return ext.xOff;
 }

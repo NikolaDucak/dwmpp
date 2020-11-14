@@ -7,7 +7,9 @@
 #include <sstream>
 
 #include <list>
+#include <map>
 #include <algorithm>
+#include <iostream>
 
 class Monitor;
 class Workspace;
@@ -24,17 +26,21 @@ public:
 
 	static const Config config;
 
+    static std::map<Window, Client*> clientWindowMap;
+
 public:
 
 	Client(Workspace& ws, Window w, XWindowAttributes& wa);
 	Client(Workspace& ws, Window w);
+    ~Client();
 
-    /*
+    // NOTE: clientWindowMap relies on client pointers for
+    // each xlib window, so having clinets moving in memory
+    // complicates things;
     Client(Client&&) = delete;
     Client(Client&) = delete;
-    Client& operator = (Client&&) = delete;
     Client& operator = (Client&) = delete;
-    */
+    Client& operator = (Client&&) = delete;
 
 	void resize(point xy, point wh);
 	void resize(point wh);

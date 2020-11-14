@@ -3,9 +3,9 @@
 
 Bar::Bar() :
     m_hidden(false),
-    m_width(1280), //TODO: dont hard code 
+    m_width(1200), //TODO: dont hard code 
     m_xwin(0,0,1280,config.font.getHeight()),
-    m_status(""),
+    m_status("TEMPRORAY STATUS"),
     m_title("") 
 { 
    m_xwin.mapRaised(); 
@@ -29,9 +29,9 @@ void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex)
         if (ws.getIndex() == selectedWSIndex)
             tag_bg = &config.selectedTagBG;
         else if (ws.empty())
-            tag_bg = &config.usedTagBG;
-        else 
             tag_bg = &config.emptyTagBG;
+        else 
+            tag_bg = &config.usedTagBG;
 
         graphics.fillRectangle(*tag_bg, tag_position, tag_size);
         tag_position.x += next_tag_position_inc;
