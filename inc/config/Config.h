@@ -16,32 +16,32 @@ using namespace config;
 
 const Client::Config Client::config {
 	.borderWidth       = 2,
-	.borderClr         {"#2e2e2e"},
-	.selecetedBorderClr{"#ff0000"},
+	.borderClr          {"#2e2e2e"},
+	.selecetedBorderClr {"#ff0000"},
 };
 
 const Bar::Config Bar::config {
-    .barBG        {"#2e2e2e"},
-	.barFG        {"#999999"},
+    .barBG         {"#2e2e2e"},
+	.barFG         {"#999999"},
 
-	.selectedTagBG{"#dddddd"},
-	.selectedTagFG{"#dd9999"},
+	.selectedTagBG {"#dddddd"},
+	.selectedTagFG {"#dd9999"},
 
-	.usedTagBG    {"#5f5f5f"},
-	.usedTagFG    {"#afafaf"},
+	.usedTagBG     {"#5f5f5f"},
+	.usedTagFG     {"#afafaf"},
 
-	.emptyTagBG   {"#3d3d3d"},
-	.emptyTagFG   {"#4d4d4d"},
+	.emptyTagBG    {"#3d3d3d"},
+	.emptyTagFG    {"#4d4d4d"},
 
-	.font         {"Iosevka"},
+	.font          {"Iosevka"},
 };
 
 const Workspace::Config Workspace::config {
-    .workspaces = { "1", "2", "3", "4", "5", "6", "7", "8", "9" "+" },
-    .innerGap   = 10,
-    .outerGap   = 10,
-    .factor     = 60,
-    .mastersNum = 1,
+    .workspaces    = { "1", "2", "3", "4", "5", "6", "7", "8", "9" "+" },
+    .innerGap      = 10,
+    .outerGap      = 10,
+    .factor        = 60,
+    .mastersNum    = 1,
 };
 
 static constexpr auto ModKey = Mod4Mask;
