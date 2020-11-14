@@ -316,9 +316,25 @@ void WindowManager::moveFocusedClientToWorkspace(uint i) {
             m_monitors.focused()->getWorkspaces()[i]);
 }
 
-void WindowManager::fullscreenToggle() { } 
+void WindowManager::fullscreenToggle() { 
+    LOG("WM User triggered: fullscreen toggle");
+    m_monitors.focused()->getSelectedWorkspace().toggleFullscreenOnSelectedClient();
+    m_monitors.focused()->getSelectedWorkspace().arrangeClients();
+} 
 
-void WindowManager::resizeMaster(int ) { }
+void WindowManager::resizeMaster(int i) { 
+    LOG("WM User triggered: resize master");
+    auto& factor = m_monitors.focused()->getSelectedWorkspace().getConfig().factor;
+    if ((factor + i) > 10 && (factor + i) < 80)
+        factor += i;
+    std::cout 
+        << m_monitors.focused()->getSelectedWorkspace().getConfig().factor 
+        << std::endl;
+    m_monitors.focused()->getSelectedWorkspace().arrangeClients();
+
+
+}
+
 
 void WindowManager::floatToggle() { }
 

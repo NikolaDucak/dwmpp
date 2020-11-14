@@ -19,7 +19,6 @@ static const auto& RightClick = Button3;
 
 static constexpr int UP   = -1;
 static constexpr int DOWN = +1;
-static constexpr auto ModKey = Mod4Mask;
 
 union Argument { int i; const char* str; };
 void quitDWMPP     (const Argument& /*unused*/);
@@ -55,35 +54,6 @@ struct MouseBinding{
 	unsigned int button;
 	std::function<void(const Argument&)> action;
 	const Argument arg;
-};
-
-/*
- *  Config types
- */
-struct ClientConfig {
-    unsigned borderWidth;
-    std::string borderColor;
-};
-
-
-struct WMConfig { 
-    std::vector<KeyBinding> keybindings;
-    std::vector<MouseBinding> mouseBindings;
-};
-
-struct BarConfig { 
-    std::string font;
-    std::string bgcolor;
-
-    std::string tagEmptyClr;
-    std::string tagSelectedClr;
-    std::string tagFullClr;
-};
-
-struct WorkspaceConfig { 
-    std::vector<std::string> workspaces;
-    int innerGap, outerGap;
-    int factor, mastersNum;
 };
 
 }

@@ -24,7 +24,7 @@ void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex)
     int next_tag_position_inc = height;
 
     for (const auto& ws : workspaces) {
-        xlib::XColor *tag_bg;
+        const xlib::XColor *tag_bg;
 
         if (ws.getIndex() == selectedWSIndex)
             tag_bg = &config.selectedTagBG;

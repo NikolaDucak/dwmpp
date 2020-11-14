@@ -21,7 +21,7 @@ public:
     /*
      * Configuration for all bars.
      */
-    static Config config;
+    static const Config config;
 
 public:
 
@@ -30,7 +30,7 @@ public:
     void setStatusString(const std::string& status) { m_status = status; }
     void setTitleString(const std::string& title)   { m_title = title; }
 
-    //void draw(const util::focus_list<Workspace> workspaces, uint selectedWSIndex);
+    //void draw(const util::focus_list<Workspace> workspaces );
     void draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex);
 
     std::string& getStatusString();

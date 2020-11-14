@@ -59,12 +59,12 @@ void quitDWMPP(const Argument& /*unused*/) {
 }
 
 void fullscreen(const Argument& /*unused*/) {
-    LOG("fullscreen");
+    LOG("Config func triggered: fullscreen");
     wm->fullscreenToggle();
 }
 
 void floatToggle(const Argument& /*unused*/) {
-    LOG("floatToggle");
+    LOG("Config func triggered: floatToggle");
     wm->floatToggle();
 }
 
@@ -74,12 +74,12 @@ void goToWorkspace(const Argument& arg) {
 }
 
 void toggleBar(const Argument& /*unused*/) {
-    LOG("toggleBar");
+    LOG("Config func triggered: toggleBar");
     wm->toggleBar();
 }
 
 void resizeMaster(const Argument& arg) {
-    LOG("resizeMaster");
+    LOG("Config func triggered: resizeMaster");
     wm->resizeMaster(arg.i);
 }
 

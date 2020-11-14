@@ -5,6 +5,7 @@
 void Workspace::arrange(int barHeight, int screenW, int screenH) {
     // TODO: use configure(..) static method
     if (fullscreenClient_) {
+        fullscreenClient_->raise();
         fullscreenClient_->resize(point { 0, barHeight },
                                   point { screenW, screenH - barHeight });
         return;
@@ -15,31 +16,31 @@ void Workspace::arrange(int barHeight, int screenW, int screenH) {
 
     if (tiledClientsNum == 1) {
         m_clients.front().resize(
-            point { config.outerGap, config.outerGap + barHeight },
-            point { screenW, screenH - barHeight } - config.outerGap * 2);
+            point { m_config.outerGap, m_config.outerGap + barHeight },
+            point { screenW, screenH - barHeight } - m_config.outerGap * 2);
     } else {
-        int slavesNum = tiledClientsNum - config.mastersNum;
-        int masterW   = screenW * config.factor * 0.01;
+        int slavesNum = tiledClientsNum - m_config.mastersNum;
+        int masterW   = screenW * m_config.factor * 0.01f;
         int masterH =
-            ((screenH - barHeight) - config.outerGap) / config.mastersNum -
-            config.innerGap;
-        int masterCurrentY = barHeight + config.innerGap;
+            ((screenH - barHeight) - m_config.outerGap) / m_config.mastersNum -
+            m_config.innerGap;
+        int masterCurrentY = barHeight + m_config.innerGap;
 
-        int slaveX = config.outerGap + masterW + config.innerGap;
-        int slaveW = screenW - slaveX - config.outerGap;
-        int slaveH = ((screenH - barHeight) - config.outerGap) / slavesNum -
-                     config.innerGap;
-        int currentY = barHeight + config.outerGap;
+        int slaveX = m_config.outerGap + masterW + m_config.innerGap;
+        int slaveW = screenW - slaveX - m_config.outerGap;
+        int slaveH = ((screenH - barHeight) - m_config.outerGap) / slavesNum -
+                     m_config.innerGap;
+        int currentY = barHeight + m_config.outerGap;
 
-        int currentYinc = slaveH + config.innerGap;
-        int masterYInc  = masterH + config.innerGap;
+        int currentYinc = slaveH + m_config.innerGap;
+        int masterYInc  = masterH + m_config.innerGap;
 
         int arrangedMasters = 0;
         for (auto& c : m_clients) {
             if (c.isFloating()) {
                 c.raise();
-            } else if (arrangedMasters < config.mastersNum) {
-                c.resize(point { config.outerGap, masterCurrentY },
+            } else if (arrangedMasters < m_config.mastersNum) {
+                c.resize(point { m_config.outerGap, masterCurrentY },
                          point { masterW, masterH });
                 masterCurrentY += masterYInc;
                 arrangedMasters++;
