@@ -57,8 +57,10 @@ void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex)
     graphics.copyArea(m_xwin.get(), { 0, 0 }, { m_width, height });
 
     // display title of active window after workspace tags
+    auto title_left = (m_width - config.font.getTextWidthInPixels(m_title))/2;
     graphics.drawText(m_xwin, config.font, config.barFG,
-                      tag_position,  // writing to position of last tag
+                      //tag_position,  // writing to position of last tag
+                      point{title_left,0}, // writing in the middle
                       m_title);
 
     // display status in the rightmost corner of bar
