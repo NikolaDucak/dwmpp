@@ -34,6 +34,8 @@ Client::Client(Workspace& ws, Window w) :
 	old_xy_ = {wa.x, wa.y};
    	old_wh_ = {wa.width, wa.height};
     old_bw_ = wa.border_width;
+
+    // select events for that window
     xwin_.selectInput(EnterWindowMask | 
                       FocusChangeMask | 
                       PropertyChangeMask |
@@ -101,7 +103,6 @@ void Client::dropInputFocus() {
 
 void Client::hide() {
     hidden_ = true;
-    xwin_.setWindowBorder(config.selecetedBorderClr.get().pixel);
     xwin_.moveWindow(-(wh_.x + 2 * 20) * 2, xy_.y);
 }
 
@@ -130,16 +131,17 @@ bool Client::sendEvent(Atom proto) {
 
 void Client::setFullscreen(bool f) {
     fullscreen_ = f;
-    if (f == false) {
+    if (fullscreen_) {
+        old_bw_ = bw_;
+        bw_ = 0;
+        //TODO: resize handles border width
+        // should be named 'reconfigure'
+        resize(xy_, wh_);
+    } else {
         xy_ = old_xy_;
         wh_ = old_wh_;
         bw_ = old_bw_;
         resize(xy_, wh_);
-        xwin_.setWindowBorderWidth(bw_);
-    } else {
-        old_bw_ = bw_;
-        bw_ = 0;
-        xwin_.setWindowBorderWidth(config.borderWidth);
     }
 }
 
