@@ -77,7 +77,7 @@ void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex)
                       point { title_left, 0 }, m_title);
 
     // display status in the rightmost corner of bar
-    auto status_left = (m_width - config.font.getTextWidthInPixels(m_title))/2;
+    auto status_left = m_width - config.font.getTextWidthInPixels(m_status);
     graphics.drawText(m_xwin, config.font, config.barFG,
                       point { status_left, 0 }, m_status);
 }

@@ -2,7 +2,7 @@
 
 namespace xlib {
 
- XCore* XFont::xcore = nullptr;
+XCore* XFont::xcore = &XCore::instance();
 
 /* Using the pattern found at font->xfont->pattern does not yield the
  * same substitution results as using the pattern returned by
@@ -11,7 +11,8 @@ namespace xlib {
  * rectangles being drawn, at least with some fonts. */
 // WARNING: cant use static xcore since it wont initialized it
 XFont::XFont(const std::string& fontname) :
-    xfont_(XftFontOpenName(xcore->getDpyPtr(), xcore->getScreen(), fontname.c_str())),
+    xfont_(XftFontOpenName(XCore::instance().getDpyPtr(),
+                           XCore::instance().getScreen(), fontname.c_str())),
     pattern_(FcNameParse(reinterpret_cast<const FcChar8*>(fontname.c_str()))) {
     if (not xfont_) {
         //util::die("XFONT ERR: cant load form name %s", fontname.c_str());

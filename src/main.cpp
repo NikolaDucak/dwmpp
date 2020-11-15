@@ -6,7 +6,8 @@
 #include <unistd.h>
 
 // xlib initalization first
-static xlib::XCore& x = xlib::initializeXlib();
+//static xlib::XCore& x = xlib::initializeXlib();
+static xlib::XCore& x = xlib::XCore::instance();
 
 // window manager uses config witch uses xlib so this order is necessary
 static WindowManager* wm;

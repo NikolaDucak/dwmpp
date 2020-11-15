@@ -1,4 +1,5 @@
 #include "xlib/XColor.h"
+#include "xlib/X.h"
 
 namespace xlib {
 
@@ -9,10 +10,12 @@ namespace util {
     }
 }
 
-XCore* XColor::xcore;
+XCore* XColor::xcore = &XCore::instance();
 
 XColor::XColor(const std::string& clrname) {
-    auto dpy = xcore->getDpyPtr();
+
+    auto dpy = XCore::instance().getDpyPtr();
+
     if (!XftColorAllocName(dpy, DefaultVisual(dpy, DefaultScreen(dpy)),
                            DefaultColormap(dpy, DefaultScreen(dpy)),
                            clrname.c_str(), &m_xftColor))

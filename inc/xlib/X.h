@@ -8,12 +8,17 @@
 
 namespace xlib {
 
-    XCore& initializeXlib() { 
+    /*
+    inline XCore& initializeXlib() { 
         static XCore x{0}; 
-        XWindow::xcore = &x;
-        XGraphics::xcore = &x;
-        xlib::XFont::xcore = &x;
-        xlib::XColor::xcore = &x;
+        static bool initialized = false;
+        if (not initialized) {
+            XWindow::xcore      = &x;
+            XGraphics::xcore    = &x;
+            xlib::XFont::xcore  = &x;
+            xlib::XColor::xcore = &x;
+        }
         return x;
     }
+    */
 }

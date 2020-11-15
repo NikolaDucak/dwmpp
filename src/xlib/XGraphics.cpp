@@ -2,7 +2,7 @@
 
 namespace xlib {
 
-XCore* XGraphics::xcore;
+XCore* XGraphics::xcore = &XCore::instance();
 
 XGraphics::XGraphics() {
     auto dpy_ = xcore->getDpyPtr();

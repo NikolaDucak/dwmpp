@@ -31,8 +31,11 @@ enum AtomType {
 };
 
 class XCore {
-public:
     XCore( char* );
+public:
+
+    static XCore& instance();
+
 
     void sync(bool a);
     void getWindowAttributes(Window w, XWindowAttributes& wa);

@@ -1,6 +1,12 @@
 #include "xlib/Xlib.h"
 
+
 namespace xlib {
+
+XCore& XCore::instance() {
+    static XCore x(0);
+    return x;
+}
 
 XCore::XCore( char * d ) :
     dpy_(XOpenDisplay(d)), 

@@ -1,8 +1,9 @@
 #pragma once
 
 #include "xlib/Xlib.h"
-#include <string>
+
 #include <X11/Xft/Xft.h>
+#include <string>
 
 namespace xlib {
 

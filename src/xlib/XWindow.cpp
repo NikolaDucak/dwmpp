@@ -3,7 +3,7 @@
 
 namespace xlib {
 
-XCore* XWindow::xcore;
+XCore* XWindow::xcore = &XCore::instance();
 
 XWindow::XWindow(Window w) : m_w(w) { 
 }
