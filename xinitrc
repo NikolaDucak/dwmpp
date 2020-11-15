@@ -1,1 +1,1 @@
-exec ./dwmpp
+exec ./build/dwmpp

@@ -21,7 +21,7 @@ public:
     /*
      * Wrapper around existing window
      */
-    XWindow(Window w);
+    explicit XWindow(Window w);
 
     void moveWindow(int x, int y);
     void resizeWindow(int w, int h);

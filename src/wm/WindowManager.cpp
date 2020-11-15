@@ -326,8 +326,10 @@ void WindowManager::fullscreenToggle() {
 void WindowManager::resizeMaster(int i) { 
     LOG("WM User triggered: resize master");
     auto& factor = m_monitors.focused()->getSelectedWorkspace().getConfig().factor;
-    if ((factor + i) > 10 && (factor + i) < 80)
+
+    if ((factor + i) > 10 && (factor + i) < 80) 
         factor += i;
+
     m_monitors.focused()->getSelectedWorkspace().arrangeClients();
 }
 

@@ -22,7 +22,7 @@ public:
     };
         static const Config config;
 public:
-    WindowManager(xlib::XCore& x);
+    explicit WindowManager(xlib::XCore& x);
 
     void run();
 
