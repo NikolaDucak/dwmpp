@@ -58,32 +58,34 @@ public:
 	void takeInputFocus();
     void dropInputFocus();
 
-	inline void assignToWorkspace(Workspace& ws) { workspaceRef_ = &ws; }
-	inline Workspace& getWorkspace() { return *workspaceRef_; }
+	inline void assignToWorkspace(Workspace& ws) { m_parentWorkspace = &ws; }
+	inline Workspace& getWorkspace() { return *m_parentWorkspace; }
 
-	inline xlib::XWindow& getXWindow() { return xwin_; }
-	inline const xlib::XWindow& getXWindow() const  { return xwin_; }
+	inline xlib::XWindow& getXWindow() { return m_xWindow; }
+	inline const xlib::XWindow& getXWindow() const  { return m_xWindow; }
 
-	inline const point& getPosition() const { return xy_; }
-	inline const point& getSize() const     { return wh_; }
-	inline int getBorderWidth() const       { return bw_; }
+	inline const point& getPosition() const { return m_topLeft; }
+	inline const point& getSize() const     { return m_dimensions; }
+	inline int getBorderWidth() const       { return m_borderWidth; }
 
-	inline bool isFloating() const   { return floating_; }
-	inline bool isHidden() const     { return hidden_; }
-	inline bool isUrgent() const     { return urgent_; }
-	inline bool isFullscreen() const { return fullscreen_; }
+	inline bool isFloating() const   { return m_floating; }
+	inline bool isHidden() const     { return m_hidden; }
+	inline bool isUrgent() const     { return m_urgent; }
+	inline bool isFullscreen() const { return m_fullscreen; }
 
 	void setFullscreen(bool f);
-	void setUrgent(bool f)       { urgent_ = f; }
-	void setFloating(bool f)     { floating_ = f; }
-	void toggleFloating()        { floating_ = not floating_; }
-	void toggleFullscreen()      { fullscreen_ = not fullscreen_; }
+	void setUrgent(bool f)       { m_urgent = f; }
+	void setFloating(bool f)     { m_floating = f; }
+	void toggleFloating()        { m_floating = not m_floating; }
+	void toggleFullscreen()      { m_fullscreen = not m_fullscreen; }
 
 private:
 
-	Workspace *workspaceRef_;
-    xlib::XWindow xwin_;
-    bool hidden_, floating_, urgent_, fullscreen_;
-    point xy_, wh_, old_xy_, old_wh_;
-    int bw_, old_bw_;
+	Workspace *m_parentWorkspace;
+    xlib::XWindow m_xWindow;
+    bool m_hidden, m_floating, m_urgent, m_fullscreen;
+
+    point m_topLeft, m_dimensions;
+    point m_oldTopLeft, m_oldDimensions;
+    int   m_borderWidth, m_oldBorderWidth;
 };
