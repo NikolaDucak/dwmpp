@@ -42,7 +42,6 @@ public:
     void toggleBar();
 
 private: // event functions 
-
     /** Method called when user mooves the crusor. */
 	void onMotionNotify     (const XMotionEvent& e);       
     /** Actionbtrigeret when atom properity of window is changed. */
@@ -66,7 +65,6 @@ private: // event functions
 	void onFocusIn          (const XFocusChangeEvent& e);
 
 private: // utility methods
-
     //TODO: description
     void grabKeys();
     Client* getClientForWindow(Window W);

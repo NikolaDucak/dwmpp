@@ -13,6 +13,7 @@
 #include "wm/WindowManager.h"
 
 using namespace config;
+// clang-format off
 
 const Client::Config Client::config {
 	.borderWidth       = 2,
@@ -114,4 +115,6 @@ const WindowManager::Config WindowManager::config {
         MouseBinding { ClickLocation::Client, ModKey, MiddletClick, ::resizeFloating, {} },
     },
 };
+
+// clang-format on
 

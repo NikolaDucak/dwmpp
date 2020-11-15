@@ -39,9 +39,10 @@ void WindowManager::run() {
 
     // main event loop
     while (m_running) {
-		XEvent e;
-		m_x.nextEvent(&e);
+        XEvent e;
+        m_x.nextEvent(&e);
         switch (e.type) {
+            // clang-format off
             case ConfigureRequest: onConfigureRequest(e.xconfigurerequest); break;
             case MapRequest:       onMapRequest(e.xmaprequest);             break;
             case FocusIn:          onFocusIn(e.xfocus);                     break;
@@ -56,6 +57,7 @@ void WindowManager::run() {
             case ConfigureNotify:  onConfigureNotify(e.xconfigure);         break;
             case PropertyNotify:   onProperityNotify(e.xproperty);          break;
             case UnmapNotify:      onUnmapNotify(e.xunmap);                 break;
+            // clang-format on
         }
     }
 }
@@ -64,18 +66,20 @@ void WindowManager::run() {
 
 void WindowManager::onMapRequest(const XMapRequestEvent& e) {
     LOG("WM received: XMapRequestEvent");
+
     auto& ws = m_monitors.focused()->getSelectedWorkspace();
+
     // if window asking for mapping is already existing as a client
     // dont make a new client for it
-    if (auto* client = getClientForWindow(e.window)) {
-        return;
-    }
+    if (auto* client = getClientForWindow(e.window)) return;
+
+    // let workspace handle creation details
     ws.createClientForWindow(e.window);
     ws.arrangeClients();
     ws.focusFront();
 }
 
-void WindowManager::onMotionNotify( const XMotionEvent& ) {
+void WindowManager::onMotionNotify(const XMotionEvent&) {
     LOG("WM notified: XMotionEvent ev");
 
     // every time the cursor moves check if the cursor went
@@ -109,7 +113,7 @@ void WindowManager::onProperityNotify(const XPropertyEvent& ev) {
                 m.getSelectedWorkspace().getSelectedClient().getTitle());
         else
             m.getBar().setTitleString("");
-       
+
         m.updateBar();
     } else {
         LOG("	- client - ");
@@ -140,12 +144,15 @@ void WindowManager::onMappingNotify(XMappingEvent& e) {
 
 void WindowManager::onUnmapNotify(const XUnmapEvent& e) {
     LOG("WM notified: UnmapEvent ev");
-	auto* c = getClientForWindow(e.window);
-	if (not c) return;
-    LOG("    - Found client! unmap came from send event: " << e.send_event );
+
+    // if unmapped window doesnt have a client object
+    // no need to do anything
+    auto* c = getClientForWindow(e.window);
+    if (not c) return;
 
     // true if this event came from XSendEvent
     // used only for withdrawn state
+    LOG("    - Found client! unmap came from send event: " << e.send_event);
     if (e.send_event) {
         c->setState(WithdrawnState);
     } else {
@@ -161,10 +168,11 @@ void WindowManager::onConfigureNotify(const XConfigureEvent&) {
 
 void WindowManager::onDestroyNotify(const XDestroyWindowEvent& e) {
     LOG("WM notified: DestoryWindow ev");
+
     if (auto* c = getClientForWindow(e.window)) {
         LOG("    - found client for DestroyNotify window");
         auto& ws = c->getWorkspace();
-        ws.removeClient(*c); // removig a client focuses the first client
+        ws.removeClient(*c);  // removig a client focuses the first client
         ws.arrangeClients();
     }
 }
@@ -173,7 +181,7 @@ void WindowManager::onEnterNotify(const XCrossingEvent&) {
     LOG("WM notified: CrossingEvent ev");
 }
 
-void WindowManager::onConfigureRequest(const XConfigureRequestEvent& e){
+void WindowManager::onConfigureRequest(const XConfigureRequestEvent& e) {
     LOG("WM received: XConfigureRequestEvent");
     if (auto* c = getClientForWindow(e.window)) {
         LOG("WM received: ConfigureRequest Event | existing client - "
@@ -189,7 +197,7 @@ void WindowManager::onConfigureRequest(const XConfigureRequestEvent& e){
             .sibling      = e.above,
             .stack_mode   = e.detail,
         };
-        xlib::XWindow{e.window}.configureWindow(changes, e.value_mask);
+        xlib::XWindow { e.window }.configureWindow(changes, e.value_mask);
     }
     m_x.sync(False);
 }
@@ -201,8 +209,10 @@ void WindowManager::onKeyPress(const XKeyEvent& e){
                          return m_x.keySymToKeyCode(kb.keySym) == e.keycode &&
                                 static_cast<int>(e.state) == kb.mod;
                      });
-    if (key != config.keybindings.end())
-        key->action(key->a);
+
+    // call key action 
+    if (key != config.keybindings.end()) key->action(key->a);
+
     LOG("WM received: XKeyPress Event for:");
 }
 

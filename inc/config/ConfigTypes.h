@@ -8,10 +8,9 @@
 
 namespace config {
 
-static const auto& LeftClick = Button1;
+static const auto& LeftClick    = Button1;
 static const auto& MiddletClick = Button3;
-static const auto& RightClick = Button3;
-
+static const auto& RightClick   = Button3;
 
 /*
  * Config values
@@ -20,6 +19,7 @@ static const auto& RightClick = Button3;
 static constexpr int UP   = -1;
 static constexpr int DOWN = +1;
 
+// clang-format off
 union Argument { int i; const char* str; };
 void quitDWMPP     (const Argument& /*unused*/);
 void fullscreen    (const Argument& /*unused*/);
@@ -36,12 +36,13 @@ void moveClient    (const Argument& direction);
 void goToWorkspace (const Argument& num);
 void resizeMaster  (const Argument& num);
 void moveClientToWorkspace(const Argument& num);
+// clang-format on
 
 struct KeyBinding {
 	int mod;
 	KeySym keySym;
-	std::function< void(const Argument&) > action;
-	Argument a;
+    std::function<void(const Argument&)> action;
+    Argument a;
 };
 
 enum class ClickLocation{

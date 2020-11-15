@@ -9,7 +9,6 @@
 
 class Bar {
 public:
-
     struct Config {
         xlib::XColor barBG, barFG;
         xlib::XColor selectedTagBG, selectedTagFG;
@@ -24,26 +23,18 @@ public:
     static const Config config;
 
 public:
-
     Bar();
 
     void setStatusString(const std::string& status) { m_status = status; }
-    void setTitleString(const std::string& title)   { m_title = title; }
+    void setTitleString(const std::string& title) { m_title = title; }
 
-    //void draw(const util::focus_list<Workspace> workspaces );
-    void draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex);
-
-    std::string& getStatusString();
-    std::string& getTitleString();
-
-    // Methods that call xlib wrapper to get atom properites
-    void updateTitle(const std::string& title) { setTitleString(title); }
-    void updateStatus(const std::string& status);
+    // void draw(const util::focus_list<Workspace> workspaces );
+    void draw(const std::array<Workspace, 10>& workspaces,
+              uint selectedWSIndex);
 
     void toggleHidden();
 
 private:
-
     bool m_hidden;
     int m_width;
     xlib::XWindow m_xwin;

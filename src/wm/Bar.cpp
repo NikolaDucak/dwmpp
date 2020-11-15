@@ -18,6 +18,8 @@ Bar::Bar() :
 void Bar::toggleHidden() {
     m_hidden = !m_hidden;
 
+    // hiding a bar is done by moving it beyond borders
+    // of visible area of the screen
     if (m_hidden) {
         m_xwin.moveWindow(0, -40); 
     } else {
@@ -26,8 +28,8 @@ void Bar::toggleHidden() {
 }
 
 void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex) {
-	static xlib::XGraphics graphics{};
-    
+    static xlib::XGraphics graphics {};
+
     // if bar is hidden don't bother drawing it
     if (m_hidden) return;
 
@@ -69,16 +71,14 @@ void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex)
     // display drawn bar on bar window
     graphics.copyArea(m_xwin.get(), { 0, 0 }, { m_width, height });
 
-    // display title of active window after workspace tags
+    // display title of active window in the middle of the bar
     auto title_left = (m_width - config.font.getTextWidthInPixels(m_title))/2;
     graphics.drawText(m_xwin, config.font, config.barFG,
-                      //tag_position,  // writing to position of last tag
-                      point{title_left,0}, // writing in the middle
-                      m_title);
+                      point { title_left, 0 }, m_title);
 
     // display status in the rightmost corner of bar
+    auto status_left = (m_width - config.font.getTextWidthInPixels(m_title))/2;
     graphics.drawText(m_xwin, config.font, config.barFG,
-        { m_width - config.font.getTextWidthInPixels(m_status), 0 }, 
-        m_status);
+                      point { status_left, 0 }, m_status);
 }
 
