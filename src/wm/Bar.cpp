@@ -15,8 +15,21 @@ Bar::Bar() :
     m_xwin.selectInput(ButtonPressMask | ExposureMask);
 }
 
+void Bar::toggleHidden() {
+    m_hidden = !m_hidden;
+
+    if (m_hidden) {
+        m_xwin.moveWindow(0, -40); 
+    } else {
+        m_xwin.moveWindow(0, 0);
+    }
+}
+
 void Bar::draw(const std::array<Workspace,10>& workspaces, uint selectedWSIndex) {
 	static xlib::XGraphics graphics{};
+    
+    // if bar is hidden don't bother drawing it
+    if (m_hidden) return;
 
     // height of bar & dimestions of tag square
     static const int height = config.font.getHeight();

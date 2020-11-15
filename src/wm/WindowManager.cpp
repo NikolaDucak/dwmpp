@@ -277,7 +277,7 @@ void WindowManager::moveFocus(int i) {
     LOG("WM User triggered: move focus");
     auto& ws = m_monitors.focused()->getSelectedWorkspace();
     ws.moveFocus(i);
-    // no need to update bar, bar is updated in focusin event
+    // no need to update bar, bar is updated in onProperityChange
 }
 
 void WindowManager::moveFocusedClient(int i) {
@@ -321,11 +321,14 @@ void WindowManager::resizeMaster(int i) {
     m_monitors.focused()->getSelectedWorkspace().arrangeClients();
 }
 
+void WindowManager::toggleBar() {
+    m_monitors.focused()->getBar().toggleHidden();
+}
+
 void WindowManager::floatToggle() { }
 
 void WindowManager::resizeFloating() {}
 
 void WindowManager::moveFloating() {}
 
-void WindowManager::toggleBar(){ }
 

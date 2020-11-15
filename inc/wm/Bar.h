@@ -40,6 +40,8 @@ public:
     void updateTitle(const std::string& title) { setTitleString(title); }
     void updateStatus(const std::string& status);
 
+    void toggleHidden();
+
 private:
 
     bool m_hidden;
