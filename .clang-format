@@ -61,9 +61,8 @@ SpacesInContainerLiterals: 'false'
 SpacesInParentheses: 'false'
 SpacesInSquareBrackets: 'false'
 
-
 CompactNamespaces: 'false'
-ConstructorInitializerAllOnOneLineOrOnePerLine: 'false'
+ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
 Cpp11BracedListStyle: 'false'
 DisableFormat: 'false'
 ExperimentalAutoDetectBinPacking: 'false'

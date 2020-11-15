@@ -14,6 +14,12 @@
 class Monitor;
 class Workspace;
 
+/*
+ * Class providing easy manipulation of xlib::XWindow for 
+ * the puropses of window management. Functionality usefull for
+ * client management includes: resizing, moving, border color &
+ * width manipulation, floating/fullscreen/hidden/urgent status.
+ */
 class Client {
 public:
 
@@ -26,6 +32,9 @@ public:
 
 	static const Config config;
 
+    // utility map used for easily finding wm::Client object
+    // when wm::WindowManager receives an event and needs
+    // to find map
     static std::map<Window, Client*> clientWindowMap;
 
 public:
