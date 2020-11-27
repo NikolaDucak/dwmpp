@@ -1,11 +1,14 @@
 #pragma once
 
-#include "xlib/Xlib.h"
+#include "xlib/XCore.h"
+#include "util/point.h"
 
 #include <X11/Xft/Xft.h>
 #include <string>
 
 namespace xlib {
+
+using util::point;
 
 class XColor {
 public:

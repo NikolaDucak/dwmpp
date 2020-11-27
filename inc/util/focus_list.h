@@ -1,5 +1,6 @@
 #pragma once
 
+#include <initializer_list>
 #include <list>
 
 namespace util {
@@ -11,6 +12,7 @@ class focus_list : public std::list<T> {
 
 public:
     focus_list() : m_focused_item(this->begin()) {}
+    focus_list(std::initializer_list<T>& l) : std::list<T>(l) { }
 
     list_iter& focused() { return m_focused_item; }
     const list_iter& focused() const { return m_focused_item; }

@@ -1,4 +1,4 @@
-#include "xlib/Xlib.h"
+#include "xlib/XCore.h"
 
 
 namespace xlib {

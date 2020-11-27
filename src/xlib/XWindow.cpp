@@ -32,6 +32,34 @@ void XWindow::selectInput(unsigned long int inputMask) {
     XSelectInput(xcore->getDpyPtr(), m_w, inputMask);
 }
 
+void XWindow::sendEvent(AtomType a) {
+    XEvent ev;
+    ev.type                 = ClientMessage;
+    ev.xclient.window       = m_w;
+    ev.xclient.message_type = xcore->getAtom(xlib::WMProtocols);
+    ev.xclient.format       = 32;
+    ev.xclient.data.l[0]    = a;
+    ev.xclient.data.l[1]    = CurrentTime;
+
+    sendEvent(ev);
+}
+
+bool XWindow::trySendEvent(AtomType a) {
+    if (supportsProtocol(a)) {
+        XEvent ev;
+        ev.type                 = ClientMessage;
+        ev.xclient.window       = m_w;
+        ev.xclient.message_type = xcore->getAtom(xlib::WMProtocols);
+        ev.xclient.format       = 32;
+        ev.xclient.data.l[0]    = a;
+        ev.xclient.data.l[1]    = CurrentTime;
+
+        sendEvent(ev);
+        return true;
+    }
+    return false;
+}
+
 void XWindow::sendEvent(XEvent& ev) {
     XSendEvent(xcore->getDpyPtr(), m_w, False, NoEventMask, &ev);
 }
@@ -82,7 +110,7 @@ void XWindow::grabButton(unsigned int button, unsigned int mask) {
 
 // atom related stuff
 
-bool XWindow::getWMProtocols(Atom** protocols, int* n) {
+bool XWindow::getWMProtocols(Atom** protocols, int* n) const {
     return XGetWMProtocols(xcore->getDpyPtr(), m_w, protocols, n);
 }
 
@@ -113,7 +141,7 @@ void XWindow::setFullscreen(bool fullscreen) {
     }
 }
 
-bool XWindow::supportsProtocol(Atom proto) {
+bool XWindow::supportsProtocol(Atom proto) const {
 	int n;
 	Atom *protocols;
 	bool exists = false;
@@ -125,7 +153,7 @@ bool XWindow::supportsProtocol(Atom proto) {
     return exists;
 }
 
-std::string XWindow::getTextProperity(Atom atom) {
+std::string XWindow::getTextProperity(Atom atom) const {
     XTextProperty name;
     std::string str;
 
@@ -147,7 +175,7 @@ std::string XWindow::getTextProperity(Atom atom) {
     return str;
 }
 
-std::string XWindow::getTextProperity(AtomType at) {
+std::string XWindow::getTextProperity(AtomType at) const {
     Atom atom = xcore->getAtom(at);
     XTextProperty name;
     std::string str;
@@ -170,7 +198,7 @@ std::string XWindow::getTextProperity(AtomType at) {
     return str;
 }
 
-void XWindow::getWindowAttrinbutes(XWindowAttributes* wa) {
+void XWindow::getWindowAttrinbutes(XWindowAttributes* wa) const {
     XGetWindowAttributes(xcore->getDpyPtr(), m_w, wa);
 }
 

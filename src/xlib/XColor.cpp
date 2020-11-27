@@ -1,5 +1,4 @@
 #include "xlib/XColor.h"
-#include "xlib/X.h"
 
 namespace xlib {
 

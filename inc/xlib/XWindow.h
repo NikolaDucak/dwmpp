@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Xlib.h"
+#include "XCore.h"
 
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
@@ -31,6 +31,9 @@ public:
 
     void selectInput(unsigned long mask);
 
+    void sendEvent(AtomType a);
+    /** Return true if @p a is supported and event is sent */
+    bool trySendEvent(AtomType a);
     void sendEvent(XEvent& ev);
     void sendEvent(XEvent& ev, int eventMask);
     void configureWindow(XWindowChanges& changes, unsigned int mask);
@@ -43,17 +46,17 @@ public:
 
     void grabButton(unsigned int button, unsigned int mask);
 
-    void getWindowAttrinbutes(XWindowAttributes* wa);
+    void getWindowAttrinbutes(XWindowAttributes* wa) const ;
 
     // atom related stuff
-    std::string getTextProperity(AtomType);
-    std::string getTextProperity(Atom);
+    std::string getTextProperity(AtomType) const ;
+    std::string getTextProperity(Atom) const ;
     void setFullscreen(bool fullscreen) ;
     void setActive();
-    bool getWMProtocols(Atom** protocols, int* n);
+    bool getWMProtocols(Atom** protocols, int* n) const;
     void changeProperty(Atom prop, AtomType type,
                         unsigned char* data, int data_size);
-    bool supportsProtocol(Atom prot);
+    bool supportsProtocol(Atom prot) const;
 
     // needs to be set before class usage
     static XCore* xcore;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "xlib/Xlib.h"
+#include "XCore.h"
 
 #include <X11/Xft/Xft.h>
 #include <string>

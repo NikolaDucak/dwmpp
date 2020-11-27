@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Xlib.h"
+#include "XCore.h"
 #include "XWindow.h"
 #include "XColor.h"
 #include "XFont.h"

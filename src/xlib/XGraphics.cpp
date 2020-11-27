@@ -2,6 +2,8 @@
 
 namespace xlib {
 
+using util::point;
+
 XCore* XGraphics::xcore = &XCore::instance();
 
 XGraphics::XGraphics() {
