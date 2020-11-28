@@ -83,6 +83,8 @@ public:
 
     void arrange();
 
+    void set_focused_client();
+
     /**
      * Drops input focus and changes border color of current focused window
      * but leaves internal client list focused on said client.

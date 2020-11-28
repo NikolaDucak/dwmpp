@@ -179,7 +179,7 @@ void window_manager::on_enter_notify      (const XCrossingEvent& e) {
         return;
 
     // else unfocus current selected client
-     m_monitors.focused()->workspaces().unfocus();
+     m_monitors.focused()->workspaces().focused()->unfocus();
 
     // select new monitor if needed
     if( m != &*m_monitors.focused() ){
@@ -187,7 +187,6 @@ void window_manager::on_enter_notify      (const XCrossingEvent& e) {
     }
     // set selected client iterator in workspace
     m_monitors.focused()->workspaces().focused()->set_focused_client( *c );
-#endif
 }
 
 void window_manager::on_configure_request (const XConfigureRequestEvent& e) {

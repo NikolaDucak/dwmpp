@@ -4,10 +4,6 @@
 
 namespace wm {
 
-void workspace::set_layout(layout_function l) {
-    m_layout = l;
-    arrange();
-}
 
 workspace::workspace(monitor* parent_monitor, unsigned index) :
     m_index(index),
@@ -15,7 +11,10 @@ workspace::workspace(monitor* parent_monitor, unsigned index) :
     m_parent_monitor(parent_monitor),
     m_clients() {}
 
-bool workspace::has_focused() { return m_clients.end() != m_clients.focused(); }
+void workspace::set_layout(layout_function l) {
+    m_layout = l;
+    arrange();
+}
 
 void workspace::focus_front() {
     if (has_focused()) 
@@ -100,7 +99,6 @@ void workspace::create_client(Window w) {
     arrange();
     //TODO: optimize, no need to check twice
     focus_front();
-    
 }
 
 void workspace::show_clients() {
@@ -125,5 +123,14 @@ void workspace::arrange() {
     a.height -= bar::conf.font.getHeight();
     m_layout(m_clients, conf.layout, a );
 }
+
+void workspace::set_focused_client() {
+}
+
+void workspace::unfocus() { m_clients.focused()->drop_input_focus(); }
+
+void workspace::focus() { m_clients.focused()->take_input_focus(); }
+
+bool workspace::has_focused() { return m_clients.end() != m_clients.focused(); }
 
 }
