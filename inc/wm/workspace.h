@@ -83,7 +83,7 @@ public:
 
     void arrange();
 
-    void set_focused_client();
+    void set_focused_client(client* cl);
 
     /**
      * Drops input focus and changes border color of current focused window
@@ -110,11 +110,11 @@ public:
      */
     bool has_focused();
 
-    inline auto        empty() const { return m_clients.empty(); }
-    inline auto        get_index() const { return m_index; }
-    inline auto&       clients() { return m_clients; }
-    inline const auto& clients() const { return m_clients; }
-    inline auto&       get_parent_monitor() { return *m_parent_monitor; }
+    [[nodiscard]] auto        empty() const { return m_clients.empty(); }
+    [[nodiscard]] auto        get_index() const { return m_index; }
+    [[nodiscard]] auto&       clients() { return m_clients; }
+    [[nodiscard]] const auto& clients() const { return m_clients; }
+    [[nodiscard]] auto&       get_parent_monitor() { return *m_parent_monitor; }
 
 private:
     uint                     m_index;

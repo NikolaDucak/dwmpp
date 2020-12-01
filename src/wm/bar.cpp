@@ -48,6 +48,7 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
     // fill bar background
     graphics.fillRectangle(conf.barBG, { 0, 0 }, { (int)m_width, height });
 
+
     // draw all workspace tag quares
     for (const auto& ws : workspaces) {
         const xlib::XColor *tag_bg;
@@ -72,14 +73,11 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
 
     // display title of active window in the middle of the bar
     int title_left = (m_width - conf.font.getTextWidthInPixels(m_title))/2;
-    graphics.drawText(m_xwindow, conf.font, conf.barFG,
-                      point { title_left, 0 }, m_title);
+    graphics.drawText(m_xwindow, conf.font, conf.barFG, point { title_left, 0 }, m_title);
 
     // display status in the rightmost corner of bar
     int status_left = m_width - conf.font.getTextWidthInPixels(m_status);
-    graphics.drawText(m_xwindow, conf.font, conf.barFG,
-                      point { status_left, 0 }, m_status);
-    
+    graphics.drawText(m_xwindow, conf.font, conf.barFG, point { status_left, 0 }, m_status);
 }
 
 void bar::toggle_visibility() {

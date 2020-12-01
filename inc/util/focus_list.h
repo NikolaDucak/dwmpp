@@ -98,6 +98,11 @@ public:
         }
     }
 
+    void set_focus(list_iter iter) {
+        //NOTE: this should check if iter is appropriate
+        this->m_focused_item = iter;
+    }
+
 };
 
 }  // namespace util

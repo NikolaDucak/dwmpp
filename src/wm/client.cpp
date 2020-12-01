@@ -86,6 +86,5 @@ void client::raise() { m_xwindow.raiseWindow(); }
 void client::hide() { m_xwindow.moveWindow(-m_size.x - m_position.x - 1, 0); }
 void client::show() { m_xwindow.moveWindow(m_position.x, m_position.y); }
 void client::set_parent_workspace(workspace* ws) { m_parent_workspace = ws; }
-void client::set_fullscreen(bool) {}
 
 }  // namespace wm

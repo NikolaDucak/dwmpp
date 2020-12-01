@@ -16,13 +16,6 @@ public:
     monitor(uint index, uint width, uint height);
 
 
-    workspace&  get_workspace(uint i);
-    const auto& workspaces() const { return m_workspaces; }
-    const auto& get_area() { return m_area; }
-    auto&       workspaces() { return m_workspaces; }
-    auto&       bar() { return m_bar; }
-    void        update_bar() { m_bar.draw(m_workspaces); }
-
     /**
      * Calls workspace::unfocus() method on current workspace
      * to drop input focus from current client then
@@ -38,6 +31,14 @@ public:
     void focus();
 
     void focus_workspace(uint i);
+
+    workspace&  get_workspace(uint i);
+    const auto& workspaces() const { return m_workspaces; }
+    const auto& get_area() { return m_area; }
+    auto&       workspaces() { return m_workspaces; }
+    auto&       bar() { return m_bar; }
+    void        update_bar() { m_bar.draw(m_workspaces); }
+
 private:
     uint                        m_index;
     util::area                  m_area;

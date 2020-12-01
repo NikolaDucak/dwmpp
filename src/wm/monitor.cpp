@@ -32,6 +32,16 @@ void monitor::focus_workspace(uint i) {
     m_bar.draw(m_workspaces);
 }
 
+void monitor::focus() {
+    m_workspaces.focused()->focus();
+    m_bar.show();
+}
+
+void monitor::unfocus() {
+    m_workspaces.focused()->unfocus();
+    m_bar.hide();
+}
+
 workspace& monitor::get_workspace(uint i) {
     auto temp = m_workspaces.begin();
     while(i--) temp++;

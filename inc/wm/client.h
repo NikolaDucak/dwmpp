@@ -45,7 +45,6 @@ public:
     /** */
     void set_state(long state);
 
-    void  set_fullscreen(bool f);
     void  set_parent_workspace(workspace* ws);
     auto& get_xwindow() { return m_xwindow; }
     auto& get_parent_workspace() { return *m_parent_workspace; }

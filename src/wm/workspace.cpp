@@ -76,7 +76,13 @@ void workspace::move_focused_to_workspace(workspace& other) {
 void workspace::kill_focused() {
     if (not has_focused()) return;
     m_clients.focused()->kill();
-    remove_client(m_clients.focused()->get_xwindow().get());
+    // erasing invalidates focused iterator
+    m_clients.erase(m_clients.focused()); 
+    // so refocusing is needed
+    m_clients.focus_front();
+    // in case of empty list there is no focus
+    if (has_focused()) 
+        m_clients.focused()->take_input_focus();
     arrange();
 }
 
@@ -95,10 +101,9 @@ void workspace::remove_client(Window w) {
 
 void workspace::create_client(Window w) {
     m_clients.emplace_front(w, this);
-    m_clients.front().get_xwindow().mapRaised();
     arrange();
-    //TODO: optimize, no need to check twice
-    focus_front();
+    m_clients.front().get_xwindow().mapRaised();
+    m_clients.front().take_input_focus();
 }
 
 void workspace::show_clients() {
@@ -117,14 +122,17 @@ void workspace::hide_clients() {
 }
 
 void workspace::arrange() {
-    //TODO: see if it's possible to avoid calcualting ws area
+    // TODO: see if it's possible to avoid calcualting ws area
     auto a = m_parent_monitor->get_area();
     a.top_left.y += bar::conf.font.getHeight();
     a.height -= bar::conf.font.getHeight();
-    m_layout(m_clients, conf.layout, a );
+    m_layout(m_clients, conf.layout, a);
 }
 
-void workspace::set_focused_client() {
+void workspace::set_focused_client(client* cl) {
+    auto pos = std::find_if(m_clients.begin(), m_clients.end(),
+                            [&](const client& c) { return &c == cl; });
+    if (pos != m_clients.end()) m_clients.set_focus(pos);
 }
 
 void workspace::unfocus() { m_clients.focused()->drop_input_focus(); }

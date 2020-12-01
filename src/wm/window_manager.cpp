@@ -67,7 +67,7 @@ void window_manager::on_motion_notify     (const XMotionEvent& e) {
 	auto new_monitor = get_monitor_for_pointer_coords(e.x_root, e.y_root);
 
     if ((new_monitor != old_monitor) && old_monitor)
-        focus_montor(new_monitor);
+        focus_monitor(new_monitor);
     old_monitor = new_monitor;
 }
 
@@ -91,15 +91,13 @@ void window_manager::on_properity_notify  (const XPropertyEvent& e) {
     else if (e.window == m_x->getRoot() &&
              e.atom == m_x->getAtom(xlib::NetActiveWindow)) {
         LOG("    - net active");
+        return;
         auto& m = *m_monitors.focused();
-
         if (m.workspaces().focused()->has_focused())
             m.bar().set_title_string(
                 m.workspaces().focused()->clients().focused()->title());
         else
             m.bar().set_title_string("");
-
-        m.update_bar();
     } else {
         LOG("	- client - ");
         if (e.atom == XA_WM_TRANSIENT_FOR) {
@@ -164,7 +162,10 @@ void window_manager::on_destroy_notify    (const XDestroyWindowEvent& e) {
 
 void window_manager::on_enter_notify      (const XCrossingEvent& e) {
     LOG("WM received: XCrossingEvent");
+
     // TODO: multi monitor support
+    return;
+
 	if ((e.mode != NotifyNormal || e.detail == NotifyInferior) && e.window != m_x->getRoot())
 		return;
 
@@ -186,7 +187,7 @@ void window_manager::on_enter_notify      (const XCrossingEvent& e) {
         focus_monitor(m);
     }
     // set selected client iterator in workspace
-    m_monitors.focused()->workspaces().focused()->set_focused_client( *c );
+    //m_monitors.focused()->workspaces().focused()->set_focused_client(c);
 }
 
 void window_manager::on_configure_request (const XConfigureRequestEvent& e) {
@@ -304,6 +305,10 @@ client* window_manager::get_client_for_window(Window w) {
         return it->second;
     else
         return nullptr;
+}
+
+monitor* window_manager::get_monitor_for_window(Window w) {
+    return nullptr;
 }
 
 monitor* window_manager::get_monitor_for_pointer_coords(int x, int y) {
