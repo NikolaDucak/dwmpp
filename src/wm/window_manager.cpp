@@ -2,9 +2,7 @@
 
 namespace wm {
 
-window_manager::window_manager(xlib::XCore* x) 
-    :  m_running(false),m_x(x)
-{
+window_manager::window_manager(xlib::XCore* x) : m_running(false), m_x(x) {
     // check for physical monitor configuration
     monitor::update_monitors(m_monitors);
     // select first monitor
@@ -49,25 +47,23 @@ void window_manager::run() {
  * ========================================================================== */
 
 /**
- * Action trigired whenever mouse pointer is moved.
- * This method checks that movement sets cursour outside 
- * the current screen. If cursor is now outside the current screen 
+ * Action triggered whenever mouse pointer is moved.
+ * This method checks that movement sets cursour outside
+ * the current screen. If cursor is now outside the current screen
  * and we find that cursor coords are now inside the other monitor
  * we focus that monitor and that
  * @note Function is used for multimonitor purposes and nothing else
  */
-void window_manager::on_motion_notify     (const XMotionEvent& e) {
+void window_manager::on_motion_notify(const XMotionEvent& e) {
     LOG("WM received: XMotionEvent");
-	static monitor *old_monitor = NULL;
+    static monitor* old_monitor = NULL;
 
     // proces motion only when pointer is pointing on root window
     // (not on any client window)
-	if (e.window != m_x->getRoot())
-		return;
-	auto new_monitor = get_monitor_for_pointer_coords(e.x_root, e.y_root);
+    if (e.window != m_x->getRoot()) return;
+    auto new_monitor = get_monitor_for_pointer_coords(e.x_root, e.y_root);
 
-    if ((new_monitor != old_monitor) && old_monitor)
-        focus_monitor(new_monitor);
+    if ((new_monitor != old_monitor) && old_monitor) focus_monitor(new_monitor);
     old_monitor = new_monitor;
 }
 
@@ -78,7 +74,7 @@ void window_manager::on_motion_notify     (const XMotionEvent& e) {
  *      - NET_ACTIVE_WINDOW on root window
  *      - WM_TRANSIENT WM_NORMAL_HINT WM_HINTS WM_NAME on any client window
  */
-void window_manager::on_properity_notify  (const XPropertyEvent& e) {
+void window_manager::on_properity_notify(const XPropertyEvent& e) {
     LOG("WM received: XPropertyEvent");
 
     if (e.window == m_x->getRoot() && e.atom == XA_WM_NAME) {
@@ -121,16 +117,15 @@ void window_manager::on_properity_notify  (const XPropertyEvent& e) {
 /**
  *.
  */
-void window_manager::on_mapping_notify    (XMappingEvent& e) {
+void window_manager::on_mapping_notify(XMappingEvent& e) {
     LOG("WM received: XMappingEvent");
     m_x->refreshKeyboardMapping(e);
-    if (e.request == MappingKeyboard)
-        grab_keys();
+    if (e.request == MappingKeyboard) grab_keys();
 }
 /**
  *
  */
-void window_manager::on_unmap_notify      (const XUnmapEvent& e) {
+void window_manager::on_unmap_notify(const XUnmapEvent& e) {
     LOG("WM received: XUnmapEvent");
 
     auto c = get_client_for_window(e.window);
@@ -140,57 +135,57 @@ void window_manager::on_unmap_notify      (const XUnmapEvent& e) {
     LOG("    - Found client! unmap came from send event: " << e.send_event);
     if (e.send_event) {
         c->set_state(WithdrawnState);
-    }else { 
+    } else {
         m_monitors.focused()->workspaces().focused()->remove_client(e.window);
     }
 }
 
-void window_manager::on_configure_notify  (const XConfigureEvent& e) {
+void window_manager::on_configure_notify(const XConfigureEvent& e) {
     LOG("WM received: XConfigureEvent");
 }
 
-void window_manager::on_destroy_notify    (const XDestroyWindowEvent& e) {
+void window_manager::on_destroy_notify(const XDestroyWindowEvent& e) {
     LOG("WM received: XDestroyWindowEvent");
 
     if (auto* c = get_client_for_window(e.window)) {
         LOG("    - found client for DestroyNotify window");
         auto& ws = c->get_parent_workspace();
-        ws.remove_client(c->get_xwindow().get());  
+        ws.remove_client(c->get_xwindow().get());
         // removig a client focuses the first client
     }
 }
 
-void window_manager::on_enter_notify      (const XCrossingEvent& e) {
+void window_manager::on_enter_notify(const XCrossingEvent& e) {
     LOG("WM received: XCrossingEvent");
 
-    // TODO: multi monitor support
-    return;
 
-	if ((e.mode != NotifyNormal || e.detail == NotifyInferior) && e.window != m_x->getRoot())
-		return;
+    if ((e.mode != NotifyNormal || e.detail == NotifyInferior) &&
+        e.window != m_x->getRoot())
+        return;
 
     auto* c = get_client_for_window(e.window);
+
 
     // get monitor for client
     auto* m = c ? &c->get_parent_workspace().get_parent_monitor() :
                   get_monitor_for_window(e.window);
 
     // if focused client is entered client, no action
-    if( &*m->workspaces().focused()->clients().focused() == c )
-        return;
+    if (&*m->workspaces().focused()->clients().focused() == c) return;
+
+    // TODO:
+    return;
 
     // else unfocus current selected client
-     m_monitors.focused()->workspaces().focused()->unfocus();
+    m_monitors.focused()->workspaces().focused()->unfocus();
 
     // select new monitor if needed
-    if( m != &*m_monitors.focused() ){
-        focus_monitor(m);
-    }
+    if (m != &*m_monitors.focused()) { focus_monitor(m); }
     // set selected client iterator in workspace
-    //m_monitors.focused()->workspaces().focused()->set_focused_client(c);
+    m_monitors.focused()->workspaces().focused()->set_focused_client(c);
 }
 
-void window_manager::on_configure_request (const XConfigureRequestEvent& e) {
+void window_manager::on_configure_request(const XConfigureRequestEvent& e) {
     LOG("WM received: XConfigureRequestEvent");
     if (auto* c = get_client_for_window(e.window)) {
         LOG("WM received: ConfigureRequest Event | existing client - "
@@ -214,7 +209,7 @@ void window_manager::on_configure_request (const XConfigureRequestEvent& e) {
 /**
  *
  */
-void window_manager::on_map_request       (const XMapRequestEvent& e) {
+void window_manager::on_map_request(const XMapRequestEvent& e) {
     LOG("WM received: XMapRequestEvent");
     // don't create client object for already handled window
     if (get_client_for_window(e.window)) return;
@@ -224,7 +219,7 @@ void window_manager::on_map_request       (const XMapRequestEvent& e) {
 /**
  *
  */
-void window_manager::on_key_press         (const XKeyEvent& e) {
+void window_manager::on_key_press(const XKeyEvent& e) {
     LOG("WM received: XKeyEvent");
     auto key =
         std::find_if(conf.keybindings.begin(), conf.keybindings.end(),
@@ -233,31 +228,30 @@ void window_manager::on_key_press         (const XKeyEvent& e) {
                                 static_cast<int>(e.state) == kb.mod;
                      });
 
-    // call key action 
-    if (key != conf.keybindings.end()) {
-        key->action->execute(*this);
-    }
+    // call key action
+    if (key != conf.keybindings.end()) { key->action->execute(*this); }
 }
 
-void window_manager::on_button_press      (const XButtonPressedEvent& e) {
+void window_manager::on_button_press(const XButtonPressedEvent& e) {
     LOG("WM received: XButtonPressedEvent");
 }
 
-void window_manager::on_client_message    (const XClientMessageEvent& e) {
+void window_manager::on_client_message(const XClientMessageEvent& e) {
     LOG("WM received: XClientMessageEvent");
-    //static auto fullscreen_atom = static_cast<long>(m_x->getAtom(xlib::NetWMFullscreen));
+    // static auto fullscreen_atom =
+    // static_cast<long>(m_x->getAtom(xlib::NetWMFullscreen));
 
     auto* c = get_client_for_window(e.window);
-    if ( not c ) return;
+    if (not c) return;
 
-    // TODO: smells, high priority refactor
-    // 2 messages aceppted
-    // NetWMState -> modify fullscreen state of client
-    // if
-    // data.l[x] ==  1/2 netwmstateADD/toggle
-    // else
-    // NerWMActiveWindow -> received when a client wants attention / is
-    // urgent
+        // TODO: smells, high priority refactor
+        // 2 messages aceppted
+        // NetWMState -> modify fullscreen state of client
+        // if
+        // data.l[x] ==  1/2 netwmstateADD/toggle
+        // else
+        // NerWMActiveWindow -> received when a client wants attention / is
+        // urgent
 #if 0
     if (e.message_type == m_x->getAtom(xlib::NetWMState)) {
         if (e.data.l[1] == fullscreenAtom || e.data.l[2] == fullscreenAtom) {
@@ -268,13 +262,13 @@ void window_manager::on_client_message    (const XClientMessageEvent& e) {
         if ((c != &focused_clien) && !c->is_urgent())
             c->set_urgent(true);
     }
-#endif 
+#endif
 }
 
 /**
  *
  */
-void window_manager::on_expose            (const XExposeEvent& e) {
+void window_manager::on_expose(const XExposeEvent& e) {
     LOG("WM received: XExposeEvent");
     // if no more expose events are generated
     if (e.count == 0) {
@@ -285,7 +279,7 @@ void window_manager::on_expose            (const XExposeEvent& e) {
 /**
  *
  */
-void window_manager::on_focus_in          (const XFocusChangeEvent& e) {
+void window_manager::on_focus_in(const XFocusChangeEvent& e) {
     LOG("WM received: XFocusChangeEvent");
 }
 
@@ -307,9 +301,7 @@ client* window_manager::get_client_for_window(Window w) {
         return nullptr;
 }
 
-monitor* window_manager::get_monitor_for_window(Window w) {
-    return nullptr;
-}
+monitor* window_manager::get_monitor_for_window(Window w) { return nullptr; }
 
 monitor* window_manager::get_monitor_for_pointer_coords(int x, int y) {
     return nullptr;
@@ -326,4 +318,4 @@ void window_manager::focus_monitor(monitor* m) {
     m_monitors.focused()->focus();
 }
 
-}
+}  // namespace wm

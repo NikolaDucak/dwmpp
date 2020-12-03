@@ -97,12 +97,14 @@ void workspace::remove_client(Window w) {
     m_clients.focus_front();
     if (has_focused()) // if focused is not end iter
         m_clients.focused()->take_input_focus();
+    arrange();
 }
 
 void workspace::create_client(Window w) {
     m_clients.emplace_front(w, this);
     arrange();
     m_clients.front().get_xwindow().mapRaised();
+    if (has_focused()) m_clients.focused()->drop_input_focus();
     m_clients.front().take_input_focus();
 }
 
@@ -135,9 +137,13 @@ void workspace::set_focused_client(client* cl) {
     if (pos != m_clients.end()) m_clients.set_focus(pos);
 }
 
-void workspace::unfocus() { m_clients.focused()->drop_input_focus(); }
+void workspace::unfocus() {
+    if (has_focused()) m_clients.focused()->drop_input_focus();
+}
 
-void workspace::focus() { m_clients.focused()->take_input_focus(); }
+void workspace::focus() {
+    if (has_focused()) m_clients.focused()->take_input_focus();
+}
 
 bool workspace::has_focused() { return m_clients.end() != m_clients.focused(); }
 
