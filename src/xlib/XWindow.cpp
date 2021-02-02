@@ -1,5 +1,7 @@
 #include "xlib/XWindow.h"
+#include "xlib/XError.h"
 #include <X11/Xutil.h>
+#include <iostream>
 
 namespace xlib {
 
@@ -107,14 +109,23 @@ void XWindow::configureWindow(XWindowChanges& changes, unsigned int mask) {
     XConfigureWindow(xcore->getDpyPtr(), m_w, mask, &changes);
 }
 
+int d(Display*, XErrorEvent*) {
+    return 0;
+}
+
 void XWindow::killClient() {
-    XGrabServer(xcore->getDpyPtr());
-    // XSetErrorHandler(xerrordummy);
-    XSetCloseDownMode(xcore->getDpyPtr(), DestroyAll);
-    XKillClient(xcore->getDpyPtr(), m_w);
-    XSync(xcore->getDpyPtr(), False);
-    // XSetErrorHandler(xerror);
-    XUngrabServer(xcore->getDpyPtr());
+    auto dpy = xcore->getDpyPtr();
+
+    XGrabServer(dpy);
+    //err::use_dummy_err_handler(); 
+    auto org = XSetErrorHandler(d);
+    XSetCloseDownMode(dpy, DestroyAll);
+    XKillClient(dpy, m_w);
+    //TODO: this shows IO errors where there are none
+    xcore->sync(False);
+    //err::use_original_err_handler();
+    XSetErrorHandler(org);
+    XUngrabServer(dpy);
 }
 
 void XWindow::grabButton(unsigned int button, unsigned int mask) {

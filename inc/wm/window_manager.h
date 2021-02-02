@@ -43,6 +43,7 @@ public:  // static variables
 
 public:
     window_manager(xlib::XCore* x);
+    ~window_manager();
 
     void run();
 

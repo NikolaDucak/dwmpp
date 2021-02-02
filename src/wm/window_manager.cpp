@@ -1,4 +1,5 @@
 #include "wm/window_manager.h"
+#include <X11/Xlib.h>
 
 namespace wm {
 
@@ -10,6 +11,11 @@ window_manager::window_manager(xlib::XCore* x) : m_running(false), m_x(x) {
     // tell x serwer what events we want for root window
     m_x->selectInput(SubstructureRedirectMask | SubstructureNotifyMask |
                      PropertyChangeMask);
+}
+
+window_manager::~window_manager() {
+    //TODO: move to xlib
+    XCloseDisplay(m_x->getDpyPtr());
 }
 
 void window_manager::run() {
@@ -87,6 +93,7 @@ void window_manager::on_properity_notify(const XPropertyEvent& e) {
     else if (e.window == m_x->getRoot() &&
              e.atom == m_x->getAtom(xlib::NetActiveWindow)) {
         LOG("    - net active");
+        //TODO: fix
         return;
         auto& m = *m_monitors.focused();
         if (m.workspaces().focused()->has_focused())
@@ -95,34 +102,43 @@ void window_manager::on_properity_notify(const XPropertyEvent& e) {
         else
             m.bar().set_title_string("");
     } else {
-        //TODO: impl all
-        //TODO: `switch` for readability?
-        LOG("	- client - ");
-        if (e.atom == XA_WM_TRANSIENT_FOR) {
-            LOG("		TRANSIENT FOR - unimpl");
-        } else if (e.atom == XA_WM_NORMAL_HINTS) {
-            LOG("		WM_NORMAL_HINTS - unimpl ");
-            //TODO: nullptr check
-            get_client_for_window(e.window)->update_hints();
-        } else if (e.atom == XA_WM_HINTS) {
-            LOG("		WM_HINTS -unimpl ");
-            //TODO: nullptr check
+        switch(e.atom) {
+            case XA_WM_TRANSIENT_FOR: 
+                LOG("		TRANSIENT FOR - unimpl");
+                break;
+            case XA_WM_NORMAL_HINTS:
+                LOG("		WM_NORMAL_HINTS");
+                get_client_for_window(e.window)->update_hints();
+                break;
+            case XA_WM_HINTS:
+                LOG("		WM_HINTS");
+                get_client_for_window(e.window)->update_wm_hints(false);
+                break;
+            case XA_WM_NAME:
+                LOG("		WM_NAME ");
+                m_monitors.focused()->bar().set_title_string(
+                    xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
+                m_monitors.focused()->update_bar();
+                break;
+        }
+        // non constexpr... cant fit in switch
+        if (e.atom == m_x->getAtom(xlib::NetWMWindowType)) {
+            LOG("		WM_Window_type");
             get_client_for_window(e.window)->update_wm_hints(false);
-
-        } else if (e.atom == XA_WM_NAME ||
-                   e.atom == m_x->getAtom(xlib::NetWMName)) {
+        }
+        if (e.atom == m_x->getAtom(xlib::NetWMName)) {
             LOG("		WM_NAME ");
             m_monitors.focused()->bar().set_title_string(
                 xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
             m_monitors.focused()->bar();
-        } else if (e.atom == m_x->getAtom(xlib::NetWMWindowType)) {
-            LOG("		WM_Window_type  -unimplemented");
-        }
+        } 
     }
 }
 
 /**
- *
+ * Catching changes in keyboard mapping and regrabbing
+ * keybindings. Changing keyboard maping breaks keybindings
+ * so regrabbing is neccesary.
  */
 void window_manager::on_mapping_notify(XMappingEvent& e) {
     LOG("WM received: XMappingEvent");
@@ -131,7 +147,9 @@ void window_manager::on_mapping_notify(XMappingEvent& e) {
 }
 
 /**
- *
+ * Notification received when client no longer wants to be 
+ * drawn on the screen. This can happen when client processes
+ * is finished and needs to be removed from the workspace
  */
 void window_manager::on_unmap_notify(const XUnmapEvent& e) {
     LOG("WM received: XUnmapEvent");
@@ -139,12 +157,13 @@ void window_manager::on_unmap_notify(const XUnmapEvent& e) {
     auto c = get_client_for_window(e.window);
     if (not c) return;
 
+
     // used only for withdrawn state
     LOG("    - Found client! unmap came from send event: " << e.send_event);
     if (e.send_event) {
         c->set_state(WithdrawnState);
     } else {
-        m_monitors.focused()->workspaces().focused()->remove_client(e.window);
+        c->get_parent_workspace().remove_client(e.window);
     }
 }
 
@@ -195,9 +214,8 @@ void window_manager::on_enter_notify(const XCrossingEvent& e) {
     // if focused client is entered client, no action
     if (&*m->workspaces().focused()->clients().focused() == c) return;
 
-    // TODO:
+    // TODO: 
     return;
-
     // else unfocus current selected client
     m_monitors.focused()->workspaces().focused()->unfocus();
 
@@ -230,7 +248,8 @@ void window_manager::on_configure_request(const XConfigureRequestEvent& e) {
 }
 
 /**
- *
+ * Method handling when a client wants to be show on screen (new client created or
+ * client switching from withdrawn state)
  */
 void window_manager::on_map_request(const XMapRequestEvent& e) {
     LOG("WM received: XMapRequestEvent");
@@ -240,7 +259,7 @@ void window_manager::on_map_request(const XMapRequestEvent& e) {
 }
 
 /**
- *
+ * Method calling apropriate handler when the user uses a dwmpp keybinding.
  */
 void window_manager::on_key_press(const XKeyEvent& e) {
     LOG("WM received: XKeyEvent");
@@ -369,7 +388,6 @@ monitor* window_manager::get_monitor_for_window(Window w) {
         if (monitor.bar().get_raw_xwindow() == w) return &monitor;
     }
 
-    // if
     if (auto c = get_client_for_window(w))
         return &c->get_parent_workspace().get_parent_monitor();
 

@@ -75,14 +75,8 @@ void workspace::move_focused_to_workspace(workspace& other) {
 void workspace::kill_focused() {
     if (not has_focused()) return;
     m_clients.focused()->kill();
-    // erasing invalidates focused iterator
-    m_clients.erase(m_clients.focused()); 
-    // so refocusing is needed
-    m_clients.focus_front();
-    // in case of empty list there is no focus
-    if (has_focused()) 
-        m_clients.focused()->take_input_focus();
-    arrange();
+    // kill will trigger unmap even which will call workspace::remove_client
+    // wich will remove it from list & rearange
 }
 
 void workspace::remove_client(Window w) {

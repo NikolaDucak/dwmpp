@@ -23,9 +23,10 @@ public:
 
 public:
     workspace(monitor* parent_monitor, unsigned index);
+
     /* 
      * client has a pointer to a workspace it belongs to, so
-     * copying/moving is not allowed
+     * copying/moving is not allowed.
      */
     workspace(workspace& m)  = delete;
     workspace(workspace&& m) = delete;

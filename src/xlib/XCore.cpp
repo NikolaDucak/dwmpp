@@ -1,4 +1,5 @@
 #include "xlib/XCore.h"
+#include "xlib/XError.h"
 
 
 namespace xlib {
@@ -30,6 +31,8 @@ XCore::XCore( char * d ) :
         XInternAtom(dpy_, "_NET_WM_WINDOW_TYPE_DIALOG", False);
     m_atoms[NetWMFullscreen] =
         XInternAtom(dpy_, "_NET_WM_STATE_FULLSCREEN", False);
+
+    err::init();
 }
 
 void XCore::sync(bool a) { 

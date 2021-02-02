@@ -70,10 +70,13 @@ void client::set_state(long state) {
     m_xwindow.changeProperty(xlib::WMState, xlib::WMState,
                              reinterpret_cast<unsigned char*>(data), 2);
 }
-
 void client::kill() {
-    if (not m_xwindow.trySendEvent(xlib::WMDelete)) m_xwindow.killClient();
+    if (not m_xwindow.trySendEvent(xlib::WMDelete)) {
+        m_xwindow.killClient();
+    }
+
 }
+
 
 void client::toggle_floating() {
     m_floating = not m_floating;
