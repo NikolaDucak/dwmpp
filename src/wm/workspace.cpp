@@ -4,7 +4,6 @@
 
 namespace wm {
 
-
 workspace::workspace(monitor* parent_monitor, unsigned index) :
     m_index(index),
     m_layout(tiling_layout),
@@ -101,11 +100,14 @@ void workspace::remove_client(Window w) {
 }
 
 void workspace::create_client(Window w) {
+    if (has_focused()) 
+        m_clients.focused()->drop_input_focus();
     m_clients.emplace_front(w, this);
-    arrange();
+    // TODO: make util::focus_list take care of reseting focus on list change
+    m_clients.focus_front(); 
     m_clients.front().get_xwindow().mapRaised();
-    if (has_focused()) m_clients.focused()->drop_input_focus();
     m_clients.front().take_input_focus();
+    arrange();
 }
 
 void workspace::show_clients() {
@@ -125,7 +127,7 @@ void workspace::hide_clients() {
 
 void workspace::arrange() {
     // TODO: see if it's possible to avoid calcualting ws area
-    auto a = m_parent_monitor->get_area();
+    auto a = m_parent_monitor->rect();
     a.top_left.y += bar::conf.font.getHeight();
     a.height -= bar::conf.font.getHeight();
     m_layout(m_clients, conf.layout, a);

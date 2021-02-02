@@ -30,6 +30,8 @@ public:
     void show();
     void draw(util::focus_list<workspace>& workspaces);
 
+    auto get_raw_xwindow() { return m_xwindow.get(); }
+
 private:
     bool m_visible;
     uint m_width;

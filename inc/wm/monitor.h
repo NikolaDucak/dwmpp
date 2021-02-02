@@ -34,14 +34,15 @@ public:
 
     workspace&  get_workspace(uint i);
     const auto& workspaces() const { return m_workspaces; }
-    const auto& get_area() { return m_area; }
+    const auto& rect() const { return m_rect; }
+
     auto&       workspaces() { return m_workspaces; }
     auto&       bar() { return m_bar; }
     void        update_bar() { m_bar.draw(m_workspaces); }
 
 private:
     uint                        m_index;
-    util::area                  m_area;
+    util::rect                  m_rect;
     class bar                   m_bar;
     util::focus_list<workspace> m_workspaces;
 };

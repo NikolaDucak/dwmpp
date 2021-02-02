@@ -36,11 +36,11 @@ void XCore::sync(bool a) {
     XSync(dpy_, a);
 }
 
-bool XCore::queryPointer(int x, int y) {
+bool XCore::queryPointer(int* x, int* y) {
     int di;
     unsigned int dui;
     Window dummy;
-    return XQueryPointer(dpy_, root_, &dummy, &dummy, &x, &y, &di, &di,
+    return XQueryPointer(dpy_, root_, &dummy, &dummy, x, y, &di, &di,
                          &dui);
 }
 

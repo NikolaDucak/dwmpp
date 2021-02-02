@@ -36,11 +36,10 @@ public:
 
     static XCore& instance();
 
-
     void sync(bool a);
     void getWindowAttributes(Window w, XWindowAttributes& wa);
 
-    bool queryPointer(int x, int y);
+    bool queryPointer(int* x, int* y);
 
     /*
      * uses XSelectInput on root window to set all inputs

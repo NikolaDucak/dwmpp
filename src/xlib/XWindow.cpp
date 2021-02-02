@@ -32,6 +32,21 @@ void XWindow::selectInput(unsigned long int inputMask) {
     XSelectInput(xcore->getDpyPtr(), m_w, inputMask);
 }
 
+Atom XWindow::getAtomProperty(AtomType at) {
+    int            di;
+    unsigned long  dl;
+    unsigned char* p = NULL;
+    Atom           da, atom = None;
+
+    if (XGetWindowProperty(xcore->getDpyPtr(), m_w, xcore->getAtom(at), 0L, sizeof atom, False, XA_ATOM,
+                           &da, &di, &dl, &dl, &p) == Success &&
+        p) {
+        atom = *(Atom*)p;
+        XFree(p);
+    }
+    return atom;
+}
+
 void XWindow::sendEvent(AtomType a) {
     XEvent ev;
     ev.type                 = ClientMessage;

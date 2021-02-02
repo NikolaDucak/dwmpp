@@ -23,6 +23,8 @@ public:
      */
     explicit XWindow(Window w);
 
+    Atom getAtomProperty(AtomType at);
+
     void moveWindow(int x, int y);
     void resizeWindow(int w, int h);
     void setWindowBorder(unsigned long pixel);

@@ -8,7 +8,6 @@
 #include "wm/window_manager.h"
 #include "action/actions.h"
 
-
 //TODO: figure out what to do with initializer list with unique ptr errror
 //#define ACTION(act, arg)  std::make_unique<action:: act>(arg)
 #define ACTION(act, arg)  new action:: act{arg}
@@ -16,13 +15,13 @@
 
 // clang-format off
 const wm::client::config wm::client::conf {
-    .border_width     = 3,
+    .border_width     = 7,
     .focused_border   { "#ff0000" },
     .unfocused_border { "#333333" },
 };
 
 const wm::workspace::config wm::workspace::conf {
-    .workspaces { "1","2","3" },
+    .workspaces { "1","2","3","4","5","6","7" },
     .layout {
         .inner_gap = 10,
         .outer_gap = 20,

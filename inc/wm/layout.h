@@ -17,20 +17,20 @@ struct layout_config {
 };
 
 using layout_function = std::function<void(
-    util::focus_list<client>&, const layout_config& layout, const util::area&)>;
+    util::focus_list<client>&, const layout_config& layout, const util::rect&)>;
 
 /**
  * If @p clients contains only one clients, cliet takes all space else
  * clients takes master area and other clients split equaly slave area
  */
 void tiling_layout(util::focus_list<client>& clients, const layout_config& cfg,
-                   const util::area& area);
+                   const util::rect& area);
 
 /**
  * Resizes focused client over the whole screen area ignoring 
  */
 void fullscreen_layout(util::focus_list<client>& clients,
-                       const layout_config& cfg, const util::area& area);
+                       const layout_config& cfg, const util::rect& area);
 
 
 }  // namespace wm

@@ -25,7 +25,6 @@ struct keybinding {
 	KeySym keySym;
     action::action_base* action;
 
-
     ~keybinding() { 
         // NOTE: config uses initializer lists and that
         // makes vector of keybindings copy constructs
@@ -88,7 +87,7 @@ public:
 
     /** */
     inline virtual void handle_quit_dwmpp(action::quit_dwmpp&) override 
-        { LOG("WM: QUIT") m_running = false; }
+        { LOG("WM: QUIT"); m_running = false; }
 
     /** */
     inline virtual void handle_spawn(action::spawn& s) override 
@@ -145,11 +144,12 @@ private: // x event handlers
 
 private: // utility methods
     void grab_keys();
+    void focus_monitor(monitor* m);
+
     client*  get_client_for_window(Window w);
+    monitor* get_monitor_for_rectangle(const util::rect& rect);
     monitor* get_monitor_for_pointer_coords(int x, int y);
     monitor* get_monitor_for_window(Window w);
-    void     focus_monitor(monitor* m);
-
 
 private:
     bool m_running;

@@ -22,9 +22,6 @@ client::client(Window w, workspace* parent_workspace) :
     m_xwindow.getWindowAttrinbutes(&wa);
     m_position = { wa.x, wa.y };
     m_size     = { wa.width, wa.height };
-    //m_oldTopLeft     = { wa.x, wa.y };
-    //m_oldDimensions  = { wa.width, wa.height };
-    //m_oldBorderWidth = wa.border_width;
 }
 
 client::~client() {
@@ -41,7 +38,7 @@ void client::resize(const util::point& size) {
     m_xwindow.resizeWindow(size.x,size.y);
 }
 
-void client::move_resize(const util::area& area) {
+void client::move_resize(const util::rect& area) {
     m_position = area.top_left;
     m_size = util::point { (int)area.width, (int)area.height };
     m_xwindow.moveWindow(area.top_left.x, area.top_left.y);
@@ -80,6 +77,80 @@ void client::kill() {
 
 void client::toggle_floating() {
     m_floating = not m_floating;
+}
+
+
+void client::update_hints() {
+    auto dpy = m_xwindow.xcore->getDpyPtr();
+    long       msize;
+    XSizeHints size;
+
+    if (!XGetWMNormalHints(dpy, m_xwindow.get(), &size, &msize))
+        /* size is uninitialized, ensure that size.flags aren't used */
+        size.flags = PSize;
+    if (size.flags & PBaseSize) {
+        m_size_hints.base_w = size.base_width;
+        m_size_hints.base_h = size.base_height;
+    } else if (size.flags & PMinSize) {
+        m_size_hints.base_w = size.min_width;
+        m_size_hints.base_h = size.min_height;
+    } else
+        m_size_hints.base_w = m_size_hints.base_h = 0;
+    if (size.flags & PResizeInc) {
+        m_size_hints.inc_w = size.width_inc;
+        m_size_hints.inc_h = size.height_inc;
+    } else
+        m_size_hints.inc_w = m_size_hints.inc_h = 0;
+    if (size.flags & PMaxSize) {
+        m_size_hints.max_w = size.max_width;
+        m_size_hints.max_h = size.max_height;
+    } else
+        m_size_hints.max_w = m_size_hints.max_h = 0;
+    if (size.flags & PMinSize) {
+        m_size_hints.min_w = size.min_width;
+        m_size_hints.min_h = size.min_height;
+    } else if (size.flags & PBaseSize) {
+        m_size_hints.min_w = size.base_width;
+        m_size_hints.min_h = size.base_height;
+    } else
+        m_size_hints.min_w = m_size_hints.min_h = 0;
+    if (size.flags & PAspect) {
+        m_size_hints.min_a = (float)size.min_aspect.y / size.min_aspect.x;
+        m_size_hints.max_a = (float)size.max_aspect.x / size.max_aspect.y;
+    } else
+        m_size_hints.max_a = m_size_hints.min_a = 0.0;
+    m_size_hints.is_fixed = (m_size_hints.max_w && m_size_hints.max_h &&
+                             m_size_hints.max_w == m_size_hints.min_w &&
+                             m_size_hints.max_h == m_size_hints.min_h);
+}
+
+void client::update_wm_hints(bool is_focused) {
+    //TODO: move to xlib::XWindow;
+    auto dpy = m_xwindow.xcore->getDpyPtr();
+    XWMHints* wmh;
+
+    if ((wmh = XGetWMHints(dpy, m_xwindow.get()))) {
+        if (is_focused && wmh->flags & XUrgencyHint) {
+            wmh->flags &= ~XUrgencyHint;
+            XSetWMHints(dpy, m_xwindow.get(), wmh);
+        } else
+            m_urgent = (wmh->flags & XUrgencyHint) ? 1 : 0;
+        if (wmh->flags & InputHint)
+            m_never_focus = !wmh->input;
+        else
+            m_never_focus = 0;
+        XFree(wmh);
+    }
+}
+
+void client::update_window_type() {
+    auto state = m_xwindow.getAtomProperty(xlib::NetWMState);
+    auto wtype = m_xwindow.getAtomProperty(xlib::NetWMWindowType);
+
+    if (state == m_xwindow.xcore->getAtom(xlib::NetWMFullscreen))
+        set_fullscreen(true);
+    if (wtype == m_xwindow.xcore->getAtom(xlib::NetWMWindowTypeDialog))
+        m_floating = true;
 }
 
 void client::raise() { m_xwindow.raiseWindow(); }

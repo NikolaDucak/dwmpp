@@ -8,7 +8,7 @@ void monitor::update_monitors(util::focus_list<monitor>& monitors) {
 
 monitor::monitor(uint index, uint width, uint height) :
     m_index { index },
-    m_area { util::point { 0, 0 }, width, height },
+    m_rect { util::point { 0, 0 }, width, height },
     m_bar { width },
     m_workspaces {} {
     // set number of workspaces from config

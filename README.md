@@ -8,12 +8,11 @@ by editing the source code and recompiling. But unlike DWM it does
 not follow the suckless philosophy of not exceeding 2000 SOLC and is 
 written in multiple C++ files insted of single C file.
 
-DWMPP is currently in deep stages of development and currently does not provide
+DWMPP is currently in deep stages of development and does not provide
 all the neccesary features for a window manager!
 
 
 ## Building
-----
 Dependencies:
 - xorg
 - make

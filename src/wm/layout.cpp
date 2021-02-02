@@ -1,74 +1,61 @@
 #include "wm/layout.h"
 
 namespace wm {
-
+//TODO: remove c-style casting
 void tiling_layout(util::focus_list<client>& clients, const layout_config& cfg,
-                   const util::area& area) {
-    if (clients.empty()) return;
+                   const util::rect& area) {
+#define HEIGHT(X) ((X).get_size().y + 2 * client::conf.border_width)
+    int oe = 1, ie = 1;
+    int ww = area.width;
+    int workspace_h = area.height;
+    int wx = area.top_left.x;
+    int wy = area.top_left.y;
+    int gappiv=cfg.inner_gap*ie;
+    int gappih=cfg.inner_gap*ie;
+    int gappoh=cfg.outer_gap*oe;
+    int gappov=cfg.outer_gap*oe;
 
-    auto number_of_tiled_clients =
-        std::count_if(clients.begin(), clients.end(),
+    float mfact = cfg.master_percentage/100.f;
+    
+    unsigned n = std::count_if(clients.begin(), clients.end(),
                       [](const client& c) { return not c.is_floating(); });
 
-    if (number_of_tiled_clients == 1) {
-        clients.front().move_resize({
-            area.top_left + cfg.outer_gap,
-            area.width - (cfg.outer_gap * 2),
-            area.height - (cfg.outer_gap * 2),
-        });
+    int master_w, master_y = gappoh;
+    int slave_y = gappoh;
 
-    } else if (number_of_tiled_clients > 0) {
-        int bw = client::conf.border_width;
+    if (n > cfg.number_of_masters)
+        master_w = cfg.number_of_masters ? (ww + gappiv) * mfact : 0;
+    else
+        master_w = ww - 2 * gappov + gappiv;
 
-        util::point master_current_top_left = area.top_left + util::point {
-            (int)cfg.outer_gap - bw,
-            (int)cfg.outer_gap - bw,
-        };
-
-        util::point master_size {
-            (int)(area.width * cfg.master_percentage * 0.01) -
-                (int)(cfg.inner_gap / 2) - (int)(2 * cfg.outer_gap),
-            (int)((area.height - cfg.outer_gap * 2) / cfg.number_of_masters) -
-                (int)(cfg.inner_gap),
-        };
-
-        // nuber of slave clients
-        number_of_tiled_clients -= cfg.number_of_masters;
-
-        util::point slave_current_top_left = area.top_left + util::point {
-            (int)(master_current_top_left.x + cfg.inner_gap + master_size.x) -
-                bw,
-            (int)(cfg.outer_gap) - bw,
-        };
-
-        util::point slave_size {
-            (int)(area.width - master_current_top_left.x - master_size.x) -
-                (int)(cfg.inner_gap) - (int)cfg.outer_gap,
-            (int)((area.height - cfg.outer_gap * 2) / number_of_tiled_clients) -
-                (int)(cfg.inner_gap),
-        };
-
-        uint masters_arranged = 0;
-        for (auto& c : clients) {
+    size_t i = 0;
+    for(auto& c : clients) {
+        int r,h;
+        if (c.is_floating()) {
             c.raise();
-            if (c.is_floating()) {
-                c.raise();
-            } else if (masters_arranged < cfg.number_of_masters) {
-                c.move_resize({ master_current_top_left, (uint)master_size.x,
-                                (uint)master_size.y });
-                master_current_top_left.y += master_size.y + cfg.inner_gap;
-                masters_arranged++;
-            } else {
-                c.move_resize({ slave_current_top_left, (uint)slave_size.x,
-                                (uint)slave_size.y });
-                slave_current_top_left.y += slave_size.y + cfg.inner_gap;
-            }
+        } else if (i < cfg.number_of_masters) {
+            r = std::min(n, cfg.number_of_masters) - i;
+            h = (workspace_h - master_y - gappoh - gappih * (r - 1)) / r;
+            util::rect s { { wx + gappov, wy + master_y },
+                           (unsigned)master_w - (2 * (int)client::conf.border_width) - gappiv,
+                           (unsigned)h - (2 * (int)client::conf.border_width) };
+            c.move_resize(s);
+            master_y += HEIGHT(c) + gappih;
+        } else {
+            r = n - i;
+            h = (workspace_h - client::conf.border_width - slave_y - gappoh - gappih * (r - 1)) / r;
+            util::rect s { { wx + master_w + gappov, wy + slave_y },
+                           (unsigned)ww - master_w - (2 * (int)cfg.number_of_masters) - 2 * gappov,
+                           (unsigned)h - (2 * (int)cfg.number_of_masters) };
+            c.move_resize(s);
+            slave_y += HEIGHT(c) + gappih;
         }
+        i++;
     }
+#undef HEIGHT
 }
-
 void fullscreen_layout(util::focus_list<client>& clients,
-                       const layout_config& cfg, const util::area& area) {
+                       const layout_config& cfg, const util::rect& area) {
     if (clients.empty()) return;
 
     for (auto& c : clients) {
