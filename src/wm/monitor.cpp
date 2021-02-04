@@ -43,6 +43,7 @@ void monitor::unfocus() {
 }
 
 workspace& monitor::get_workspace(uint i) {
+    i--;
     auto temp = m_workspaces.begin();
     while(i--) temp++;
     return *temp; 

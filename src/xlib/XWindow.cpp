@@ -2,7 +2,6 @@
 #include "xlib/XError.h"
 #include <X11/X.h>
 #include <X11/Xutil.h>
-#include <iostream>
 
 namespace xlib {
 

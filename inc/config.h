@@ -15,8 +15,8 @@
 
 // clang-format off
 const wm::client::config wm::client::conf {
-    .border_width     = 7,
-    .focused_border   { "#ff0000" },
+    .border_width     = 3,
+    .focused_border   { "#4ab" },
     .unfocused_border { "#333333" },
 };
 
@@ -32,13 +32,13 @@ const wm::workspace::config wm::workspace::conf {
 
 const wm::bar::config wm::bar::conf {
     .font             { "Iosevka" },
-    .barBG            { "#777777" },
-    .barFG            { "#aaaaaa" },
-    .empty_tag_bg     { "#3d3d3d" }, 
+    .barBG            { "#30333d" },
+    .barFG            { "#898a8f" },
+    .empty_tag_bg     { "#585e74" }, 
     .empty_tag_fg     { "#4d4d4d" },
-    .focused_tag_bg   { "#dddddd" }, 
+    .focused_tag_bg   { "#71c2ff" }, 
     .focused_tag_fg   { "#dd9999" },
-    .unfocused_tag_bg { "#5f5f5f" }, 
+    .unfocused_tag_bg { "#9ce5c0" }, 
     .unfocused_tag_fg { "#afafaf" },
 };
 

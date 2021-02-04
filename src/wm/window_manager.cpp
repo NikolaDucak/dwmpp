@@ -281,7 +281,6 @@ void window_manager::on_configure_request(const XConfigureRequestEvent& e) {
 void window_manager::on_map_request(const XMapRequestEvent& e) {
     LOG("WM received: XMapRequestEvent");
     // don't create client object for already handled window
-    std::cout << "MAP " << e.window << std::endl;
     if (get_client_for_window(e.window)) return;
 
     m_monitors.focused()->workspaces().focused()->create_client(e.window);

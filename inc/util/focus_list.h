@@ -12,11 +12,10 @@ class focus_list : public std::list<T> {
 
 public:
     focus_list() : m_focused_item(this->begin()) {}
-    focus_list(std::initializer_list<T>& l) : std::list<T>(l) { }
+    focus_list(std::initializer_list<T>& l) : std::list<T>(l) {}
 
-    list_iter& focused() { return m_focused_item; }
+    list_iter&       focused() { return m_focused_item; }
     const list_iter& focused() const { return m_focused_item; }
-
 
     void focus_front() { m_focused_item = this->begin(); }
 
@@ -46,8 +45,7 @@ public:
         if (i > 0) {
             while (i--) {
                 focused_item++;
-                if (focused_item == this->end())
-                    focused_item = this->begin();
+                if (focused_item == this->end()) focused_item = this->begin();
             }
         } else if (i < 0) {
             while (i++) {
@@ -99,10 +97,9 @@ public:
     }
 
     void set_focus(list_iter iter) {
-        //NOTE: this should check if iter is appropriate
+        // NOTE: this should check if iter is appropriate
         this->m_focused_item = iter;
     }
-
 };
 
 }  // namespace util

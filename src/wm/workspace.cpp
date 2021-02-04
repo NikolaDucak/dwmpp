@@ -59,17 +59,33 @@ void workspace::move_focused_to_workspace(workspace& other) {
     // check if there is no need to move
     if (this == &other) return;
 
+    // since this method is called only on focused workspaces,
+    // moving from this ws will move it to hidden ws, so client shoud 
+    // be hidden to
+    this->m_clients.focused()->hide(); 
+    this->m_clients.focused()->drop_input_focus(); 
+
     // move client to beggining of the other list
     other.m_clients.splice(other.m_clients.begin(), this->m_clients,
                            this->m_clients.focused());
+
     // assing moved clients reference to workspace to other workspace
     other.m_clients.begin()->set_parent_workspace(&other);
+
     // reset iterators to focused clients
     other.m_clients.focus_front();
-    this->m_clients.focus_front();
+    this->focus_front(); // triger take_focus on new clien
+
     // rearange workspaces
-    other.arrange();
+    // TODO: maybe have an should_arrange flag so 
+    // we can avoid rearanging and hiding here risking flickering clients
+    // and avoid easy fix for this flickering with arangin on every show_clients()
+    other.arrange(); 
+    other.hide_clients();
     this->arrange();
+ 
+    // no need to update bar, since focus_front() will change net active
+    // wich whill triger bar update in window_manager::on_property_notify(...)
 }
 
 void workspace::kill_focused() {
