@@ -1,4 +1,6 @@
 #include "wm/window_manager.h"
+#include "xlib/XCore.h"
+#include "xlib/XWindow.h"
 #include <X11/Xlib.h>
 
 namespace wm {
@@ -41,7 +43,7 @@ void window_manager::run() {
             case ClientMessage:    on_client_message(e.xclient);              break;
             case ButtonPress:      on_button_press(e.xbutton);                break;
             case ConfigureNotify:  on_configure_notify(e.xconfigure);         break;
-            case PropertyNotify:   on_properity_notify(e.xproperty);          break;
+            case PropertyNotify:   on_property_notify(e.xproperty);          break;
             case UnmapNotify:      on_unmap_notify(e.xunmap);                 break;
             // clang-format on
         }
@@ -75,63 +77,87 @@ void window_manager::on_motion_notify(const XMotionEvent& e) {
 
 /**
  * Action triggered when any x window changes any of its atom properities.
- * This method is consernded only with:
+ * This method is conserned only with:
  *      - WM_NAME on root window
  *      - NET_ACTIVE_WINDOW on root window
  *      - WM_TRANSIENT WM_NORMAL_HINT WM_HINTS WM_NAME on any client window
  */
-void window_manager::on_properity_notify(const XPropertyEvent& e) {
+void window_manager::on_property_notify(const XPropertyEvent& e) {
     LOG("WM received: XPropertyEvent");
+    static const auto root = m_x->getRoot();
 
-    if (e.window == m_x->getRoot() && e.atom == XA_WM_NAME) {
+    if (e.window == root && e.atom == XA_WM_NAME) {
         LOG("	 -  root name / status string");
         m_monitors.focused()->bar().set_status_string(
             m_x->getTextProperity(xlib::NetWMName));
         m_monitors.focused()->update_bar();
     }
     // properity holding information about currnet active window
-    else if (e.window == m_x->getRoot() &&
+    else if (e.window == root &&
              e.atom == m_x->getAtom(xlib::NetActiveWindow)) {
         LOG("    - net active");
-        //TODO: fix
-        return;
-        auto& m = *m_monitors.focused();
-        if (m.workspaces().focused()->has_focused())
-            m.bar().set_title_string(
-                m.workspaces().focused()->clients().focused()->title());
-        else
-            m.bar().set_title_string("");
+        Window a = m_x->readActiveWindowProperty(); // TODO: myb switch to std::optional
+        if (a != 0){
+            m_monitors.focused()->bar().set_title_string(
+                xlib::XWindow { a }.getTextProperity(XA_WM_NAME));
+        } else {
+            m_monitors.focused()->bar().set_title_string("");
+        }
+        m_monitors.focused()->update_bar();
     } else {
-        switch(e.atom) {
-            case XA_WM_TRANSIENT_FOR: 
+        auto c = get_client_for_window(e.window);
+        switch (e.atom) {
+            case XA_WM_TRANSIENT_FOR: { // popup windows
                 LOG("		TRANSIENT FOR - unimpl");
+                if (!c->is_floating()) {
+                    auto t = c->get_transient_for();
+                    auto f = get_client_for_window(t) != nullptr;
+                    c->set_floating(f);
+                    if (f) c->get_parent_workspace().arrange();
+                }
                 break;
+            }
             case XA_WM_NORMAL_HINTS:
                 LOG("		WM_NORMAL_HINTS");
-                get_client_for_window(e.window)->update_hints();
+                c->update_hints();
                 break;
             case XA_WM_HINTS:
                 LOG("		WM_HINTS");
-                get_client_for_window(e.window)->update_wm_hints(false);
+                c->update_wm_hints(false);
                 break;
             case XA_WM_NAME:
-                LOG("		WM_NAME ");
-                m_monitors.focused()->bar().set_title_string(
-                    xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
+                LOG("		XA_WM_NAME ");
+                //TODO: ....
+                if (c != &*m_monitors.focused()
+                               ->workspaces()
+                               .focused()
+                               ->clients()
+                               .focused())
+                    return;
+                m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
                 m_monitors.focused()->update_bar();
                 break;
         }
         // non constexpr... cant fit in switch
         if (e.atom == m_x->getAtom(xlib::NetWMWindowType)) {
             LOG("		WM_Window_type");
-            get_client_for_window(e.window)->update_wm_hints(false);
+            c->update_wm_hints(c != &*m_monitors.focused()
+                                          ->workspaces()
+                                          .focused()
+                                          ->clients()
+                                          .focused());
         }
         if (e.atom == m_x->getAtom(xlib::NetWMName)) {
-            LOG("		WM_NAME ");
-            m_monitors.focused()->bar().set_title_string(
-                xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
+            if (c != &*m_monitors.focused()
+                           ->workspaces()
+                           .focused()
+                           ->clients()
+                           .focused())
+                return;
+            LOG("		NET_WM_NAME ");
+            m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
             m_monitors.focused()->bar();
-        } 
+        }
     }
 }
 
@@ -188,7 +214,7 @@ void window_manager::on_destroy_notify(const XDestroyWindowEvent& e) {
         LOG("    - found client for DestroyNotify window");
         auto& ws = c->get_parent_workspace();
         // removig a client focuses the first client
-        // no neet to call focus_fron
+        // no need to call focus_front
         ws.remove_client(c->get_xwindow().get());
     }
 }
@@ -228,9 +254,10 @@ void window_manager::on_enter_notify(const XCrossingEvent& e) {
 void window_manager::on_configure_request(const XConfigureRequestEvent& e) {
     LOG("WM received: XConfigureRequestEvent");
     if (auto* c = get_client_for_window(e.window)) {
-        //TODO:
-        LOG("WM received: ConfigureRequest Event | existing client - "
-            "UNIMPLEMENTED");
+        LOG("WM received: ConfigureRequest Event | existing client - ");
+        // configuring position & size of clien is alowed only on floating clients
+        if (not c->is_floating()) return; //TODO: dwm call configure(c);
+        //TODO: impl
     } else {
         LOG("WM received: ConfigureRequest Event | new client");
         XWindowChanges changes {
@@ -254,7 +281,9 @@ void window_manager::on_configure_request(const XConfigureRequestEvent& e) {
 void window_manager::on_map_request(const XMapRequestEvent& e) {
     LOG("WM received: XMapRequestEvent");
     // don't create client object for already handled window
+    std::cout << "MAP " << e.window << std::endl;
     if (get_client_for_window(e.window)) return;
+
     m_monitors.focused()->workspaces().focused()->create_client(e.window);
 }
 
@@ -281,34 +310,23 @@ void window_manager::on_button_press(const XButtonPressedEvent&) {
 
 void window_manager::on_client_message(const XClientMessageEvent& e) {
     LOG("WM received: XClientMessageEvent");
+    static auto wm_state_atom = m_x->getAtom(xlib::NetWMState);
     static auto fullscreen_atom =
-    static_cast<long>(m_x->getAtom(xlib::NetWMFullscreen));
-
+        static_cast<long>(m_x->getAtom(xlib::NetWMFullscreen));
     auto* c = get_client_for_window(e.window);
+
     if (not c) return;
 
-    // TODO: smells, high priority refactor
-    // 2 messages aceppted
-    // NetWMState -> modify fullscreen state of client
-    // if
-    // data.l[x] ==  1/2 netwmstateADD/toggle
-    // else
-    // NerWMActiveWindow -> received when a client wants attention / is
-    // urgent
-#if 1
-    if (e.message_type == m_x->getAtom(xlib::NetWMState)) {
+    if (e.message_type == wm_state_atom) {
         if (e.data.l[1] == fullscreen_atom || e.data.l[2] == fullscreen_atom) {
-            c->set_fullscreen( 
-                        (e.data.l[0] == 1) || (e.data.l[0] == 2  && !c->is_fullscreen())
-                    );
+            c->set_fullscreen((e.data.l[0] == 1) ||
+                              (e.data.l[0] == 2 && !c->is_fullscreen()));
         }
     } else if (e.message_type == m_x->getAtom(xlib::NetActiveWindow)) {
         auto& focused_client =
             *m_monitors.focused()->workspaces().focused()->clients().focused();
-        if ((c != &focused_client) && !c->is_urgent())
-            c->set_urgent(true);
+        if ((c != &focused_client) && !c->is_urgent()) c->set_urgent(true);
     }
-#endif
 }
 
 /**
@@ -324,25 +342,19 @@ void window_manager::on_expose(const XExposeEvent& e) {
 }
 
 /**
- * Focusing appropriate focus. When focus is changed checks 
+ * Focusing appropriate client. When focus is changed checks 
  * if newly focused client is focused on 
  */
 void window_manager::on_focus_in(const XFocusChangeEvent& e) {
     LOG("WM received: XFocusChangeEvent");
-    auto& focused_workspace = *m_monitors.focused()->workspaces().focused();
+    auto* c = get_client_for_window(e.window);
+    XFocusInEvent ea;
+    
+    // set bar title
+    //if(not c) return;
+    //auto& b = c->get_parent_workspace().get_parent_monitor().bar();
+    //b.set_title_string(c->title());
 
-    // TODO FIX: causes constant focus change
-    return; 
-    // sanity check, check if there is any focused client
-    if (focused_workspace.has_focused()){
-        if (focused_workspace.clients().focused()->get_xwindow().get() != e.window) {
-            if(auto a = get_client_for_window(e.window)) {
-                a->get_parent_workspace().set_focused_client(a);
-                a->get_parent_workspace().get_parent_monitor()
-                    .focus_workspace(a->get_parent_workspace().get_index());
-            }
-        }
-    }
 }
 
 /* ==========================================================================

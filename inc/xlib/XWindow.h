@@ -54,7 +54,8 @@ public:
     std::string getTextProperity(AtomType) const ;
     std::string getTextProperity(Atom) const ;
     void setFullscreen(bool fullscreen) ;
-    void setActive();
+    void dropNetActiveAtom();
+    void setNetActiveAtom();
     bool getWMProtocols(Atom** protocols, int* n) const;
     void changeProperty(Atom prop, AtomType type,
                         unsigned char* data, int data_size);

@@ -102,8 +102,8 @@ private: // x event handlers
     /** Method called when user moves the crusor. */
 	void on_motion_notify     (const XMotionEvent& e);       
 
-    /** Action trigeret when atom properity of window is changed. */
-	void on_properity_notify  (const XPropertyEvent& e);
+    /** Action trigeret when atom property of window is changed. */
+	void on_property_notify  (const XPropertyEvent& e);
 
     /** Event trigered on changing keyboard mapping. */
 	void on_mapping_notify    (XMappingEvent& e);

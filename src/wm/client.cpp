@@ -1,5 +1,6 @@
 #include "wm/client.h"
 #include "xlib/XCore.h"
+#include <X11/X.h>
 #include <unordered_map>
 
 namespace wm {
@@ -52,16 +53,18 @@ std::string client::title() const {
 void client::take_input_focus() { 
     m_xwindow.setInputFocus();
     // set atom properity of active window to be this clients window
-    m_xwindow.setActive();
+    m_xwindow.setNetActiveAtom();
     m_xwindow.setWindowBorder(conf.focused_border.get().pixel);
     // no neet to trySendEvent, everything should support WMTakeFocus
     m_xwindow.sendEvent(xlib::WMTakeFocus); 
 }
 
 void client::drop_input_focus() { 
-    // TODO: smells..
+    // TODO: move to xlib
+    //m_xwindow.dropInputFocus()
     XSetInputFocus(m_xwindow.xcore->getDpyPtr(), m_xwindow.xcore->getRoot(),
                    RevertToPointerRoot, CurrentTime);
+    m_xwindow.dropNetActiveAtom();
     m_xwindow.setWindowBorder(conf.unfocused_border.get().pixel);
 }
 
@@ -74,12 +77,12 @@ void client::kill() {
     if (not m_xwindow.trySendEvent(xlib::WMDelete)) {
         m_xwindow.killClient();
     }
-
 }
 
-
-void client::toggle_floating() {
-    m_floating = not m_floating;
+Window client::get_transient_for() {
+    Window trans;
+    XGetTransientForHint(m_xwindow.xcore->getDpyPtr(), m_xwindow.get(), &trans); 
+    return trans;
 }
 
 
@@ -156,6 +159,7 @@ void client::update_window_type() {
         m_floating = true;
 }
 
+void client::toggle_floating() { m_floating = not m_floating; }
 void client::raise() { m_xwindow.raiseWindow(); }
 void client::hide() { m_xwindow.moveWindow(-m_size.x - m_position.x - 1, 0); }
 void client::show() { m_xwindow.moveWindow(m_position.x, m_position.y); }

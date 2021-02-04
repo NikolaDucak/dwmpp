@@ -50,10 +50,13 @@ public:
     void show();
     void raise();
 
+    Window get_transient_for();
+
     void update_hints();
     void update_wm_hints(bool is_focused);
     void update_window_type();
 
+    void set_floating(bool f) { m_floating = f; }
     bool is_floating() const { return m_floating; }
     void toggle_floating();
 

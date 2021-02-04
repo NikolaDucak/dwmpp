@@ -1,5 +1,6 @@
 #include "xlib/XWindow.h"
 #include "xlib/XError.h"
+#include <X11/X.h>
 #include <X11/Xutil.h>
 #include <iostream>
 
@@ -40,7 +41,7 @@ Atom XWindow::getAtomProperty(AtomType at) {
     unsigned char* p = NULL;
     Atom           da, atom = None;
 
-    if (XGetWindowProperty(xcore->getDpyPtr(), m_w, xcore->getAtom(at), 0L, sizeof atom, False, XA_ATOM,
+    if (XGetWindowProperty(xcore->getDpyPtr(), m_w, xcore->getAtom(at), 0L, sizeof(atom), False, XA_ATOM,
                            &da, &di, &dl, &dl, &p) == Success &&
         p) {
         atom = *(Atom*)p;
@@ -141,18 +142,27 @@ bool XWindow::getWMProtocols(Atom** protocols, int* n) const {
 }
 
 
+//TODO: atom type is gonna cause some errors...
 void XWindow::changeProperty(Atom prop, AtomType type,
                     unsigned char* data, int data_size) {
     XChangeProperty(xcore->getDpyPtr(), m_w, prop, type, 32, PropModeReplace,
                     (unsigned char*)data, data_size);
 }
 
-void XWindow::setActive() {
+void XWindow::dropNetActiveAtom() {
     XChangeProperty(xcore->getDpyPtr(),
                     xcore->getRoot(), 
                     xcore->getAtom(NetActiveWindow),
                     XA_WINDOW, 32, PropModeReplace, 
-                    (unsigned char*)&m_w, 1);
+                    (unsigned char*)0, 0);
+}
+
+void XWindow::setNetActiveAtom() {
+    XChangeProperty(xcore->getDpyPtr(),
+                    xcore->getRoot(), 
+                    xcore->getAtom(NetActiveWindow),
+                    XA_WINDOW, 32, PropModeReplace, 
+                    (unsigned char*)&m_w, 2);
 }
 
 void XWindow::setFullscreen(bool fullscreen) {

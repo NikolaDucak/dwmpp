@@ -36,6 +36,8 @@ public:
 
     static XCore& instance();
 
+    Window readActiveWindowProperty();
+
     void sync(bool a);
     void getWindowAttributes(Window w, XWindowAttributes& wa);
 

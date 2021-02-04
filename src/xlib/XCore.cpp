@@ -35,6 +35,25 @@ XCore::XCore( char * d ) :
     err::init();
 }
 
+Window XCore::readActiveWindowProperty() {
+    int            di;
+    unsigned long  dl;
+    unsigned long  data_length;
+    unsigned char* p = NULL;
+    Atom           da;
+    Window out;
+    XGetWindowProperty(dpy_, root_, getAtom(NetActiveWindow), 
+                       0L, sizeof(Atom), False, // TODO: sizeof may not be correct 
+                       XA_WINDOW, &da, &di, &data_length, &dl, &p);
+    if(data_length) {
+        out = *(Window*)p;
+        return out;
+    } else {
+        return 0;
+    }
+    XFree(p);
+}
+
 void XCore::sync(bool a) { 
     XSync(dpy_, a);
 }

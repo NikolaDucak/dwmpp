@@ -7,8 +7,8 @@ bar::bar(uint width) :
     m_visible(true),
     m_width(width),
     m_xwindow(0, 0, width, conf.font.getHeight()),
-    m_title("INIT title"),
-    m_status("INIT STATUS") {
+    m_title(""),
+    m_status("dwmpp 0.01") {
     // map window to root surface and raise it above other windows
     m_xwindow.mapRaised();
     // tell x that for bar window only mouse button event and expose events
@@ -47,7 +47,6 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
 
     // fill bar background
     graphics.fillRectangle(conf.barBG, { 0, 0 }, { (int)m_width, height });
-
 
     // draw all workspace tag quares
     for (const auto& ws : workspaces) {
