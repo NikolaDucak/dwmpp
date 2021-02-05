@@ -10,7 +10,7 @@
 
 //TODO: figure out what to do with initializer list with unique ptr errror
 //#define ACTION(act, arg)  std::make_unique<action:: act>(arg)
-#define ACTION(act, arg)  new action:: act{arg}
+#define ACTION(act, arg)  new action:: act{ arg }
 #define CONFIG_ACTION(act, func) new action:: act{ []( layout_config& conf ) func }
 
 // clang-format off
@@ -46,7 +46,7 @@ static constexpr auto ModKey = Mod4Mask;
 
 const wm::window_manager::config wm::window_manager::conf {
     .keybindings {
-        //keybinding { ModKey, XK_l,      CONFIG_ACTION(layout_config, {conf.inner_gap+=10;}) },
+        //keybinding { ModKey, XK_l,      CONFIG_ACTION(layout_config, []{conf.inner_gap+=10;}) },
 
         // ending session
         keybinding { ModKey, XK_BackSpace, ACTION(quit_dwmpp,) },
@@ -64,6 +64,13 @@ const wm::window_manager::config wm::window_manager::conf {
         // moving focus
         keybinding { ModKey, XK_j,      ACTION(move_focus, +1) },
         keybinding { ModKey, XK_k,      ACTION(move_focus, -1) },
+
+        // moving client on his stack
+        keybinding { ModKey | ShiftMask, XK_j,      ACTION(move_focused, +1) },
+        keybinding { ModKey | ShiftMask, XK_k,      ACTION(move_focused, -1) },
+
+        // moving client to the top of the stack
+        keybinding { ModKey | ShiftMask, XK_Return, ACTION(move_focused_to_top, ) },
 
         // spawning
         keybinding { ModKey, XK_D,      ACTION(spawn, "dmenu_run") },

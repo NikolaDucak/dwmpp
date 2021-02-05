@@ -17,6 +17,7 @@ struct move_focus : public action_base {
 };
 
 struct move_focused : public action_base {
+    move_focused(int i) : i(i) {}
     inline virtual void execute(action_handler& handler) override 
         { handler.handle_move_focused(*this); }
     int i;

@@ -17,9 +17,10 @@ LDFLAGS = -lX11 -lfontconfig -lXft
 
 
 all:
-	g++ -std=c++17 -O2 -lX11 -lXinerama -I./inc/ -I/usr/include/freetype2 -lfontconfig -lXft $(SRCS) -o $(BUILD_DIR)/$(TARGET_EXEC)
+	g++ -std=c++17 -Os -lX11 -lXinerama -I./inc/ -I/usr/include/freetype2 -lfontconfig -lXft $(SRCS) -o $(BUILD_DIR)/$(TARGET_EXEC)
 debug:
 	g++ -std=c++17 -g -DDEBUG_LOG -lX11 -lXinerama -I./inc/ -I/usr/include/freetype2 -lfontconfig -lXft $(SRCS) -o $(BUILD_DIR)/$(TARGET_EXEC)
+
 # main target 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LDFLAGS)

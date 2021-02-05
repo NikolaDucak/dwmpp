@@ -49,10 +49,14 @@ void workspace::move_focused(int i) {
     auto next_position = m_clients.circulate_next_with_end((i > 0) ? i + 1 : i);
     //( newpos, other, currpos)
     m_clients.splice(next_position, m_clients, clientPosition);
+    // rearange new stack
+    arrange();
 }
 
 void workspace::move_focused_to_top() {
     m_clients.splice(m_clients.begin(), m_clients, m_clients.focused());
+    // arrange/display after changing client stack
+    arrange();
 }
 
 void workspace::move_focused_to_workspace(workspace& other) {
