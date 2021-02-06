@@ -70,6 +70,7 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
     // display drawn bar on bar window
     graphics.copyArea(m_xwindow.get(), { 0, 0 }, { (int)m_width, height });
 
+    //TODO: length check for drawing realy titles
     // display title of active window in the middle of the bar
     int title_left = (m_width - conf.font.getTextWidthInPixels(m_title))/2;
     graphics.drawText(m_xwindow, conf.font, conf.barFG, point { title_left, 0 }, m_title);

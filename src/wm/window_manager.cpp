@@ -17,6 +17,7 @@ window_manager::window_manager(xlib::XCore* x) : m_running(false), m_x(x) {
 
 window_manager::~window_manager() {
     //TODO: move to xlib
+    //TODO: cleanup, kill all clients, remove atom values
     XCloseDisplay(m_x->getDpyPtr());
 }
 
@@ -54,14 +55,6 @@ void window_manager::run() {
  *                              X EVENT HANDLERS
  * ========================================================================== */
 
-/**
- * Action triggered whenever mouse pointer is moved.
- * This method checks that movement sets cursour outside
- * the current screen. If cursor is now outside the current screen
- * and we find that cursor coords are now inside the other monitor
- * we focus that monitor and that
- * @note Function is used for multimonitor purposes and nothing else
- */
 void window_manager::on_motion_notify(const XMotionEvent& e) {
     LOG("WM received: XMotionEvent");
     static monitor* old_monitor = NULL;
@@ -75,13 +68,6 @@ void window_manager::on_motion_notify(const XMotionEvent& e) {
     old_monitor = new_monitor;
 }
 
-/**
- * Action triggered when any x window changes any of its atom properities.
- * This method is conserned only with:
- *      - WM_NAME on root window
- *      - NET_ACTIVE_WINDOW on root window
- *      - WM_TRANSIENT WM_NORMAL_HINT WM_HINTS WM_NAME on any client window
- */
 void window_manager::on_property_notify(const XPropertyEvent& e) {
     LOG("WM received: XPropertyEvent");
     static const auto root = m_x->getRoot();
@@ -127,12 +113,7 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
                 break;
             case XA_WM_NAME:
                 LOG("		XA_WM_NAME ");
-                //TODO: ....
-                if (c != &*m_monitors.focused()
-                               ->workspaces()
-                               .focused()
-                               ->clients()
-                               .focused())
+                if (c != &get_focused_client())
                     return;
                 m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
                 m_monitors.focused()->update_bar();
@@ -141,18 +122,10 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
         // non constexpr... cant fit in switch
         if (e.atom == m_x->getAtom(xlib::NetWMWindowType)) {
             LOG("		WM_Window_type");
-            c->update_wm_hints(c != &*m_monitors.focused()
-                                          ->workspaces()
-                                          .focused()
-                                          ->clients()
-                                          .focused());
+            c->update_wm_hints(c != &get_focused_client());
         }
         if (e.atom == m_x->getAtom(xlib::NetWMName)) {
-            if (c != &*m_monitors.focused()
-                           ->workspaces()
-                           .focused()
-                           ->clients()
-                           .focused())
+            if (c != &get_focused_client())
                 return;
             LOG("		NET_WM_NAME ");
             m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
@@ -161,28 +134,17 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
     }
 }
 
-/**
- * Catching changes in keyboard mapping and regrabbing
- * keybindings. Changing keyboard maping breaks keybindings
- * so regrabbing is neccesary.
- */
 void window_manager::on_mapping_notify(XMappingEvent& e) {
     LOG("WM received: XMappingEvent");
     m_x->refreshKeyboardMapping(e);
     if (e.request == MappingKeyboard) grab_keys();
 }
 
-/**
- * Notification received when client no longer wants to be 
- * drawn on the screen. This can happen when client processes
- * is finished and needs to be removed from the workspace
- */
 void window_manager::on_unmap_notify(const XUnmapEvent& e) {
     LOG("WM received: XUnmapEvent");
 
     auto c = get_client_for_window(e.window);
     if (not c) return;
-
 
     // used only for withdrawn state
     LOG("    - Found client! unmap came from send event: " << e.send_event);
@@ -193,23 +155,19 @@ void window_manager::on_unmap_notify(const XUnmapEvent& e) {
     }
 }
 
-/**
- * Event used for updating changes in number of physical monitor.
- * Change in physical monitors is manifested through change in root 
- * window size. Method checks only if root was reconfigured and 
- * updates m_monitors method.
- */
 void window_manager::on_configure_notify(const XConfigureEvent& e) {
     LOG("WM received: XConfigureEvent");
 
 	if (e.window == m_x->getRoot()) {
-        //TODO
+        //TODO: in order to finish handling this event, multi monitor
+        //support needs to be added
 	}
 }
 
 void window_manager::on_destroy_notify(const XDestroyWindowEvent& e) {
     LOG("WM received: XDestroyWindowEvent");
-
+    // if destroyed window is not mapped by dwmpp no
+    // need to do anything
     if (auto* c = get_client_for_window(e.window)) {
         LOG("    - found client for DestroyNotify window");
         auto& ws = c->get_parent_workspace();
@@ -219,11 +177,6 @@ void window_manager::on_destroy_notify(const XDestroyWindowEvent& e) {
     }
 }
 
-/**
- * Event trigered every time pointer enters the area of any client.
- * DWMPP checks for what client enter notify is generated and
- * gives him, his workspace & his monitor focus.
- */
 void window_manager::on_enter_notify(const XCrossingEvent& e) {
     LOG("WM received: XCrossingEvent");
 
@@ -274,21 +227,14 @@ void window_manager::on_configure_request(const XConfigureRequestEvent& e) {
     m_x->sync(False);
 }
 
-/**
- * Method handling when a client wants to be show on screen (new client created or
- * client switching from withdrawn state)
- */
 void window_manager::on_map_request(const XMapRequestEvent& e) {
     LOG("WM received: XMapRequestEvent");
     // don't create client object for already handled window
     if (get_client_for_window(e.window)) return;
-
+    // let the current workspace handle client creation and arrangement
     m_monitors.focused()->workspaces().focused()->create_client(e.window);
 }
 
-/**
- * Method calling apropriate handler when the user uses a dwmpp keybinding.
- */
 void window_manager::on_key_press(const XKeyEvent& e) {
     LOG("WM received: XKeyEvent");
     auto key =
@@ -322,15 +268,11 @@ void window_manager::on_client_message(const XClientMessageEvent& e) {
                               (e.data.l[0] == 2 && !c->is_fullscreen()));
         }
     } else if (e.message_type == m_x->getAtom(xlib::NetActiveWindow)) {
-        auto& focused_client =
-            *m_monitors.focused()->workspaces().focused()->clients().focused();
+        auto& focused_client = get_focused_client();
         if ((c != &focused_client) && !c->is_urgent()) c->set_urgent(true);
     }
 }
 
-/**
- *
- */
 void window_manager::on_expose(const XExposeEvent& e) {
     LOG("WM received: XExposeEvent");
     // if no more expose events are generated
@@ -340,20 +282,9 @@ void window_manager::on_expose(const XExposeEvent& e) {
     }
 }
 
-/**
- * Focusing appropriate client. When focus is changed checks 
- * if newly focused client is focused on 
- */
-void window_manager::on_focus_in(const XFocusChangeEvent& e) {
+void window_manager::on_focus_in(const XFocusChangeEvent& ) {
     LOG("WM received: XFocusChangeEvent");
-    auto* c = get_client_for_window(e.window);
-    XFocusInEvent ea;
-    
-    // set bar title
-    //if(not c) return;
-    //auto& b = c->get_parent_workspace().get_parent_monitor().bar();
-    //b.set_title_string(c->title());
-
+    // TODO: is this event necessary?
 }
 
 /* ==========================================================================
@@ -403,6 +334,10 @@ monitor* window_manager::get_monitor_for_window(Window w) {
         return &c->get_parent_workspace().get_parent_monitor();
 
     return &*m_monitors.focused();
+}
+
+client& window_manager::get_focused_client() {
+    return *m_monitors.focused()->workspaces().focused()->clients().focused();
 }
 
 monitor* window_manager::get_monitor_for_rectangle(const util::rect& rect) {

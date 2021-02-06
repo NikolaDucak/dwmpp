@@ -99,46 +99,121 @@ public:
         { LOG("SHELL CMD - UNIMPLEMENTED" ); }
 
 private: // x event handlers
-    /** Method called when user moves the crusor. */
+
+    /**
+     * Action triggered whenever mouse pointer is moved.
+     * This method checks that movement sets cursour outside
+     * the current screen. If cursor is now outside the current screen
+     * and we find that cursor coords are now inside the other monitor
+     * we focus that monitor and that
+     * @note dwmpp uses this event only for multimonitor purposes
+     */
 	void on_motion_notify     (const XMotionEvent& e);       
 
-    /** Action trigeret when atom property of window is changed. */
+    /**
+     * Action triggered when any x window changes any of its atom properities.
+     * This method is conserned only with:
+     *      - WM_NAME on root window
+     *      - NET_ACTIVE_WINDOW on root window
+     *      - WM_TRANSIENT WM_NORMAL_HINT WM_HINTS WM_NAME on any client window
+     */
 	void on_property_notify  (const XPropertyEvent& e);
 
-    /** Event trigered on changing keyboard mapping. */
+    /**
+     * Catching changes in keyboard mapping and regrabbing
+     * keybindings. Changing keyboard maping breaks keybindings
+     * so regrabbing is neccesary.
+     */
 	void on_mapping_notify    (XMappingEvent& e);
 
-    /** Event triggered when a client doesn't want to be drawn. */
+    /**
+     * Notification received when client no longer wants to be 
+     * drawn on the screen. This can happen when client processes
+     * is finished and needs to be removed from the workspace
+     */
 	void on_unmap_notify      (const XUnmapEvent& e);
 
-    /** Event triggered when client is reconfigured (size, position etc.).*/
+    /**
+     * Event used for updating changes in number of physical monitor.
+     * Change in physical monitors is manifested through change in root 
+     * window size. Method checks only if root was reconfigured and 
+     * updates m_monitors method.
+     * @note dwmpp uses this event only for detecting changes physical
+     * monitor number or layout.
+     */
 	void on_configure_notify  (const XConfigureEvent& e);
 
-    /** Event triggered when process using that window has ended. */
+    /** 
+     * Event triggered when process using that window has ended. 
+     */
 	void on_destroy_notify    (const XDestroyWindowEvent& e);
 
-    /** Event triggered when mouse cursor enters client area. */
+    /**
+     * XCrossingEvent is either LeaveNotify or EnterNotify.
+     * These events occur when the pointer enters or leaves a window.
+     * These events are selected with XEnterWindowMask and XLeaveWindowMask 
+     * with XSelectInput.
+     */
 	void on_enter_notify      (const XCrossingEvent& e);
 
-    /** */
+    /**
+     * A ConfigureRequest event reports when another client attempts to 
+     * change a window’s size, position, border, and/or stacking order.
+     * This event differs from ConfigureNotify in that it delivers the 
+     * parameters of the request before it is carried out. This gives 
+     * the client that selects this event (usually the window manager) 
+     * the opportunity to revise the requested configuration before 
+     * executing the XConfigureWindow() request itself or to deny the 
+     * request. (ConfigureNotify indicates the final outcome of the
+     * request.)
+     */
 	void on_configure_request (const XConfigureRequestEvent& e);
 
-    /** Event sent to WM when a client wants to be drawn on the screen. */
+    /**
+     * A MapRequest event occurs when the functions XMapRaised() 
+     * and XMapWindow() are called (when client wants to be drawn 
+     * on the screen.  This event differs from MapNotify in that 
+     * it delivers the parameters of the request before it is carried 
+     * out. This gives the client that selects this event (usually 
+     * the window manager) the opportunity to revise the size or position 
+     * of the window before executing the map request itself or to deny 
+     * the request. (MapNotify indicates the final outcome of the request.)
+     */
 	void on_map_request       (const XMapRequestEvent& e);
 
-    /** Event sent to WM when user presses one of the grabed keys (grabbed keys are config keybindings). */
+    /** 
+     * Event sent to WM when user presses one of the grabed keys 
+     * (grabbed keys are config keybindings). 
+     */
 	void on_key_press         (const XKeyEvent& e);
 
-    /** Event sent to WM when user klicks one of the mouse buttons from configuration. */
+    /**
+     * Event sent to WM when user klicks one of the mouse buttons 
+     * from configuration. Buttons p
+     */
 	void on_button_press      (const XButtonPressedEvent& e);
     
-    /** */
+    /**
+     * A ClientMessage event is sent as a result of a call to 
+     * XSendEvent() by a client to a particular window. 
+     * Any type of event can be sent with XSendEvent().
+     * DWMPP uses this to check if client wants to bee fullscreen
+     * or requires attention (urgent).
+     */
 	void on_client_message    (const XClientMessageEvent& e);
 
-    /** Event sent to WM whenever an obstructed part of client is visible again. */
+    /**
+     * An Expose event is generated when a window becomes visible or a 
+     * previously invisible part of a window becomes visible.
+     */
 	void on_expose            (const XExposeEvent& e);
 
-    /** Event sent to WM whenever a client takes input focus. */
+    /**
+     * FocusIn and FocusOut events occur when the keyboard focus window changes
+     * as a result of an XSetInputFocus() call. They are much like EnterNotify 
+     * and LeaveNotify events except that they track the focus rather than 
+     * the pointer.
+     */
 	void on_focus_in          (const XFocusChangeEvent& e);
 
 // clang-format on
@@ -151,6 +226,7 @@ private: // utility methods
     monitor* get_monitor_for_rectangle(const util::rect& rect);
     monitor* get_monitor_for_pointer_coords(int x, int y);
     monitor* get_monitor_for_window(Window w);
+    client&  get_focused_client();
 
 private:
     bool m_running;
