@@ -11,8 +11,9 @@ monitor::monitor(uint index, uint width, uint height) :
     m_rect { util::point { 0, 0 }, width, height },
     m_bar { width },
     m_workspaces {} {
-    // set number of workspaces from config
-    for (size_t i = 1; i <= workspace::conf.workspaces.size(); i++) {
+
+    // populate `m_workspaces` with number of workspaces from config
+    for (size_t i = 0; i < workspace::conf.workspaces.size(); i++) {
         m_workspaces.emplace_back(this, i);
     }
 

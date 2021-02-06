@@ -1,4 +1,5 @@
 #include "wm/bar.h"
+#include "xlib/XColor.h"
 
 
 namespace wm {
@@ -37,34 +38,45 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
     static const int height = conf.font.getHeight();
 
     // dimesions of workspace tag square
-    static const point tag_size { height, height };
+    point tag_size { height, height };
 
     // first workspace tag square x,y location
     point tag_position { 0, 0 };
 
-    // distance from left corner of one tag to left corner of other
-    int next_tag_position_inc = height + 1;
-
     // fill bar background
     graphics.fillRectangle(conf.barBG, { 0, 0 }, { (int)m_width, height });
 
+    // space between tag markers
+    static const int tag_padding = 2;
+
     // draw all workspace tag quares
     for (const auto& ws : workspaces) {
-        const xlib::XColor *tag_bg;
+        const xlib::XColor *tag_bg, *tag_fg;
+        auto& ws_name = workspace::conf.workspaces[ws.get_index()];
 
         // select tag square color
-        if (ws.get_index() == workspaces.focused()->get_index())
+        if (ws.get_index() == workspaces.focused()->get_index()) {
             tag_bg = &conf.focused_tag_bg;
-        else if (ws.empty())
+            tag_fg = &conf.focused_tag_fg;
+        } else if (ws.empty()) {
             tag_bg = &conf.empty_tag_bg;
-        else 
+            tag_fg = &conf.empty_tag_fg;
+        } else {
             tag_bg = &conf.unfocused_tag_bg;
+            tag_fg = &conf.unfocused_tag_fg;
+        }
 
-        // draw tag square
+        // match size of tag bg rect with 
+        tag_size.x = conf.font.getTextWidthInPixels(ws_name);
+        // TODO: center text when forcing square tag rect
+        // tag_size.x = (tag_size.x < tag_size.y) ? tag_size.y : tag_size.x; // forcing square markers
+
+        // draw tag rect
         graphics.fillRectangle(*tag_bg, tag_position, tag_size);
+        graphics.drawText(m_xwindow, conf.font, *tag_fg, tag_position, ws_name);
 
         // move tag position to next tag that's gonna be drawn
-        tag_position.x += next_tag_position_inc;
+        tag_position.x += tag_size.x + tag_padding;
     }
 
     // display drawn bar on bar window
