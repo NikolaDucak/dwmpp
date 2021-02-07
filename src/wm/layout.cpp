@@ -2,7 +2,6 @@
 
 namespace wm {
 
-// TODO: remove c-style casting
 void tiling_layout(util::focus_list<client>& clients, const layout_config& cfg,
                    const util::rect& area) {
     int oe = 1, ie = 1;  // TODO: get from config

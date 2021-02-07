@@ -1,22 +1,22 @@
 #pragma once
 
-#include "XCore.h"
-#include "XWindow.h"
 #include "XColor.h"
+#include "XCore.h"
 #include "XFont.h"
+#include "XWindow.h"
 #include "util/point.h"
+
 #include <string>
 #include <vector>
 
 namespace xlib {
 
 class XGraphics {
-
 public:
     XGraphics();
 
-    void drawText(XWindow& w, const XFont& fnt, const XColor& clr, 
-                  point xy, const std::string& text);
+    void drawText(const XFont& fnt, const XColor& clr, point xy,
+                  const std::string& text);
 
     void fillRectangle(const XColor& c, point xy, point wh);
 
@@ -25,10 +25,8 @@ public:
     static XCore* xcore;
 
 private:
-
     Pixmap drawable_;
-    GC gc_;
+    GC     gc_;
 };
 
-
-} // namespace xlib
+}  // namespace xlib

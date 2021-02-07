@@ -73,23 +73,23 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
 
         // draw tag rect
         graphics.fillRectangle(*tag_bg, tag_position, tag_size);
-        graphics.drawText(m_xwindow, conf.font, *tag_fg, tag_position, ws_name);
+        graphics.drawText(conf.font, *tag_fg, tag_position, ws_name);
 
         // move tag position to next tag that's gonna be drawn
         tag_position.x += tag_size.x + tag_padding;
     }
 
-    // display drawn bar on bar window
-    graphics.copyArea(m_xwindow.get(), { 0, 0 }, { (int)m_width, height });
-
     //TODO: length check for drawing realy titles
     // display title of active window in the middle of the bar
     int title_left = (m_width - conf.font.getTextWidthInPixels(m_title))/2;
-    graphics.drawText(m_xwindow, conf.font, conf.barFG, point { title_left, 0 }, m_title);
+    graphics.drawText(conf.font, conf.barFG, point { title_left, 0 }, m_title);
 
     // display status in the rightmost corner of bar
     int status_left = m_width - conf.font.getTextWidthInPixels(m_status);
-    graphics.drawText(m_xwindow, conf.font, conf.barFG, point { status_left, 0 }, m_status);
+    graphics.drawText(conf.font, conf.barFG, point { status_left, 0 }, m_status);
+
+    // display drawn bar on bar window
+    graphics.copyArea(m_xwindow.get(), { 0, 0 }, { (int)m_width, height });
 }
 
 void bar::toggle_visibility() {
