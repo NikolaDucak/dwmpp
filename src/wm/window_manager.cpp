@@ -83,7 +83,7 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
              e.atom == m_x->getAtom(xlib::NetActiveWindow)) {
         LOG("    - net active");
         Window a = m_x->readActiveWindowProperty(); // TODO: myb switch to std::optional
-        if (a != 0){
+        if (a != 0) {
             m_monitors.focused()->bar().set_title_string(
                 xlib::XWindow { a }.getTextProperity(XA_WM_NAME));
         } else {
@@ -193,19 +193,19 @@ void window_manager::on_enter_notify(const XCrossingEvent& e) {
     // if focused client is entered client, no action
     if (&*m->workspaces().focused()->clients().focused() == c) return;
 
-    // TODO: 
-    return;
     // else unfocus current selected client
     m_monitors.focused()->workspaces().focused()->unfocus();
 
     // select new monitor if needed
     if (m != &*m_monitors.focused()) { focus_monitor(m); }
+    
     // set selected client iterator in workspace
     m_monitors.focused()->workspaces().focused()->set_focused_client(c);
 }
 
 void window_manager::on_configure_request(const XConfigureRequestEvent& e) {
     LOG("WM received: XConfigureRequestEvent");
+
     if (auto* c = get_client_for_window(e.window)) {
         LOG("WM received: ConfigureRequest Event | existing client - ");
         // configuring position & size of clien is alowed only on floating clients

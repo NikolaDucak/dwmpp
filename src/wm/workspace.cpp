@@ -150,7 +150,11 @@ void workspace::arrange() {
 void workspace::set_focused_client(client* cl) {
     auto pos = std::find_if(m_clients.begin(), m_clients.end(),
                             [&](const client& c) { return &c == cl; });
-    if (pos != m_clients.end()) m_clients.set_focus(pos);
+    if (pos != m_clients.end()) {
+        m_clients.set_focus(pos);
+        m_clients.focused()->take_input_focus();
+    }
+
 }
 
 void workspace::unfocus() {
