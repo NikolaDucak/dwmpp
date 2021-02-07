@@ -283,7 +283,7 @@ void window_manager::on_expose(const XExposeEvent& e) {
 }
 
 void window_manager::on_focus_in(const XFocusChangeEvent& ) {
-    LOG("WM received: XFocusChangeEvent");
+    // LOG("WM received: XFocusChangeEvent");
     // TODO: is this event necessary?
 }
 

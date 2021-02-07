@@ -28,7 +28,7 @@ void workspace::focus_front() {
 void workspace::focused_toggle_floating() {
     if (has_focused()) {
         m_clients.focused()->toggle_floating();
-        m_clients.focused()->drop_input_focus();
+        arrange();
     }
 }
 

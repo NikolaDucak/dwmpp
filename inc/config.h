@@ -76,6 +76,9 @@ const wm::window_manager::config wm::window_manager::conf {
         keybinding { ModKey, XK_D,      ACTION(spawn, "dmenu_run") },
         keybinding { ModKey, XK_Return, ACTION(spawn, "st") },
 
+        // toggling bars visibility
+        keybinding { ModKey, XK_b,      ACTION(toggle_bar, ) },
+
         // focus workspace
         keybinding { ModKey, XK_1,      ACTION(focus_workspace, 1) },
         keybinding { ModKey, XK_2,      ACTION(focus_workspace, 2) },
