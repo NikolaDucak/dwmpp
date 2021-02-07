@@ -4,11 +4,8 @@
 
 /* TODO: 
  * - window manager should update netclientlist atom 
- * - switching layout *sometimes* crashex dwmpp
- * - FIX: toggling `floating` on client crashes dwmpp
- *      retproduce: win+return x3
- *      win + k x2 to select middle client
- *      win + f 
+ * - supporting window for NetWMCheck 
+ * - cleanup for XColor, XFont... unmanage all clients
  */
 
 int main() {
