@@ -1,50 +1,27 @@
 # Flags
-TARGET_EXEC ?= dwmpp
-BUILD_DIR ?= ./build
-SRC_DIRS ?= ./src
+TARGET_EXEC = dwmpp
+BUILD_DIR = ./build
+SRC_DIR = ./src
 
-SRCS := $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
+SRCS = $(shell find $(SRC_DIRS) -name *.cpp -or -name *.c -or -name *.s)
+OBJS = $(SRCS:%=$(BUILD_DIR)/%.o)
 
-DEPS := $(OBJS:.o=.d)
+INC_FLAGS = -I./inc -I/usr/include/freetype2
+LIB_FLAGS = -lX11 -lXinerama -lfontconfig -lXft
 
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+CPPFLAGS = -std=c++17 -O2 $(INC_FLAGS)
 
-CPPFLAGS = -std=c++17 $(INC_FLAGS) -MMD -MP -ggdb
-CXXFLAGS = -lX11 -lXinerama -I./inc -I/usr/include/freetype2 -lfontconfig -lXft
-LDFLAGS = -lX11 -lfontconfig -lXft
-
-
-all:
-	g++ -std=c++17 -Os -lX11 -lXinerama -I./inc/ -I/usr/include/freetype2 -lfontconfig -lXft $(SRCS) -o $(BUILD_DIR)/$(TARGET_EXEC)
-debug:
-	g++ -std=c++17 -g -DDEBUG_LOG -lX11 -lXinerama -I./inc/ -I/usr/include/freetype2 -lfontconfig -lXft $(SRCS) -o $(BUILD_DIR)/$(TARGET_EXEC)
-
-# main target 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CXX) $(OBJS) -o $@ $(LDFLAGS)
+	$(CXX) $(OBJS) -o $@ $(LIB_FLAGS)
 
-# assembly
-$(BUILD_DIR)/%.s.o: %.s
-	$(MKDIR_P) $(dir $@)
-	$(AS) $(ASFLAGS) -c $< -o $@
-
-# c++ source
 $(BUILD_DIR)/%.cpp.o: %.cpp
-	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
-.PHONY: clean
+	@mkdir -p $(dir $@)
+	$(CXX) $(CPPFLAGS)  -c $< -o $@
 
 clean:
-	$(RM) -r $(BUILD_DIR)
+	@rm -rf $(BUILD_DIR)
 
--include $(DEPS)
-
-MKDIR_P ?= mkdir -p
-
-
-.PHONY: run
 run: $(BIN)
-	./build/project-name
+	@./debug_run.sh
+
+.PHONY: run clean
