@@ -2,6 +2,7 @@
 #include "xlib/XError.h"
 #include <X11/X.h>
 #include <X11/Xutil.h>
+#include <iostream>
 
 namespace xlib {
 
@@ -62,13 +63,14 @@ void XWindow::sendEvent(AtomType a) {
 }
 
 bool XWindow::trySendEvent(AtomType a) {
-    if (supportsProtocol(a)) {
+    Atom at = xcore->getAtom(a); 
+    if (supportsProtocol(at)) {
         XEvent ev;
         ev.type                 = ClientMessage;
         ev.xclient.window       = m_w;
         ev.xclient.message_type = xcore->getAtom(xlib::WMProtocols);
         ev.xclient.format       = 32;
-        ev.xclient.data.l[0]    = a;
+        ev.xclient.data.l[0]    = at;
         ev.xclient.data.l[1]    = CurrentTime;
 
         sendEvent(ev);
@@ -115,16 +117,12 @@ int d(Display*, XErrorEvent*) {
 
 void XWindow::killClient() {
     auto dpy = xcore->getDpyPtr();
-
     XGrabServer(dpy);
-    //err::use_dummy_err_handler(); 
-    auto org = XSetErrorHandler(d);
+    err::use_dummy_err_handler(); 
     XSetCloseDownMode(dpy, DestroyAll);
     XKillClient(dpy, m_w);
-    //TODO: this shows IO errors where there are none
     xcore->sync(False);
-    //err::use_original_err_handler();
-    XSetErrorHandler(org);
+    err::use_original_err_handler();
     XUngrabServer(dpy);
 }
 
@@ -199,6 +197,7 @@ bool XWindow::supportsProtocol(Atom proto) const {
 	if (getWMProtocols(&protocols, &n)) {
 		exists = std::find(protocols, protocols+n, proto) != protocols+n;
         XFree(protocols);
+        std::cout << "SUPPORTS PROTOCOL -> " <<  exists << std::endl;
     }
     return exists;
 }
