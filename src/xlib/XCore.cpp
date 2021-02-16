@@ -14,6 +14,8 @@ XCore::XCore( char * d ) :
     screen_(XDefaultScreen(dpy_)),
     root_(XRootWindow(dpy_, screen_)) 
 {
+    // init atoms
+    m_atoms[XAWindow]        = XA_WINDOW;
     m_atoms[UTF8String]      = XInternAtom(dpy_, "UTF8_STRING", False);
     m_atoms[WMProtocols]     = XInternAtom(dpy_, "WM_PROTOCOLS", False);
     m_atoms[WMDelete]        = XInternAtom(dpy_, "WM_DELETE_WINDOW", False);
@@ -26,11 +28,28 @@ XCore::XCore( char * d ) :
     m_atoms[NetWMCheck]      = XInternAtom(dpy_, "_NET_SUPPORTING_WM_CHECK", False);
     m_atoms[NetWMWindowType] = XInternAtom(dpy_, "_NET_WM_WINDOW_TYPE", False);
     m_atoms[NetClientList]   = XInternAtom(dpy_, "_NET_CLIENT_LIST", False);
-    m_atoms[XAWindow]        = XA_WINDOW;
     m_atoms[NetWMWindowTypeDialog] =
         XInternAtom(dpy_, "_NET_WM_WINDOW_TYPE_DIALOG", False);
     m_atoms[NetWMFullscreen] =
         XInternAtom(dpy_, "_NET_WM_STATE_FULLSCREEN", False);
+
+
+    // TODO: maybe let upper classes have control ower NetWMNAme
+    auto wmcheckwin = XCreateSimpleWindow(dpy_, root_, 0, 0, 1, 1, 0, 0, 0);
+    XChangeProperty(dpy_, wmcheckwin, m_atoms[NetWMCheck], XA_WINDOW, 32,
+                    PropModeReplace, (unsigned char*)&wmcheckwin, 1);
+    XChangeProperty(dpy_, wmcheckwin, m_atoms[NetWMName], m_atoms[UTF8String], 8,
+                    PropModeReplace, (unsigned char*)"dwmpp", 3);
+    XChangeProperty(dpy_, root_, m_atoms[NetWMCheck], XA_WINDOW, 32,
+                    PropModeReplace, (unsigned char*)&wmcheckwin, 1);
+
+
+    // EWMH support per view 
+    // m_atoms starts with net atoms
+    // TODO: needing to have NetLast kinda smells
+    XChangeProperty(dpy_, root_, m_atoms[NetSupported], XA_ATOM, 32,
+                    PropModeReplace, (unsigned char*)m_atoms, NetLast);
+    XDeleteProperty(dpy_, root_, m_atoms[NetClientList]);
 
     err::init();
 }
@@ -100,9 +119,7 @@ void XCore::nextEvent(XEvent* ev) {
 Atom XCore::getAtom(AtomType type) const {
     return m_atoms[type];
 }
-
-std::string XCore::getTextProperity(AtomType at) {
-    Atom atom = getAtom(at);
+std::string XCore::getTextProperity(Atom atom) {
     XTextProperty name;
     std::string str;
 
@@ -122,6 +139,11 @@ std::string XCore::getTextProperity(AtomType at) {
     }
     XFree(name.value);
     return str;
+}
+
+std::string XCore::getTextProperity(AtomType at) {
+    Atom atom = getAtom(at);
+    return getTextProperity(atom);
 }
 
 } // namespace xlib

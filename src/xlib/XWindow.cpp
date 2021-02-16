@@ -140,11 +140,26 @@ bool XWindow::getWMProtocols(Atom** protocols, int* n) const {
     return XGetWMProtocols(xcore->getDpyPtr(), m_w, protocols, n);
 }
 
+void XWindow::changeProperty(Atom prop, Atom type, int format,
+                    unsigned char* data, int data_size) {
+
+    XChangeProperty(xcore->getDpyPtr(), m_w, prop, type, format, PropModeReplace,
+                    (unsigned char*)data, data_size);
+}
+
+void XWindow::changeProperty(Atom prop, Atom type,
+                    unsigned char* data, int data_size) {
+
+    XChangeProperty(xcore->getDpyPtr(), m_w, prop, type, 32, PropModeReplace,
+                    (unsigned char*)data, data_size);
+}
 
 //TODO: atom type is gonna cause some errors...
-void XWindow::changeProperty(Atom prop, AtomType type,
+void XWindow::changeProperty(AtomType prop, AtomType type,
                     unsigned char* data, int data_size) {
-    XChangeProperty(xcore->getDpyPtr(), m_w, prop, type, 32, PropModeReplace,
+    auto prop_ = xcore->getAtom(prop);
+    auto type_ = xcore->getAtom(type);
+    XChangeProperty(xcore->getDpyPtr(), m_w, prop_, type_, 32, PropModeReplace,
                     (unsigned char*)data, data_size);
 }
 

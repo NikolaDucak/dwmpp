@@ -8,7 +8,7 @@ namespace wm {
 window_manager::window_manager(xlib::XCore* x) : m_running(false), m_x(x) {
     // check for physical monitor configuration
     monitor::update_monitors(m_monitors);
-    // select first monitor
+    // focusing revalidates internal focus iterator in case of updating monitors
     m_monitors.focus_front();
     // tell x serwer what events we want for root window
     m_x->selectInput(SubstructureRedirectMask | SubstructureNotifyMask |
@@ -72,10 +72,11 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
     LOG("WM received: XPropertyEvent");
     static const auto root = m_x->getRoot();
 
+    // status string is stored as name of root window
     if (e.window == root && e.atom == XA_WM_NAME) {
         LOG("	 -  root name / status string");
         m_monitors.focused()->bar().set_status_string(
-            m_x->getTextProperity(xlib::NetWMName));
+            m_x->getTextProperity(XA_WM_NAME));
         m_monitors.focused()->update_bar();
     }
     // properity holding information about currnet active window
@@ -299,6 +300,7 @@ void window_manager::grab_keys() {
 void window_manager::focus_monitor(monitor* m) {
     // remove bar title, status & drop focus from selected client
     m_monitors.focused()->unfocus();
+    // circulate monitor list until desired monitor is marked as focused
     m_monitors.focus_front();
     while (&*m_monitors.focused() != m)
         m_monitors.circulate_focus(1);
@@ -325,14 +327,15 @@ monitor* window_manager::get_monitor_for_window(Window w) {
     if (w == m_x->getRoot() && m_x->queryPointer(&x, &y))
         return get_monitor_for_pointer_coords(x, y);
 
-    // check if window is targeted bar
-    for (auto& monitor : m_monitors) {
+    // check if desired window is bar on some monitor
+    for (auto& monitor : m_monitors)
         if (monitor.bar().get_raw_xwindow() == w) return &monitor;
-    }
 
+    // else check if window is handled by wm::client and get his parent monitor
     if (auto c = get_client_for_window(w))
         return &c->get_parent_workspace().get_parent_monitor();
-
+    
+    // if everything fails, assume window is on current monitor
     return &*m_monitors.focused();
 }
 
@@ -341,16 +344,18 @@ client& window_manager::get_focused_client() {
 }
 
 monitor* window_manager::get_monitor_for_rectangle(const util::rect& rect) {
-	auto* r = &*m_monitors.focused();
-	int tmp, area = 0;
+	auto* desired_monitor = &*m_monitors.focused();
+	int tmp_area, area = 0;
 
     for (auto& monitor : m_monitors) {
-        if ((tmp = monitor.rect().intersection_area(rect)) > area) {
-            area = tmp;
-            r    = &monitor;
+        // find wich monitor has the largest intersection area with rectange
+        if ((tmp_area = monitor.rect().intersection_area(rect)) > area) {
+            area            = tmp_area;
+            desired_monitor = &monitor;
         }
     }
-    return r;
+
+    return desired_monitor;
 }
 
 monitor* window_manager::get_monitor_for_pointer_coords(int x, int y) {

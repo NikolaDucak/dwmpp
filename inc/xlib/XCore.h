@@ -1,9 +1,9 @@
 #pragma once
 
 #include <X11/X.h>
+#include <X11/Xatom.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#include <X11/Xatom.h>
 #include <string>
 
 namespace xlib {
@@ -12,6 +12,7 @@ namespace xlib {
  * All supported atom types
  */
 enum AtomType {
+    // net atoms
     NetSupported,
     NetWMName,
     NetWMCheck,
@@ -21,19 +22,24 @@ enum AtomType {
     NetWMWindowType,
     NetWMWindowTypeDialog,
     NetClientList,
+    NetLast,
+
+    //
     WMProtocols,
     WMDelete,
     WMState,
     WMTakeFocus,
-    XAWindow,
+
+    // other
     UTF8String,
+    XAWindow,
     AtomLast
 };
 
 class XCore {
-    XCore( char* );
-public:
+    XCore(char*);
 
+public:
     static XCore& instance();
 
     Window readActiveWindowProperty();
@@ -49,29 +55,29 @@ public:
      */
     void selectInput(unsigned long mask);
 
-    void grabKey(KeySym keySym, int mod);
+    void         grabKey(KeySym keySym, int mod);
     unsigned int keySymToKeyCode(KeySym k);
 
     int  grabPointer(unsigned long mousemask);
     void ungrabPointer();
 
-    void refreshKeyboardMapping(XMappingEvent& e);
+    void        refreshKeyboardMapping(XMappingEvent& e);
     std::string getTextProperity(AtomType at);
-    Atom getAtom(AtomType a) const;
+    std::string getTextProperity(Atom at);
+    Atom        getAtom(AtomType a) const;
 
     void nextEvent(XEvent* ev);
 
-    inline Display* getDpyPtr()    { return dpy_; }
-    inline Window   getRoot()      { return root_; }
-    inline int      getScreen()    { return screen_; }
+    inline Display* getDpyPtr() { return dpy_; }
+    inline Window   getRoot() { return root_; }
+    inline int      getScreen() { return screen_; }
 
 private:
-
-    Display *dpy_;
-    int screen_;
-    Window root_;
-    Atom m_atoms[AtomLast];
+    Display* dpy_;
+    int      screen_;
+    Window   root_;
+    Atom     m_atoms[AtomLast];
 };
 
-} // namespace xlib
+}  // namespace xlib
 

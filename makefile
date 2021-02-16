@@ -9,7 +9,7 @@ OBJS = $(SRCS:%=$(BUILD_DIR)/%.o)
 INC_FLAGS = -I./inc -I/usr/include/freetype2
 LIB_FLAGS = -lX11 -lXinerama -lfontconfig -lXft
 
-CPPFLAGS = -std=c++17 -O2 $(INC_FLAGS)
+CPPFLAGS = -std=c++17 -Os $(INC_FLAGS)
 
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CXX) $(OBJS) -o $@ $(LIB_FLAGS)

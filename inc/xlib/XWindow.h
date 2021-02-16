@@ -57,7 +57,13 @@ public:
     void dropNetActiveAtom();
     void setNetActiveAtom();
     bool getWMProtocols(Atom** protocols, int* n) const;
-    void changeProperty(Atom prop, AtomType type,
+    //TODO: 3 of these can be unified
+    void changeProperty(AtomType prop, AtomType type,
+                        unsigned char* data, int data_size);
+    void changeProperty(Atom prop, Atom type,
+                        unsigned char* data, int data_size);
+
+    void changeProperty(Atom prop, Atom propertyType, int format,
                         unsigned char* data, int data_size);
     bool supportsProtocol(Atom prot) const;
 

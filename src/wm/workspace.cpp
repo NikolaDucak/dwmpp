@@ -1,25 +1,30 @@
 #include "wm/workspace.h"
-#include "wm/monitor.h"
+
 #include "wm/bar.h"
+#include "wm/monitor.h"
 
 namespace wm {
 
 workspace::workspace(monitor* parent_monitor, unsigned index) :
     m_index(index),
-    m_layout(tiling_layout),
+    m_layout(tiling_layout),  // TODO:tiling layout is hardcoded as default,
+                              // reconsider moving it to config
     m_parent_monitor(parent_monitor),
     m_clients() {}
 
 void workspace::set_layout(layout_function l) {
     m_layout = l;
-    arrange();
+    arrange();  // rearange clients on the monitor with new layout
 }
 
 void workspace::focus_front() {
-    if (has_focused()) 
-        m_clients.focused()->drop_input_focus();
-    m_clients.focus_front();
-    if (has_focused()) {
+    // make client drop xlib input focus, change border colors etc.
+    if (has_focused()) m_clients.focused()->drop_input_focus();
+
+    m_clients.focus_front();  // move list iterator to begining
+
+    // make client drop xlib input focus, change
+    if (has_focused()) {  // check is neccesary in case of empty list
         m_clients.focused()->take_input_focus();
         m_clients.focused()->raise();
     }
@@ -33,10 +38,11 @@ void workspace::focused_toggle_floating() {
 }
 
 void workspace::move_focus(int i) {
-    if (has_focused())
-        m_clients.focused()->drop_input_focus();
+    // make client drop xlib input focus, change border colors etc.
+    if (has_focused()) m_clients.focused()->drop_input_focus();
     m_clients.circulate_focus(i);
-    if (has_focused()) {
+    // make take xlib input focus, change border colors
+    if (has_focused()) {  // check is neccesary in case of empty list
         m_clients.focused()->take_input_focus();
         m_clients.focused()->raise();
     }
@@ -64,10 +70,10 @@ void workspace::move_focused_to_workspace(workspace& other) {
     if (this == &other) return;
 
     // since this method is called only on focused workspaces,
-    // moving from this ws will move it to hidden ws, so client shoud 
+    // moving from this ws will move it to hidden ws, so client shoud
     // be hidden to
-    this->m_clients.focused()->hide(); 
-    this->m_clients.focused()->drop_input_focus(); 
+    this->m_clients.focused()->hide();
+    this->m_clients.focused()->drop_input_focus();
 
     // move client to beggining of the other list
     other.m_clients.splice(other.m_clients.begin(), this->m_clients,
@@ -78,16 +84,17 @@ void workspace::move_focused_to_workspace(workspace& other) {
 
     // reset iterators to focused clients
     other.m_clients.focus_front();
-    this->focus_front(); // triger take_focus on new clien
+    this->focus_front();  // triger take_focus on new clien
 
     // rearange workspaces
-    // TODO: maybe have an should_arrange flag so 
+    // TODO: maybe have an should_arrange flag so
     // we can avoid rearanging and hiding here risking flickering clients
-    // and avoid easy fix for this flickering with arangin on every show_clients()
-    other.arrange(); 
+    // and avoid easy fix for this flickering with arangin on every
+    // show_clients()
+    other.arrange();
     other.hide_clients();
     this->arrange();
- 
+
     // no need to update bar, since focus_front() will change net active
     // wich whill triger bar update in window_manager::on_property_notify(...)
 }
@@ -101,24 +108,23 @@ void workspace::kill_focused() {
 
 void workspace::remove_client(Window w) {
     // TODO: use map
-    m_clients.erase(std::find_if(
-        m_clients.begin(), m_clients.end(),
-        [&](client& c) { return c.get_xwindow().get() == w; }));
+    m_clients.erase(
+        std::find_if(m_clients.begin(), m_clients.end(),
+                     [&](client& c) { return c.get_xwindow().get() == w; }));
     // NOTE: not using ws focus front since selected client could be
-    // the one removed and checking for end or dropInputFocus could cause 
+    // the one removed and checking for end or dropInputFocus could cause
     // and error
     m_clients.focus_front();
-    if (has_focused()) // if focused is not end iter
+    if (has_focused())  // if focused is not end iter
         m_clients.focused()->take_input_focus();
     arrange();
 }
 
 void workspace::create_client(Window w) {
-    if (has_focused()) 
-        m_clients.focused()->drop_input_focus();
+    if (has_focused()) m_clients.focused()->drop_input_focus();
     m_clients.emplace_front(w, this);
     // TODO: make util::focus_list take care of reseting focus on list change
-    m_clients.focus_front(); 
+    m_clients.focus_front();
     m_clients.front().get_xwindow().mapRaised();
     m_clients.front().take_input_focus();
     arrange();
@@ -142,9 +148,18 @@ void workspace::hide_clients() {
 void workspace::arrange() {
     // TODO: see if it's possible to avoid calcualting ws area
     auto a = m_parent_monitor->rect();
-    a.top_left.y += bar::conf.font.getHeight();
-    a.height -= bar::conf.font.getHeight();
+    if (m_parent_monitor->bar().is_visible()) {
+        a.top_left.y += bar::conf.font.getHeight();
+        a.height -= bar::conf.font.getHeight();
+    }
     m_layout(m_clients, conf.layout, a);
+}
+
+void workspace::take_clients(workspace& other) {
+    for (auto& client : other.m_clients)
+        client.set_parent_workspace(this);
+    m_clients.splice(m_clients.end(), other.m_clients); 
+
 }
 
 void workspace::set_focused_client(client* cl) {
@@ -154,7 +169,6 @@ void workspace::set_focused_client(client* cl) {
         m_clients.set_focus(pos);
         m_clients.focused()->take_input_focus();
     }
-
 }
 
 void workspace::unfocus() {
@@ -167,4 +181,4 @@ void workspace::focus() {
 
 bool workspace::has_focused() { return m_clients.end() != m_clients.focused(); }
 
-}
+}  // namespace wm

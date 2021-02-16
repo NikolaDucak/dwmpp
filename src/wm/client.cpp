@@ -26,6 +26,8 @@ client::client(Window w, workspace* parent_workspace) :
 }
 
 client::~client() {
+    // deleting this object marks Window as unhandled, or
+    // if Window is deleted then this obj has no reason to live
     window_client_map.erase(m_xwindow.get());
 }
 
@@ -47,6 +49,8 @@ void client::move_resize(const util::rect& area) {
 }
 
 std::string client::title() const {
+    // "Title" (text that usualy sits in the top midle frame of the window) is
+    // stored in NetWMName atom value
     return m_xwindow.getTextProperity(xlib::NetWMName);
 }
 
@@ -80,6 +84,8 @@ void client::kill() {
 }
 
 Window client::get_transient_for() {
+    // TODO: move to xlib, upper layers should avoid using raw xlib pointers
+    // like Display*
     Window trans;
     XGetTransientForHint(m_xwindow.xcore->getDpyPtr(), m_xwindow.get(), &trans); 
     return trans;

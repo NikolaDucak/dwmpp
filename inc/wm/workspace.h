@@ -25,8 +25,9 @@ public:
     workspace(monitor* parent_monitor, unsigned index);
 
     /* 
-     * client has a pointer to a workspace it belongs to, so
-     * copying/moving is not allowed.
+     * wm::client has a pointer to a workspace it belongs to, so
+     * copying/moving is not allowed since it may break
+     * clients workspace referance.
      */
     workspace(workspace& m)  = delete;
     workspace(workspace&& m) = delete;
@@ -39,6 +40,10 @@ public:
      */
     void set_layout(layout_function l);
 
+    /**
+     * If there is a focused client toggles floating on him and 
+     * calls wm::workspace::arange
+     */
     void focused_toggle_floating();
 
     /**
@@ -68,6 +73,12 @@ public:
     void move_focused_to_top();
 
     /**
+     * Just straight up move all clients from @p other workspace 
+     * to this one, leaving other empty.
+     */
+    void take_clients(workspace& other);
+
+    /**
      * Uses std::list<T>::splice to move focused client to the top
      * of the client list of the @p other_ws workspace, then
      * both workspaces are then rearanged with their corresponding layout
@@ -76,14 +87,24 @@ public:
     void move_focused_to_workspace(workspace& other_ws);
 
     void kill_focused();
+
     void remove_client(Window w);
+
     void create_client(Window w);
 
     void show_clients();
+
     void hide_clients();
 
+    /**
+     * Using `m_layout` member, arranges & displays `m_clients` on the display.
+     */
     void arrange();
 
+    /**
+     * Circulates internal focus iterator of `m_clients` until its focusing 
+     * client whose address matches @p cl
+     */
     void set_focused_client(client* cl);
 
     /**

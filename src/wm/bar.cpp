@@ -18,13 +18,16 @@ bar::bar(uint width) :
 }
 
 void bar::hide() {
+    // hiding is implemented as moving window position
+    // to beyond screen borders
     m_xwindow.moveWindow(0, -1 - conf.font.getHeight());
-    m_visible = true;
+    m_visible = false;
 }
 
 void bar::show() {
+    // return window to original position
     m_xwindow.moveWindow(0, 0);
-    m_visible = false;
+    m_visible = true;
 }
 
 void bar::draw(util::focus_list<workspace>& workspaces) {
