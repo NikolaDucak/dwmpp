@@ -2,6 +2,8 @@
 
 #include "util/point.h"
 
+//TODO: rename file to rect.h
+
 namespace util {
 
 struct rect {

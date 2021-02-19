@@ -43,10 +43,8 @@ public:
         auto focused_item = m_focused_item;
         // assume its not already on the end
         if (i > 0) {
-            while (i--) {
-                focused_item++;
-                if (focused_item == this->end()) focused_item = this->begin();
-            }
+            while (i--)
+                if (++focused_item == this->end()) focused_item = this->begin();
         } else if (i < 0) {
             while (i++) {
                 if (focused_item == this->begin() ||
@@ -63,8 +61,7 @@ public:
         // assume its not already on the end
         if (i > 0) {
             while (i--) {
-                m_focused_item++;
-                if (m_focused_item == this->end())
+                if (++m_focused_item == this->end())
                     m_focused_item = this->begin();
             }
         } else if (i < 0) {

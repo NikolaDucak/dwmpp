@@ -2,6 +2,10 @@
 
 namespace action {
 
+/*
+ * All keybindding actions that dwmpp supports
+ */
+
 struct move_focus;
 struct move_focused;
 struct move_focused_to_top;
