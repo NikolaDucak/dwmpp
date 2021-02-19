@@ -16,7 +16,7 @@ all the neccesary features for a window manager!
 Dependencies:
 - xorg
 - make
-- g++
+- g++ 8.3.0
 - libx11-deb
 - libxfg-dev
 - libxinerma-dev

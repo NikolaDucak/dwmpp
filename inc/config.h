@@ -11,7 +11,6 @@
 //TODO: figure out what to do with initializer list with unique ptr errror
 //#define ACTION(act, arg)  std::make_unique<action:: act>(arg)
 #define ACTION(act, arg)  new action:: act{ arg }
-#define CONFIG_ACTION(act, func) new action:: act{ []( layout_config& conf ) func }
 
 // clang-format off
 const wm::client::config wm::client::conf {
@@ -21,7 +20,7 @@ const wm::client::config wm::client::conf {
 };
 
 const wm::workspace::config wm::workspace::conf {
-    .workspaces { "1","2","3","4","5","6","7" },
+    .workspaces { "1","2","3","4","5","6","7","8","9" },
     .layout {
         .inner_gap = 10,
         .outer_gap = 20,
@@ -34,19 +33,20 @@ const wm::bar::config wm::bar::conf {
     .font             { "Iosevka" },
     .barBG            { "#30333d" },
     .barFG            { "#898a8f" },
-    .empty_tag_bg     { "#585e74" }, 
+    .empty_tag_bg     { "#585e74" },
     .empty_tag_fg     { "#4d4d4d" },
-    .focused_tag_bg   { "#71c2ff" }, 
+    .focused_tag_bg   { "#71c2ff" },
     .focused_tag_fg   { "#dd9999" },
-    .unfocused_tag_bg { "#9ce5c0" }, 
+    .unfocused_tag_bg { "#9ce5c0" },
     .unfocused_tag_fg { "#afafaf" },
 };
 
+// Mod4 = "win"
+// Mod1 = "alt"
 static constexpr auto ModKey = Mod4Mask;
 
 const wm::window_manager::config wm::window_manager::conf {
     .keybindings {
-        //keybinding { ModKey, XK_l,      CONFIG_ACTION(layout_config, []{conf.inner_gap+=10;}) },
 
         // ending session
         keybinding { ModKey, XK_BackSpace, ACTION(quit_dwmpp,) },
@@ -54,10 +54,10 @@ const wm::window_manager::config wm::window_manager::conf {
         // closing a window
         keybinding { ModKey, XK_q,      ACTION(kill_focused,) },
 
-        // floating toggle
+        // floating currently focused window
         keybinding { ModKey, XK_f,      ACTION(toggle_floating,) },
 
-        // setting layout
+        // setting layout for current workspace
         keybinding { ModKey | ShiftMask, XK_f,      ACTION(set_layout, fullscreen_layout) },
         keybinding { ModKey | ShiftMask, XK_t,      ACTION(set_layout, tiling_layout) },
 
@@ -89,7 +89,6 @@ const wm::window_manager::config wm::window_manager::conf {
         keybinding { ModKey, XK_7,      ACTION(focus_workspace, 7) },
         keybinding { ModKey, XK_8,      ACTION(focus_workspace, 8) },
         keybinding { ModKey, XK_9,      ACTION(focus_workspace, 9) },
-        keybinding { ModKey, XK_9,      ACTION(focus_workspace, 0) },
 
         // move focused client to wokrpsace
         keybinding { ModKey | ShiftMask, XK_1,      ACTION(move_focused_to_workspace, 1) },
@@ -100,7 +99,7 @@ const wm::window_manager::config wm::window_manager::conf {
         keybinding { ModKey | ShiftMask, XK_6,      ACTION(move_focused_to_workspace, 6) },
         keybinding { ModKey | ShiftMask, XK_7,      ACTION(move_focused_to_workspace, 7) },
         keybinding { ModKey | ShiftMask, XK_8,      ACTION(move_focused_to_workspace, 8) },
-        keybinding { ModKey | ShiftMask, XK_9,      ACTION(move_focused_to_workspace, 0) },
+        keybinding { ModKey | ShiftMask, XK_9,      ACTION(move_focused_to_workspace, 9) },
     }
 };
 

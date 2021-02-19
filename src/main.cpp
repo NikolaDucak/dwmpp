@@ -5,7 +5,9 @@
 /* TODO: 
  * - window manager should update netclientlist atom 
  * - supporting window for NetWMCheck 
+ * - "transient for", does not work
  * - cleanup for XColor, XFont... unmanage all clients
+ * - bug: killing focused client leaves his title drawn on the bar
  */
 
 int main() {

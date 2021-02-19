@@ -1,4 +1,5 @@
 #include "xlib/XGraphics.h"
+#include <X11/Xlib.h>
 
 namespace xlib {
 
@@ -26,6 +27,8 @@ void XGraphics::drawText(const XFont& fnt, const XColor& clr, point xy,
                                   DefaultColormap(dpy_, scr));
     XftDrawStringUtf8(draw, &clr.get(), const_cast<XftFont*>(fnt.get()), xy.x,
                       ty, (const FcChar8*)text.c_str(), text.size());
+    Xutf8DrawText(dpy_,drawable_,gc_,int,int,textItem,int);
+
     XftDrawDestroy(draw);
 }
 
