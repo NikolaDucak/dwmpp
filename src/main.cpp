@@ -8,6 +8,7 @@
  * - "transient for", does not work
  * - cleanup for XColor, XFont... unmanage all clients
  * - bug: killing focused client leaves his title drawn on the bar
+ * - moving client on stack, when mowing top, top stays selected
  */
 
 int main() {

@@ -1,8 +1,6 @@
 #include "xlib/XWindow.h"
 #include "xlib/XError.h"
-#include <X11/X.h>
-#include <X11/Xutil.h>
-#include <iostream>
+#include <algorithm>
 
 namespace xlib {
 
@@ -14,6 +12,16 @@ XWindow::XWindow(Window w) : m_w(w) {
 XWindow::XWindow(int x, int y, unsigned width, unsigned height) :
     m_w(XCreateSimpleWindow(xcore->getDpyPtr(), xcore->getRoot(), 
                 x, y, width, height, 0, 0x0, 0x0)) {}
+
+
+std::optional<Window> XWindow::getTransientFor() {
+    Window trans;
+    if (XGetTransientForHint(xcore->getDpyPtr(), m_w, &trans))
+        return trans;
+    else 
+        return {};
+}
+
 
 void XWindow::moveWindow(int x, int y) {
     XMoveWindow(xcore->getDpyPtr(), m_w, x, y);
@@ -197,7 +205,6 @@ bool XWindow::supportsProtocol(Atom proto) const {
 	if (getWMProtocols(&protocols, &n)) {
 		exists = std::find(protocols, protocols+n, proto) != protocols+n;
         XFree(protocols);
-        std::cout << "SUPPORTS PROTOCOL -> " <<  exists << std::endl;
     }
     return exists;
 }

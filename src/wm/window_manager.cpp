@@ -84,18 +84,18 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
              e.atom == m_x->getAtom(xlib::NetActiveWindow)) {
         LOG("    - net active");
         Window a = m_x->readActiveWindowProperty(); // TODO: myb switch to std::optional
-        if (a != 0) {
+        if (a != 0) 
             m_monitors.focused()->bar().set_title_string(
                 xlib::XWindow { a }.getTextProperity(XA_WM_NAME));
-        } else {
+         else 
             m_monitors.focused()->bar().set_title_string("");
-        }
+        
         m_monitors.focused()->update_bar();
     } else {
         auto c = get_client_for_window(e.window);
         switch (e.atom) {
             case XA_WM_TRANSIENT_FOR: { // popup windows
-                LOG("		TRANSIENT FOR - unimpl");
+                LOG("		TRANSIENT FOR");
                 if (!c->is_floating()) {
                     auto t = c->get_transient_for();
                     auto f = get_client_for_window(t) != nullptr;

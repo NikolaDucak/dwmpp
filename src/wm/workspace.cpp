@@ -123,7 +123,8 @@ void workspace::remove_client(Window w) {
 void workspace::create_client(Window w) {
     if (has_focused()) m_clients.focused()->drop_input_focus();
     m_clients.emplace_front(w, this);
-    // TODO: make util::focus_list take care of reseting focus on list change
+    if (auto prnt = m_clients.front().get_transient_for()) 
+        m_clients.front().set_floating(true);
     m_clients.focus_front();
     m_clients.front().get_xwindow().mapRaised();
     m_clients.front().take_input_focus();

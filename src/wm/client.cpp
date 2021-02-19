@@ -83,12 +83,8 @@ void client::kill() {
     }
 }
 
-Window client::get_transient_for() {
-    // TODO: move to xlib, upper layers should avoid using raw xlib pointers
-    // like Display*
-    Window trans;
-    XGetTransientForHint(m_xwindow.xcore->getDpyPtr(), m_xwindow.get(), &trans); 
-    return trans;
+std::optional<Window> client::get_transient_for() {
+    return m_xwindow.getTransientFor();
 }
 
 

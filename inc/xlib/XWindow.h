@@ -5,8 +5,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 
-
-#include <algorithm>
+#include <optional>
 
 namespace xlib {
 
@@ -24,6 +23,10 @@ public:
     explicit XWindow(Window w);
 
     Atom getAtomProperty(AtomType at);
+    std::string getTextProperity(AtomType) const ;
+    std::string getTextProperity(Atom) const ;
+
+    std::optional<Window> getTransientFor();
 
     void moveWindow(int x, int y);
     void resizeWindow(int w, int h);
@@ -51,8 +54,6 @@ public:
     void getWindowAttrinbutes(XWindowAttributes* wa) const ;
 
     // atom related stuff
-    std::string getTextProperity(AtomType) const ;
-    std::string getTextProperity(Atom) const ;
     void setFullscreen(bool fullscreen) ;
     void dropNetActiveAtom();
     void setNetActiveAtom();
