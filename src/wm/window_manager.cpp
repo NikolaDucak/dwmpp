@@ -97,10 +97,11 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
             case XA_WM_TRANSIENT_FOR: { // popup windows
                 LOG("		TRANSIENT FOR");
                 if (!c->is_floating()) {
-                    auto t = c->get_transient_for();
-                    auto f = get_client_for_window(t) != nullptr;
-                    c->set_floating(f);
-                    if (f) c->get_parent_workspace().arrange();
+                    if (auto t = c->get_transient_for() ) {
+                        auto f = get_client_for_window(t.value()) != nullptr;
+                        c->set_floating(f);
+                        if (f) c->get_parent_workspace().arrange();
+                    }
                 }
                 break;
             }
