@@ -71,7 +71,7 @@ public:
         { m_monitors.focused()->focus_workspace(fw.i); }
     
     /** */
-    inline virtual void handle_kill_focused(action::kill_focused& /*unused*/) override
+    inline virtual void handle_kill_focused(action::kill_focused& /* unused */) override
         { m_monitors.focused()->workspaces().focused()->kill_focused(); }
 
     /** */
@@ -79,7 +79,7 @@ public:
         { m_monitors.focused()->workspaces().focused()->focused_toggle_floating(); }
 
     /** */
-    inline virtual void handle_toggle_bar(action::toggle_bar& /*unused*/)  override
+    inline virtual void handle_toggle_bar(action::toggle_bar& /* unused */)  override
         { m_monitors.focused()->bar().toggle_visibility(); m_monitors.focused()->workspaces().focused()->arrange(); }
 
     /** */
