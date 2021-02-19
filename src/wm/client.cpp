@@ -78,6 +78,8 @@ void client::set_state(long state) {
                              reinterpret_cast<unsigned char*>(data), 2);
 }
 void client::kill() {
+    // remove as active, forcing bar update
+    m_xwindow.dropNetActiveAtom(); 
     if (not m_xwindow.trySendEvent(xlib::WMDelete)) {
         m_xwindow.killClient();
     }
