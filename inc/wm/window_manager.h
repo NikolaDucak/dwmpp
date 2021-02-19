@@ -80,7 +80,7 @@ public:
 
     /** */
     inline virtual void handle_toggle_bar(action::toggle_bar& /*unused*/)  override
-        { m_monitors.focused()->bar().toggle_visibility(); }
+        { m_monitors.focused()->bar().toggle_visibility(); m_monitors.focused()->workspaces().focused()->arrange(); }
 
     /** */
     inline virtual void handle_set_layout(action::set_layout& l) override 
