@@ -8,8 +8,7 @@ namespace wm {
 workspace::workspace(monitor* parent_monitor, unsigned index) :
     m_local_config{ default_config },
     m_index{ index },
-    m_layout{ tiling_layout },  // TODO:tiling layout is hardcoded as default,
-                              // reconsider moving it to config
+    m_layout{ default_config.default_layout_function },  
     m_parent_monitor{ parent_monitor} {}
 
 void workspace::set_layout(layout_function l) {

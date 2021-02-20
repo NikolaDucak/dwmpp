@@ -33,6 +33,7 @@ enum AtomType {
     // other
     UTF8String,
     XAWindow,
+    XAW
     AtomLast
 };
 
@@ -69,7 +70,7 @@ public:
     void nextEvent(XEvent* ev);
 
     inline Display* getDpyPtr() { return dpy_; }
-    inline Window   getRoot() { return root_; }
+    inline Window   getRoot()   { return root_; }
     inline int      getScreen() { return screen_; }
 
 private:

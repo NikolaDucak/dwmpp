@@ -4,15 +4,25 @@
 
 namespace xlib {
 
+namespace { // anonymous
+
+template<typename T>
+static constexpr auto toUnderlyingType(T t) {
+    return static_cast<typename std::underlying_type<T>::type>(t);
+}
+
+} // anonymous namespace
+
+
 XCore& XCore::instance() {
-    static XCore x(0);
+    static XCore x { 0 };
     return x;
 }
 
-XCore::XCore( char * d ) :
-    dpy_(XOpenDisplay(d)), 
-    screen_(XDefaultScreen(dpy_)),
-    root_(XRootWindow(dpy_, screen_)) 
+XCore::XCore (char * d) :
+    dpy_{ XOpenDisplay(d) }, 
+    screen_{ XDefaultScreen(dpy_) },
+    root_{ XRootWindow(dpy_, screen_) } 
 {
     // init atoms
     m_atoms[XAWindow]        = XA_WINDOW;
@@ -119,6 +129,7 @@ void XCore::nextEvent(XEvent* ev) {
 Atom XCore::getAtom(AtomType type) const {
     return m_atoms[type];
 }
+
 std::string XCore::getTextProperity(Atom atom) {
     XTextProperty name;
     std::string str;

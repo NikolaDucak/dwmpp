@@ -6,13 +6,11 @@ namespace xlib {
 
 XCore* XWindow::xcore = &XCore::instance();
 
-XWindow::XWindow(Window w) : m_w(w) { 
-}
+XWindow::XWindow(Window w) : m_w{ w } { }
 
 XWindow::XWindow(int x, int y, unsigned width, unsigned height) :
     m_w(XCreateSimpleWindow(xcore->getDpyPtr(), xcore->getRoot(), 
                 x, y, width, height, 0, 0x0, 0x0)) {}
-
 
 std::optional<Window> XWindow::getTransientFor() {
     Window trans;
@@ -21,7 +19,6 @@ std::optional<Window> XWindow::getTransientFor() {
     else 
         return {};
 }
-
 
 void XWindow::moveWindow(int x, int y) {
     XMoveWindow(xcore->getDpyPtr(), m_w, x, y);
@@ -146,18 +143,18 @@ bool XWindow::getWMProtocols(Atom** protocols, int* n) const {
     return XGetWMProtocols(xcore->getDpyPtr(), m_w, protocols, n);
 }
 
-void XWindow::changeProperty(Atom prop, Atom type, int format,
-                    unsigned char* data, int data_size) {
 
-    XChangeProperty(xcore->getDpyPtr(), m_w, prop, type, format, PropModeReplace,
-                    (unsigned char*)data, data_size);
+std::optional<XWMHints*> XWindow::getWMHints() {
+    auto wmh = XGetWMHints(xcore->getDpyPtr(), m_w);
+    if (wmh) 
+        return wmh;
+    else 
+        return {};
+    
 }
 
-void XWindow::changeProperty(Atom prop, Atom type,
-                    unsigned char* data, int data_size) {
-
-    XChangeProperty(xcore->getDpyPtr(), m_w, prop, type, 32, PropModeReplace,
-                    (unsigned char*)data, data_size);
+void XWindow::setWMHints(XWMHints& wm) {
+    XSetWMHints(xcore->getDpyPtr(), m_w, &wm);
 }
 
 //TODO: atom type is gonna cause some errors...

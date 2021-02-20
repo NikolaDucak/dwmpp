@@ -93,6 +93,13 @@ public:
     void        update_bar() { m_bar.draw(m_workspaces); }
 
 private:
+    
+    /**
+     * Helper method used for workspace list initialization common for
+     * all constructor separated as to not reapat constructor code.
+     */
+    void init();
+
     uint                        m_index;
     util::rect                  m_rect;   // size of the monitor in pixels
     //TODO: can it be unified? 

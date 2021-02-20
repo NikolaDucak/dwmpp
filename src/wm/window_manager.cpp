@@ -117,7 +117,7 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
                 LOG("		XA_WM_NAME ");
                 if (c != &get_focused_client())
                     return;
-                m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
+                m_monitors.focused()->bar().set_title_string(xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
                 m_monitors.focused()->update_bar();
                 break;
         }

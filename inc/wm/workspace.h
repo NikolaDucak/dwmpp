@@ -11,11 +11,10 @@ namespace wm {
 class monitor;
 
 class workspace {
-public:
+public: // types & static variables
+
     struct config {
-        //TODO: consider moving vector of workspace names in monitor config
-        //since monitor relies on knowing how many workspaces there are
-        std::vector<std::string> workspaces;
+        layout_function default_layout_function;
         layout_config layout;
     };
 
@@ -25,7 +24,8 @@ public:
      */
     static const config default_config;
 
-public:
+public: // instance methods
+
     workspace(monitor* parent_monitor, unsigned index);
 
     /* 
@@ -163,10 +163,11 @@ public:
     [[nodiscard]] auto&       get_parent_monitor() { return *m_parent_monitor; }
 
 private:
-    uint                     m_index;
+    const uint               m_index;
     layout_function          m_layout;
     monitor*                 m_parent_monitor;
     util::focus_list<client> m_clients;
+
     /** 
      * Configuration specific to this workspace, allowing
      * different layout configuration for each separate workspace.

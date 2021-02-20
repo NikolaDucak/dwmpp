@@ -24,7 +24,7 @@ const wm::monitor::config wm::monitor::conf {
 };
 
 const wm::workspace::config wm::workspace::default_config {
-    //.default_layout = tiling_layout,
+    .default_layout_function = wm::tiling_layout,
     .layout {
         .inner_gap = 10,
         .outer_gap = 20,
@@ -45,8 +45,8 @@ const wm::bar::config wm::bar::conf {
     .unfocused_tag_fg { "#afafaf" },
 };
 
-// Mod4 = "win"
-// Mod1 = "alt"
+// Mod4Mask = "win"
+// Mod1Mask = "alt"
 static constexpr auto ModKey = Mod4Mask;
 
 const wm::window_manager::config wm::window_manager::conf {

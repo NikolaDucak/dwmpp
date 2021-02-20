@@ -55,7 +55,7 @@ void bar::show() {
     m_visible = true;
 }
 
-void bar::draw(const util::focus_list<workspace>& workspaces) {
+void bar::draw(const util::focus_list<workspace>& workspaces) const {
     static xlib::XGraphics graphics {};
     using util::point;
 
@@ -75,7 +75,7 @@ void bar::draw(const util::focus_list<workspace>& workspaces) {
     graphics.fillRectangle(conf.barBG, { 0, 0 }, { (int)m_width, height });
 
     // space between tag markers
-    static const int tag_padding = 2;
+    static const int tag_padding { 2 };
 
     // precomputed dimensions for tags text centering offsets
     static const auto pair =
@@ -130,6 +130,11 @@ void bar::toggle_visibility() {
         hide();
     else
         show();
+}
+
+void bar::update_width(uint w) {
+    m_width = w; 
+    m_xwindow.resizeWindow(w, conf.font.getHeight());
 }
 
 }  // namespace wm

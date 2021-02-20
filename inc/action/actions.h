@@ -10,14 +10,14 @@
 namespace action {
 
 struct move_focus : public action_base {
-    move_focus(int i) : i(i) {}
+    move_focus(int i) : i{i} {}
     inline virtual void execute(action_handler& handler) override 
         { handler.handle_move_focus(*this); }
     int i;
 };
 
 struct move_focused : public action_base {
-    move_focused(int i) : i(i) {}
+    move_focused(int i) : i{i} {}
     inline virtual void execute(action_handler& handler) override 
         { handler.handle_move_focused(*this); }
     int i;
@@ -29,14 +29,14 @@ struct move_focused_to_top : public action_base {
 };
 
 struct move_focused_to_workspace : public action_base {
-    move_focused_to_workspace(unsigned i) : i(i) {}
+    move_focused_to_workspace(unsigned i) : i{i} {}
     inline virtual void execute(action_handler& handler) override 
         { handler.handle_move_focused_to_workspace(*this); }
     unsigned i;
 };
 
 struct focus_workspace : public action_base {
-    focus_workspace(unsigned i) : i (i) {}
+    focus_workspace(unsigned i) : i {i} {}
     inline virtual void execute(action_handler& handler) override 
         { handler.handle_focus_workspace(*this); }
     unsigned i;
@@ -44,14 +44,14 @@ struct focus_workspace : public action_base {
 
 struct spawn : public action_base {
     spawn(const std::string& str) : str(str) {}
-    spawn(const char* str) : str(str) {}
+    spawn(const char* str) : str{str} {}
     inline virtual void execute(action_handler& handler) override 
         { handler.handle_spawn(*this); }
     std::string str;
 };
 
 struct set_layout : public action_base {
-    set_layout(wm::layout_function l) : layout(l) {}
+    set_layout(wm::layout_function l) : layout{l} {}
     inline virtual void execute(action_handler& handler) override 
         { handler.handle_set_layout(*this); }
     wm::layout_function layout;
