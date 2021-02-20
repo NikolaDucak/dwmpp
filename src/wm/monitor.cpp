@@ -88,7 +88,7 @@ monitor::monitor(uint index, XineramaScreenInfo& info) :
     //TODO: code repetiotion in both constructors
 
     // populate `m_workspaces` with a nuber of workspaces specified in config
-    for (size_t i = 0; i < workspace::conf.workspaces.size(); i++) {
+    for (size_t i = 0; i < workspace::default_config.workspaces.size(); i++) {
         m_workspaces.emplace_back(this, i);
     }
 
@@ -105,7 +105,7 @@ monitor::monitor(uint index, uint width, uint height) :
     m_bar { width },
     m_workspaces {} {
     // populate `m_workspaces` with number of workspaces from config
-    for (size_t i = 0; i < workspace::conf.workspaces.size(); i++) {
+    for (size_t i = 0; i < workspace::default_config.workspaces.size(); i++) {
         m_workspaces.emplace_back(this, i);
     }
 
@@ -140,6 +140,30 @@ workspace& monitor::get_workspace(uint i) {
     auto temp = m_workspaces.begin();
     while(i--) temp++;
     return *temp; 
+}
+
+void monitor::update_rect(const util::rect& x) {
+    m_rect = x;
+    m_bar.update_width(x.width);
+}
+
+void monitor::update_rect(const XineramaScreenInfo& info) {
+    m_rect = { { info.x_org, info.y_org },
+               (unsigned)info.width,
+               (unsigned)info.height },
+    m_bar.update_width(info.width);
+    
+}
+
+void monitor::take_clients(monitor& other) {
+    // different number of workspaces should not be possible
+    auto ws = m_workspaces.begin();
+    auto ows = other.m_workspaces.begin();
+    while (ws!=m_workspaces.end()) {
+        ws->take_clients(*ows);
+        ws++;
+        ows++;
+    }
 }
 
 }  // namespace wm

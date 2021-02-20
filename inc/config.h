@@ -19,8 +19,12 @@ const wm::client::config wm::client::conf {
     .unfocused_border { "#333333" },
 };
 
-const wm::workspace::config wm::workspace::conf {
+const wm::monitor::config wm::monitor::conf {
     .workspaces { "1","2","3","4","5","6","7","8","9" },
+};
+
+const wm::workspace::config wm::workspace::default_config {
+    //.default_layout = tiling_layout,
     .layout {
         .inner_gap = 10,
         .outer_gap = 20,

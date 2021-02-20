@@ -2,17 +2,18 @@
 #include "util/focus_list.h"
 #include "xlib/XColor.h"
 #include "xlib/XFont.h"
+#include "wm/monitor.h"
 
 namespace wm {
 
 std::pair<std::vector<int>, std::vector<int>>
-precompute_tag_info(util::focus_list<workspace>& workspaces,
+precompute_tag_info(const util::focus_list<workspace>& workspaces,
                     const xlib::XFont&                 font) {
     std::vector<int> tag_widths;
     std::vector<int> tag_text_x_offsets;
 
     for (const auto& ws : workspaces) {
-        auto& ws_name = workspace::conf.workspaces[ws.get_index()];
+        auto& ws_name = monitor::conf.workspaces[ws.get_index()];
         // match size of tag bg rect with text for tag text
         auto name_w = font.getTextWidthInPixels(ws_name);
 
@@ -54,7 +55,7 @@ void bar::show() {
     m_visible = true;
 }
 
-void bar::draw(util::focus_list<workspace>& workspaces) {
+void bar::draw(const util::focus_list<workspace>& workspaces) {
     static xlib::XGraphics graphics {};
     using util::point;
 
@@ -84,7 +85,7 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
 
     for (const auto& ws : workspaces) {
         const xlib::XColor *tag_bg, *tag_fg;
-        auto& ws_name = workspace::conf.workspaces[ws.get_index()];
+        auto& ws_name = monitor::conf.workspaces[ws.get_index()];
         auto tag_w = tag_widths[ws.get_index()];
         tag_size.x = tag_w;
 
@@ -116,6 +117,8 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
 
     // display status in the rightmost corner of bar
     int status_left = m_width - conf.font.getTextWidthInPixels(m_status);
+    // 窗口尺寸
+    
     graphics.drawText(conf.font, conf.barFG, point { status_left, 0 }, m_status);
 
     // display drawn bar on bar window

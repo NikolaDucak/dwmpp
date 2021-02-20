@@ -72,6 +72,13 @@ void client::drop_input_focus() {
     m_xwindow.setWindowBorder(conf.unfocused_border.get().pixel);
 }
 
+
+void client::set_fullscreen(bool f) { 
+    m_fullscreen = f; 
+    m_xwindow.setFullscreen(f);
+    m_xwindow.setWindowBorderWidth(0);
+}
+
 void client::set_state(long state) {
     long data[] = { state, None };
     m_xwindow.changeProperty(xlib::WMState, xlib::WMState,

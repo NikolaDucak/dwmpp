@@ -19,7 +19,11 @@ public:
         layout_config layout;
     };
 
-    static const config conf;
+    /**
+     * Default configuration specified in `config.h`, copied 
+     * in @ref local_config on workspace creation.
+     */
+    static const config default_config;
 
 public:
     workspace(monitor* parent_monitor, unsigned index);
@@ -86,14 +90,34 @@ public:
      */
     void move_focused_to_workspace(workspace& other_ws);
 
+    /**
+     *
+     */
     void kill_focused();
 
+    /**
+     * Checks if client for @p w is found inside `m_clients`, if it is, then it
+     * is erased and workspace rearanges itself with call to wm::workspace::arrange();
+     */
     void remove_client(Window w);
 
+    /**
+     * Creates wm::client and puts it at the front of the `m_clients` list, while
+     * checking if @p w should be floating in case of it being a transient window,
+     * After that rearanges itself with wm::workspace::arrange();
+     */
     void create_client(Window w);
 
+    /**
+     * Hides clients and drops input focus from the client marked as focused by
+     * focus list.
+     */
     void show_clients();
 
+    /**
+     * Shows clients and gives input focus to the client marked as focused by
+     * focus list.
+     */
     void hide_clients();
 
     /**
@@ -126,7 +150,7 @@ public:
     void focus();
 
     /**
-     * Return true if the current focused client itterator
+     * Return true if the current focused client iterator
      * is pointing not pointing at end, such is the case when
      * workspace has no clients.
      */
@@ -143,6 +167,11 @@ private:
     layout_function          m_layout;
     monitor*                 m_parent_monitor;
     util::focus_list<client> m_clients;
+    /** 
+     * Configuration specific to this workspace, allowing
+     * different layout configuration for each separate workspace.
+     */
+    config                   m_local_config;
 };
 
 }  // namespace wm

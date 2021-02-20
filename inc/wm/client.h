@@ -67,25 +67,20 @@ public:
     void toggle_floating();
 
     bool is_fullscreen() const { return m_fullscreen; }
-    void set_fullscreen(bool f) { 
-        m_fullscreen = f; 
-        m_xwindow.setFullscreen(f);
-        m_xwindow.setWindowBorderWidth(0);
-    }
+    void set_fullscreen(bool f);
 
     bool is_urgent() const { return m_urgent; }
     void set_urgent(bool b) { m_urgent = b; }
 
     void set_state(long state);
 
-    void  set_parent_workspace(workspace* ws);
-
-    util::point get_size() const { return m_size; }
+    void set_parent_workspace(workspace* ws);
 
     std::optional<Window> get_transient_for();
 
     std::string title() const;
 
+    auto  get_size() const { return m_size; }
     auto& get_xwindow() { return m_xwindow; }
     auto& get_parent_workspace() { return *m_parent_workspace; }
 

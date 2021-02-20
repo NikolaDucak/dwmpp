@@ -6,11 +6,11 @@
 namespace wm {
 
 workspace::workspace(monitor* parent_monitor, unsigned index) :
-    m_index(index),
-    m_layout(tiling_layout),  // TODO:tiling layout is hardcoded as default,
+    m_local_config{ default_config },
+    m_index{ index },
+    m_layout{ tiling_layout },  // TODO:tiling layout is hardcoded as default,
                               // reconsider moving it to config
-    m_parent_monitor(parent_monitor),
-    m_clients() {}
+    m_parent_monitor{ parent_monitor} {}
 
 void workspace::set_layout(layout_function l) {
     m_layout = l;
@@ -153,7 +153,7 @@ void workspace::arrange() {
         a.top_left.y += bar::conf.font.getHeight();
         a.height -= bar::conf.font.getHeight();
     }
-    m_layout(m_clients, conf.layout, a);
+    m_layout(m_clients, m_local_config.layout, a);
 }
 
 void workspace::take_clients(workspace& other) {

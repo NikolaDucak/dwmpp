@@ -161,8 +161,8 @@ void window_manager::on_configure_notify(const XConfigureEvent& e) {
     LOG("WM received: XConfigureEvent");
 
 	if (e.window == m_x->getRoot()) {
-        //TODO: in order to finish handling this event, multi monitor
-        //support needs to be added
+        // TODO: in order to finish handling this event, multi monitor
+        // support needs to be added
 	}
 }
 
