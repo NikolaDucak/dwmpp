@@ -33,7 +33,7 @@ enum AtomType {
     // other
     UTF8String,
     XAWindow,
-    XAW
+    XAWMName,
     AtomLast
 };
 

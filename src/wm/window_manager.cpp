@@ -16,8 +16,15 @@ window_manager::window_manager(xlib::XCore* x) : m_running(false), m_x(x) {
 }
 
 window_manager::~window_manager() {
-    //TODO: move to xlib
-    //TODO: cleanup, kill all clients, remove atom values
+    // send kill events to all clients 
+    // TODO: reconsider workspace or client managing client killing or
+    // maybe on client destructor if client obj lifetime matches xorg client lifetime?
+    for (auto& monitor : m_monitors)
+        for (auto& workspace : monitor.workspaces())
+            for (auto& client : workspace.clients())
+                client.kill();
+
+    // TODO: move to xlib
     XCloseDisplay(m_x->getDpyPtr());
 }
 
