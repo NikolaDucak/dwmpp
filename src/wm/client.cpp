@@ -84,9 +84,9 @@ void client::set_state(long state) {
     m_xwindow.changeProperty(xlib::WMState, xlib::WMState,
                              reinterpret_cast<unsigned char*>(data), 2);
 }
+
 void client::kill() {
-    // remove as active, forcing bar update
-    m_xwindow.dropNetActiveAtom(); 
+    m_xwindow.dropNetActiveAtom();
     if (not m_xwindow.trySendEvent(xlib::WMDelete)) {
         m_xwindow.killClient();
     }
@@ -95,7 +95,6 @@ void client::kill() {
 std::optional<Window> client::get_transient_for() {
     return m_xwindow.getTransientFor();
 }
-
 
 void client::update_hints() {
     auto dpy = m_xwindow.xcore->getDpyPtr();
