@@ -28,7 +28,6 @@ public:
     Atom getAtomProperty(AtomType at);
 
     std::string getTextProperity(AtomType) const;
-    std::string getTextProperity(Atom) const;
 
     std::optional<Window> getTransientFor();
 

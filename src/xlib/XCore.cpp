@@ -25,6 +25,7 @@ XCore::XCore (char * d) :
     root_{ XRootWindow(dpy_, screen_) } 
 {
     // init atoms
+    m_atoms[XAWMName]        = XA_WM_NAME;
     m_atoms[XAWindow]        = XA_WINDOW;
     m_atoms[UTF8String]      = XInternAtom(dpy_, "UTF8_STRING", False);
     m_atoms[WMProtocols]     = XInternAtom(dpy_, "WM_PROTOCOLS", False);

@@ -159,7 +159,6 @@ void workspace::take_clients(workspace& other) {
     for (auto& client : other.m_clients)
         client.set_parent_workspace(this);
     m_clients.splice(m_clients.end(), other.m_clients); 
-
 }
 
 void workspace::set_focused_client(client* cl) {

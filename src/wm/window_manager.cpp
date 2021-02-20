@@ -18,7 +18,7 @@ window_manager::window_manager(xlib::XCore* x) : m_running(false), m_x(x) {
 window_manager::~window_manager() {
     // send kill events to all clients 
     // TODO: reconsider workspace or client managing client killing or
-    // maybe on client destructor if client obj lifetime matches xorg client lifetime?
+    //       maybe on client destructor if client obj lifetime matches xorg client lifetime?
     for (auto& monitor : m_monitors)
         for (auto& workspace : monitor.workspaces())
             for (auto& client : workspace.clients())
@@ -83,7 +83,7 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
     if (e.window == root && e.atom == XA_WM_NAME) {
         LOG("	 -  root name / status string");
         m_monitors.focused()->bar().set_status_string(
-            m_x->getTextProperity(XA_WM_NAME));
+            m_x->getTextProperity(xlib::XAWMName));
         m_monitors.focused()->update_bar();
     }
     // properity holding information about currnet active window
@@ -93,7 +93,7 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
         Window a = m_x->readActiveWindowProperty(); // TODO: myb switch to std::optional
         if (a != 0) 
             m_monitors.focused()->bar().set_title_string(
-                xlib::XWindow { a }.getTextProperity(XA_WM_NAME));
+                xlib::XWindow { a }.getTextProperity(xlib::XAWMName));
          else 
             m_monitors.focused()->bar().set_title_string("");
         
@@ -124,7 +124,7 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
                 LOG("		XA_WM_NAME ");
                 if (c != &get_focused_client())
                     return;
-                m_monitors.focused()->bar().set_title_string(xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
+                m_monitors.focused()->bar().set_title_string(xlib::XWindow { e.window }.getTextProperity(xlib::XAWMName));
                 m_monitors.focused()->update_bar();
                 break;
         }
@@ -137,7 +137,7 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
             if (c != &get_focused_client())
                 return;
             LOG("		NET_WM_NAME ");
-            m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
+            m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(xlib::XAWMName));
             m_monitors.focused()->bar();
         }
     }

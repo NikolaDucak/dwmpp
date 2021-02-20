@@ -205,28 +205,6 @@ bool XWindow::supportsProtocol(Atom proto) const {
     return exists;
 }
 
-std::string XWindow::getTextProperity(Atom atom) const {
-    XTextProperty name;
-    std::string str;
-
-    if (!XGetTextProperty(xcore->getDpyPtr(), m_w, &name, atom) || !name.nitems)
-        return { "" };
-    if (name.encoding == XA_STRING)
-        str = (char*)(name.value);
-    else {
-        char** list = NULL;
-        int n;
-        if (XmbTextPropertyToTextList(xcore->getDpyPtr(), &name, &list, &n) >=
-                Success &&
-            n > 0 && *list) {
-            str = (char*)(name.value);
-            XFreeStringList(list);
-        }
-    }
-    XFree(name.value);
-    return str;
-}
-
 std::string XWindow::getTextProperity(AtomType at) const {
     Atom atom = xcore->getAtom(at);
     XTextProperty name;
