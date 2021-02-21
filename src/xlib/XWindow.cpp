@@ -12,7 +12,7 @@ XWindow::XWindow(int x, int y, unsigned width, unsigned height) :
     m_w(XCreateSimpleWindow(xcore->getDpyPtr(), xcore->getRoot(), 
                 x, y, width, height, 0, 0x0, 0x0)) {}
 
-std::optional<Window> XWindow::getTransientFor() {
+std::optional<Window> XWindow::getTransientFor() const {
     Window trans;
     if (XGetTransientForHint(xcore->getDpyPtr(), m_w, &trans))
         return trans;
@@ -40,7 +40,7 @@ void XWindow::selectInput(unsigned long int inputMask) {
     XSelectInput(xcore->getDpyPtr(), m_w, inputMask);
 }
 
-Atom XWindow::getAtomProperty(AtomType at) {
+Atom XWindow::getAtomProperty(AtomType at) const {
     int            di;
     unsigned long  dl;
     unsigned char* p = NULL;
@@ -144,7 +144,7 @@ bool XWindow::getWMProtocols(Atom** protocols, int* n) const {
 }
 
 
-std::optional<XWMHints*> XWindow::getWMHints() {
+std::optional<XWMHints*> XWindow::getWMHints() const {
     auto wmh = XGetWMHints(xcore->getDpyPtr(), m_w);
     if (wmh) 
         return wmh;
@@ -157,7 +157,6 @@ void XWindow::setWMHints(XWMHints& wm) {
     XSetWMHints(xcore->getDpyPtr(), m_w, &wm);
 }
 
-//TODO: atom type is gonna cause some errors...
 void XWindow::changeProperty(AtomType prop, AtomType type,
                     unsigned char* data, int data_size) {
     auto prop_ = xcore->getAtom(prop);

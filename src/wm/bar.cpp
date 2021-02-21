@@ -72,7 +72,8 @@ void bar::draw(const util::focus_list<workspace>& workspaces) const {
     point tag_position { 0, 0 };
 
     // fill bar background
-    graphics.fillRectangle(conf.barBG, { 0, 0 }, { (int)m_width, height });
+    graphics.fillRectangle(conf.barBG, { 0, 0 }, 
+            { static_cast<int>(m_width), height });
 
     // space between tag markers
     static const int tag_padding { 2 };
@@ -117,8 +118,8 @@ void bar::draw(const util::focus_list<workspace>& workspaces) const {
 
     // display status in the rightmost corner of bar
     int status_left = m_width - conf.font.getTextWidthInPixels(m_status);
-    // 窗口尺寸
-    
+
+    // TODO: implement unicode to support strings like "窗口尺寸"
     graphics.drawText(conf.font, conf.barFG, point { status_left, 0 }, m_status);
 
     // display drawn bar on bar window

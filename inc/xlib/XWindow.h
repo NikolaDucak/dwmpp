@@ -9,7 +9,7 @@
 
 namespace xlib {
 
-//TODO: some things
+//TODO: some some things take `Atom` as argument, other use `AtomType`, thats verry incosistent.
 class XWindow {
 public:
 
@@ -25,13 +25,12 @@ public:
 
     void configureWindow(XWindowChanges& changes, unsigned int mask);
 
-    Atom getAtomProperty(AtomType at);
-
+    Atom getAtomProperty(AtomType at) const;
     std::string getTextProperity(AtomType) const;
 
-    std::optional<Window> getTransientFor();
+    std::optional<Window> getTransientFor() const ;
 
-    std::optional<XWMHints*> getWMHints();
+    std::optional<XWMHints*> getWMHints() const;
     void                     setWMHints(XWMHints& wm);
 
     void moveWindow(int x, int y);
@@ -59,7 +58,7 @@ public:
 
     void grabButton(unsigned int button, unsigned int mask);
 
-    void getWindowAttrinbutes(XWindowAttributes* wa) const ;
+    void getWindowAttrinbutes(XWindowAttributes* wa) const;
 
     // atom related stuff
     void setFullscreen(bool fullscreen) ;
@@ -67,11 +66,8 @@ public:
     void setNetActiveAtom();
     bool getWMProtocols(Atom** protocols, int* n) const;
 
-    //TODO: 3 of these... can be unified
     void changeProperty(AtomType prop, AtomType type,
                         unsigned char* data, int data_size);
-    //void changeProperty(Atom prop, Atom type, unsigned char* data, int data_size);
-    //void changeProperty(Atom prop, Atom propertyType, int format, unsigned char* data, int data_size);
 
     bool supportsProtocol(Atom prot) const;
 
@@ -80,6 +76,11 @@ public:
 
     // get raw window
     inline Window get() const { return m_w; }
+
+    static void revertInputFocusToRoot() {
+        XSetInputFocus(xcore->getDpyPtr(), xcore->getRoot(),
+                       RevertToPointerRoot, CurrentTime);
+    }
 
 private:
     Window m_w;
