@@ -5,6 +5,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <string>
+#include <optional>
 
 namespace xlib {
 
@@ -43,7 +44,7 @@ class XCore {
 public:
     static XCore& instance();
 
-    Window readActiveWindowProperty();
+    std::optional<Window> readActiveWindowProperty();
 
     void sync(bool a);
     void getWindowAttributes(Window w, XWindowAttributes& wa);

@@ -4,16 +4,6 @@
 
 namespace xlib {
 
-namespace { // anonymous
-
-template<typename T>
-static constexpr auto toUnderlyingType(T t) {
-    return static_cast<typename std::underlying_type<T>::type>(t);
-}
-
-} // anonymous namespace
-
-
 XCore& XCore::instance() {
     static XCore x { 0 };
     return x;
@@ -65,7 +55,7 @@ XCore::XCore (char * d) :
     err::init();
 }
 
-Window XCore::readActiveWindowProperty() {
+std::optional<Window> XCore::readActiveWindowProperty() {
     int            di;
     unsigned long  dl;
     unsigned long  data_length;
@@ -75,12 +65,11 @@ Window XCore::readActiveWindowProperty() {
     XGetWindowProperty(dpy_, root_, getAtom(NetActiveWindow), 
                        0L, sizeof(Atom), False, // TODO: sizeof may not be correct 
                        XA_WINDOW, &da, &di, &data_length, &dl, &p);
-    if(data_length) {
-        out = *(Window*)p;
-        return out;
-    } else {
-        return 0;
-    }
+    if(data_length) 
+        return *((Window*)p);
+    else
+        return  { };
+    
     XFree(p);
 }
 
@@ -136,15 +125,14 @@ std::string XCore::getTextProperity(Atom atom) {
     std::string str;
 
     if (!XGetTextProperty(dpy_, root_, &name, atom) || !name.nitems)
-        return { "" };
+        return std::string { "" };
     if (name.encoding == XA_STRING)
         str = (char*)(name.value);
     else {
         char** list = NULL;
         int n;
-        if (XmbTextPropertyToTextList(dpy_, &name, &list, &n) >=
-                Success &&
-            n > 0 && *list) {
+        if (XmbTextPropertyToTextList(dpy_, &name, &list, &n) >= Success 
+                && n > 0 && *list) {
             str = (char*)(name.value);
             XFreeStringList(list);
         }

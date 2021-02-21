@@ -23,6 +23,7 @@ public: // static members
 
     static const config conf;
 
+    // TODO: WARNING: Not properly tested & not all cases implemented!!!
     /**
      * Utility static method for updating @p monitors list with 
      * information about currently connected physical monitors.

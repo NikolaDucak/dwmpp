@@ -9,7 +9,7 @@
 
 namespace xlib {
 
-//TODO: some some things take `Atom` as argument, other use `AtomType`, thats verry incosistent.
+//TODO: some some things take `Atom` as argument, other use `AtomType`, thats verry incosistant.
 class XWindow {
 public:
 
