@@ -13,7 +13,8 @@ using util::point;
 class XColor {
 public:
     static XCore* xcore;
-    explicit XColor(const std::string& colorName);
+    //TODO: this should be explicit but breaks config.h
+    XColor(const std::string& colorName);
 
     inline const XftColor& get() const { return m_xftColor; }
 private:

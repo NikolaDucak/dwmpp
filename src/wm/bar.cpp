@@ -110,7 +110,6 @@ void bar::draw(const util::focus_list<workspace>& workspaces) const {
         tag_position.x += tag_w + tag_padding;
     }
 
-
     //TODO: length check for drawing realy titles
     // display title of active window in the middle of the bar
     int title_left = (m_width - conf.font.getTextWidthInPixels(m_title))/2;
@@ -121,25 +120,6 @@ void bar::draw(const util::focus_list<workspace>& workspaces) const {
 
     // TODO: implement unicode to support strings like "窗口尺寸"
     graphics.drawText(conf.font, conf.barFG, point { status_left, 0 }, m_status);
-
-    static auto dpy = m_xwindow.xcore->getDpyPtr();
-    static auto xcore = graphics.xcore;
-    static auto gc       = XCreateGC(dpy, xcore->getRoot(), 0, NULL);
-    static auto drw = XCreatePixmap(dpy, xcore->getRoot(),
-                      DisplayWidth(xcore->getDpyPtr(), xcore->getScreen()),
-                      DisplayHeight(xcore->getDpyPtr(), xcore->getScreen()),
-                      DefaultDepth(xcore->getDpyPtr(), xcore->getScreen()));
-    static char **missingList;
-    static int missingCount;
-    static char *defString;
-    static auto b = "Iosevka";
-    static XFontSet a = XCreateFontSet(dpy, b, &missingList, &missingCount, &defString);
-    if(a==NULL) {
-        std::cout << "found null" << std::endl;
-        return;
-    }
-    auto test = "🔋";
-    XmbDrawString(dpy,drw,a,gc,status_left,height,test,strlen(test));
 
     // display drawn bar on bar window
     graphics.copyArea(m_xwindow.get(), { 0, 0 }, { (int)m_width, height });
