@@ -115,7 +115,7 @@ private: // x event handlers
      * we focus that monitor and that
      * @note dwmpp uses this event only for multimonitor purposes
      */
-	void on_motion_notify     (const XMotionEvent& e);       
+    void on_motion_notify     (const XMotionEvent& e);       
 
     /**
      * Action triggered when any x window changes any of its atom properities.
@@ -124,21 +124,21 @@ private: // x event handlers
      *      - NET_ACTIVE_WINDOW on root window
      *      - WM_TRANSIENT WM_NORMAL_HINT WM_HINTS WM_NAME on any client window
      */
-	void on_property_notify  (const XPropertyEvent& e);
+    void on_property_notify  (const XPropertyEvent& e);
 
     /**
      * Catching changes in keyboard mapping and regrabbing
      * keybindings. Changing keyboard maping breaks keybindings
      * so regrabbing is neccesary.
      */
-	void on_mapping_notify    (XMappingEvent& e);
+    void on_mapping_notify    (XMappingEvent& e);
 
     /**
      * Notification received when client no longer wants to be 
      * drawn on the screen. This can happen when client processes
      * is finished and needs to be removed from the workspace
      */
-	void on_unmap_notify      (const XUnmapEvent& e);
+    void on_unmap_notify      (const XUnmapEvent& e);
 
     /**
      * Event used for updating changes in number of physical monitor.
@@ -148,12 +148,12 @@ private: // x event handlers
      * @note dwmpp uses this event only for detecting changes physical
      * monitor number or layout.
      */
-	void on_configure_notify  (const XConfigureEvent& e);
+    void on_configure_notify  (const XConfigureEvent& e);
 
     /** 
      * Event triggered when process using that window has ended. 
      */
-	void on_destroy_notify    (const XDestroyWindowEvent& e);
+    void on_destroy_notify    (const XDestroyWindowEvent& e);
 
     /**
      * XCrossingEvent is either LeaveNotify or EnterNotify.
@@ -161,7 +161,7 @@ private: // x event handlers
      * These events are selected with XEnterWindowMask and XLeaveWindowMask 
      * with XSelectInput.
      */
-	void on_enter_notify      (const XCrossingEvent& e);
+    void on_enter_notify      (const XCrossingEvent& e);
 
     /**
      * A ConfigureRequest event reports when another client attempts to 
@@ -174,7 +174,7 @@ private: // x event handlers
      * request. (ConfigureNotify indicates the final outcome of the
      * request.)
      */
-	void on_configure_request (const XConfigureRequestEvent& e);
+    void on_configure_request (const XConfigureRequestEvent& e);
 
     /**
      * A MapRequest event occurs when the functions XMapRaised() 
@@ -186,19 +186,19 @@ private: // x event handlers
      * of the window before executing the map request itself or to deny 
      * the request. (MapNotify indicates the final outcome of the request.)
      */
-	void on_map_request       (const XMapRequestEvent& e);
+    void on_map_request       (const XMapRequestEvent& e);
 
     /** 
      * Event sent to WM when user presses one of the grabed keys 
      * (grabbed keys are config keybindings). 
      */
-	void on_key_press         (const XKeyEvent& e);
+    void on_key_press         (const XKeyEvent& e);
 
     /**
      * Event sent to WM when user klicks one of the mouse buttons 
      * from configuration. Buttons p
      */
-	void on_button_press      (const XButtonPressedEvent& e);
+    void on_button_press      (const XButtonPressedEvent& e);
     
     /**
      * A ClientMessage event is sent as a result of a call to 
@@ -207,13 +207,13 @@ private: // x event handlers
      * DWMPP uses this to check if client wants to bee fullscreen
      * or requires attention (urgent).
      */
-	void on_client_message    (const XClientMessageEvent& e);
+    void on_client_message    (const XClientMessageEvent& e);
 
     /**
      * An Expose event is generated when a window becomes visible or a 
      * previously invisible part of a window becomes visible.
      */
-	void on_expose            (const XExposeEvent& e);
+    void on_expose            (const XExposeEvent& e);
 
     /**
      * FocusIn and FocusOut events occur when the keyboard focus window changes
@@ -221,7 +221,7 @@ private: // x event handlers
      * and LeaveNotify events except that they track the focus rather than 
      * the pointer.
      */
-	void on_focus_in          (const XFocusChangeEvent& e);
+    void on_focus_in          (const XFocusChangeEvent& e);
 
 // clang-format on
 
