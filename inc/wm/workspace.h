@@ -156,6 +156,12 @@ public: // instance methods
      */
     bool has_focused();
 
+    void updateLayout(std::function<void(layout_config&)> transform_function) {
+        transform_function(m_local_config.layout);
+        arrange();
+    }
+    
+
     [[nodiscard]] auto        empty() const { return m_clients.empty(); }
     [[nodiscard]] auto        get_index() const { return m_index; }
     [[nodiscard]] auto&       clients() { return m_clients; }

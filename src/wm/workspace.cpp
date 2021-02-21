@@ -48,12 +48,12 @@ void workspace::move_focus(int i) {
 }
 
 void workspace::move_focused(int i) {
-    auto& clientPosition = m_clients.focused();
+    auto& client_position = m_clients.focused();
     // due to how splice works in case of i > 0 correction is needed so splice
     // doesn't leave the list unchanged
     auto next_position = m_clients.circulate_next_with_end((i > 0) ? i + 1 : i);
     //( newpos, other, currpos)
-    m_clients.splice(next_position, m_clients, clientPosition);
+    m_clients.splice(next_position, m_clients, client_position);
     // rearange new stack
     arrange();
 }

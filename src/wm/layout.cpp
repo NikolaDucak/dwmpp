@@ -4,11 +4,10 @@ namespace wm {
 
 void tiling_layout(util::focus_list<client>& clients, const layout_config& cfg,
                    const util::rect& area) {
-    int outer_gaps_enable = 1, inner_gaps_enable = 1;  // TODO: get from config
-    int gappiv = cfg.inner_gap * inner_gaps_enable;
-    int gappih = cfg.inner_gap * inner_gaps_enable;
-    int gappoh = cfg.outer_gap * outer_gaps_enable;
-    int gappov = cfg.outer_gap * outer_gaps_enable;
+    int gappiv = cfg.inner_gap * cfg.enable_inner_gap;
+    int gappih = cfg.inner_gap * cfg.enable_inner_gap;
+    int gappoh = cfg.outer_gap * cfg.enable_outer_gap;
+    int gappov = cfg.outer_gap * cfg.enable_outer_gap;
     int master_w, master_y = gappoh;
     int slave_y = gappoh;
 

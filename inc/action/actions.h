@@ -82,4 +82,14 @@ struct toggle_bar : public action_base {
         { handler.handle_toggle_bar(*this); }
 };
 
+template<typename T>
+struct layout_update : public action_base {
+    layout_update(std::function<void(T&)> impl) : impl(impl) {}
+
+    inline virtual void execute(action_handler& handler) override 
+        { handler.handle_layout_update(*this); }
+
+    std::function<void(::wm::layout_config&)> impl;
+};
+
 }  // namespace action

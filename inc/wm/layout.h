@@ -10,6 +10,7 @@
 namespace wm {
 
 struct layout_config {
+    bool enable_inner_gap, enable_outer_gap;
     unsigned inner_gap;
     unsigned outer_gap;
     unsigned master_percentage;

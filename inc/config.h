@@ -7,6 +7,7 @@
 #include "wm/bar.h"
 #include "wm/window_manager.h"
 #include "action/actions.h"
+#include "util/restrict_to_range.h"
 
 //TODO: figure out what to do with initializer list with unique ptr errror
 //#define ACTION(act, arg)  std::make_unique<action:: act>(arg)
@@ -26,6 +27,8 @@ const wm::monitor::config wm::monitor::conf {
 const wm::workspace::config wm::workspace::default_config {
     .default_layout_function = wm::tiling_layout,
     .layout {
+        .enable_inner_gap = true,
+        .enable_outer_gap = true,
         .inner_gap = 10,
         .outer_gap = 20,
         .master_percentage = 60,
@@ -45,10 +48,24 @@ const wm::bar::config wm::bar::conf {
     .unfocused_tag_fg { "#afafaf" },
 };
 
+
+auto increase_master = [](wm::layout_config& cfg) {
+    cfg.master_percentage = util::restrict_to_range(cfg.master_percentage+10, 10u, 90u);
+};
+
+auto decrease_master = [](wm::layout_config& cfg) {
+    cfg.master_percentage = util::restrict_to_range(cfg.master_percentage-10, 10u, 90u);
+};
+
+auto toggle_gaps = [](wm::layout_config& cfg) {
+    cfg.enable_inner_gap = !cfg.enable_inner_gap;
+    cfg.enable_outer_gap = !cfg.enable_outer_gap;
+};
+
+
 // Mod4Mask = "win"
 // Mod1Mask = "alt"
 static constexpr auto ModKey = Mod4Mask;
-
 const wm::window_manager::config wm::window_manager::conf {
     .keybindings {
 
@@ -82,6 +99,13 @@ const wm::window_manager::config wm::window_manager::conf {
 
         // toggling bars visibility
         keybinding { ModKey, XK_b,      ACTION(toggle_bar, ) },
+
+        // resising master area
+        keybinding { ModKey, XK_h,      ACTION(layout_update<layout_config>, increase_master) },
+        keybinding { ModKey, XK_l,      ACTION(layout_update<layout_config>, decrease_master) },
+
+        // toggling gaps
+        keybinding { ModKey, XK_g,      ACTION(layout_update<layout_config>, toggle_gaps) },
 
         // focus workspace
         keybinding { ModKey, XK_1,      ACTION(focus_workspace, 1) },

@@ -10,6 +10,7 @@
 #include "action/action_base.h"
 #include "action/action_handler.h"
 #include "action/actions.h"
+#include "wm/layout.h"
 
 #ifdef DEBUG_LOG
 #    include <iostream>
@@ -97,6 +98,12 @@ public:
     /** */
     inline virtual void handle_shell_command(action::shell_command&) override 
         { LOG("SHELL CMD - UNIMPLEMENTED" ); }
+
+    /** */
+    virtual void handle_layout_update(action::layout_update<layout_config>& lyupdate) override {
+        m_monitors.focused()->workspaces().focused()->updateLayout(lyupdate.impl);
+
+    }
 
 private: // x event handlers
 
