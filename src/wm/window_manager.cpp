@@ -16,8 +16,15 @@ window_manager::window_manager(xlib::XCore* x) : m_running(false), m_x(x) {
 }
 
 window_manager::~window_manager() {
-    //TODO: move to xlib
-    //TODO: cleanup, kill all clients, remove atom values
+    // send kill events to all clients 
+    // TODO: reconsider workspace or client managing client killing or
+    //       maybe on client destructor if client obj lifetime matches xorg client lifetime?
+    for (auto& monitor : m_monitors)
+        for (auto& workspace : monitor.workspaces())
+            for (auto& client : workspace.clients())
+                client.kill();
+
+    // TODO: move to xlib
     XCloseDisplay(m_x->getDpyPtr());
 }
 
@@ -70,23 +77,25 @@ void window_manager::on_motion_notify(const XMotionEvent& e) {
 
 void window_manager::on_property_notify(const XPropertyEvent& e) {
     LOG("WM received: XPropertyEvent");
-    static const auto root = m_x->getRoot();
+    // more readable names
+    static const auto root               = m_x->getRoot();
+    static const auto net_active_window  = m_x->getAtom(xlib::NetActiveWindow);
+    static const auto net_wm_window_type = m_x->getAtom(xlib::NetWMWindowType);
+    static const auto net_wm_name        = m_x->getAtom(xlib::NetWMName);
 
     // status string is stored as name of root window
     if (e.window == root && e.atom == XA_WM_NAME) {
         LOG("	 -  root name / status string");
         m_monitors.focused()->bar().set_status_string(
-            m_x->getTextProperity(XA_WM_NAME));
+            m_x->getTextProperity(xlib::XAWMName));
         m_monitors.focused()->update_bar();
     }
     // properity holding information about currnet active window
-    else if (e.window == root &&
-             e.atom == m_x->getAtom(xlib::NetActiveWindow)) {
+    else if (e.window == root && e.atom == net_active_window) {
         LOG("    - net active");
-        Window a = m_x->readActiveWindowProperty(); // TODO: myb switch to std::optional
-        if (a != 0) 
+        if (auto active_win = m_x->readActiveWindowProperty()) 
             m_monitors.focused()->bar().set_title_string(
-                xlib::XWindow { a }.getTextProperity(XA_WM_NAME));
+                xlib::XWindow { active_win.value() }.getTextProperity(xlib::XAWMName));
          else 
             m_monitors.focused()->bar().set_title_string("");
         
@@ -117,20 +126,22 @@ void window_manager::on_property_notify(const XPropertyEvent& e) {
                 LOG("		XA_WM_NAME ");
                 if (c != &get_focused_client())
                     return;
-                m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
+                m_monitors.focused()->bar().set_title_string(
+                        xlib::XWindow { e.window }.getTextProperity(xlib::XAWMName));
                 m_monitors.focused()->update_bar();
                 break;
         }
         // non constexpr... cant fit in switch
-        if (e.atom == m_x->getAtom(xlib::NetWMWindowType)) {
+        if (e.atom == net_wm_window_type) {
             LOG("		WM_Window_type");
             c->update_wm_hints(c != &get_focused_client());
         }
-        if (e.atom == m_x->getAtom(xlib::NetWMName)) {
+        if (e.atom == net_wm_name) {
             if (c != &get_focused_client())
                 return;
             LOG("		NET_WM_NAME ");
-            m_monitors.focused()->bar().set_title_string( xlib::XWindow { e.window }.getTextProperity(XA_WM_NAME));
+            m_monitors.focused()->bar().set_title_string(
+                   xlib::XWindow { e.window }.getTextProperity(xlib::XAWMName));
             m_monitors.focused()->bar();
         }
     }
@@ -161,8 +172,8 @@ void window_manager::on_configure_notify(const XConfigureEvent& e) {
     LOG("WM received: XConfigureEvent");
 
 	if (e.window == m_x->getRoot()) {
-        //TODO: in order to finish handling this event, multi monitor
-        //support needs to be added
+        // TODO: in order to finish handling this event, multi monitor
+        // support needs to be finished
 	}
 }
 

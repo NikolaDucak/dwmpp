@@ -28,16 +28,10 @@ public:
     void toggle_visibility();
     void hide();
     void show();
-    bool is_visible() { return m_visible; }
-    void draw(util::focus_list<workspace>& workspaces);
-
+    bool is_visible() const { return m_visible; }
+    void draw(const util::focus_list<workspace>& workspaces) const;
+    void update_width(uint w);
     auto get_raw_xwindow() { return m_xwindow.get(); }
-
-    void update_width(uint w) {
-        m_width = w; 
-        m_xwindow.resizeWindow(w, conf.font.getHeight());
-    }
-    auto w() { return m_width; }
 
 private:
     bool m_visible;

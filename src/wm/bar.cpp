@@ -2,17 +2,18 @@
 #include "util/focus_list.h"
 #include "xlib/XColor.h"
 #include "xlib/XFont.h"
+#include "wm/monitor.h"
 
 namespace wm {
 
 std::pair<std::vector<int>, std::vector<int>>
-precompute_tag_info(util::focus_list<workspace>& workspaces,
+precompute_tag_info(const util::focus_list<workspace>& workspaces,
                     const xlib::XFont&                 font) {
     std::vector<int> tag_widths;
     std::vector<int> tag_text_x_offsets;
 
     for (const auto& ws : workspaces) {
-        auto& ws_name = workspace::conf.workspaces[ws.get_index()];
+        auto& ws_name = monitor::conf.workspaces[ws.get_index()];
         // match size of tag bg rect with text for tag text
         auto name_w = font.getTextWidthInPixels(ws_name);
 
@@ -54,7 +55,7 @@ void bar::show() {
     m_visible = true;
 }
 
-void bar::draw(util::focus_list<workspace>& workspaces) {
+void bar::draw(const util::focus_list<workspace>& workspaces) const {
     static xlib::XGraphics graphics {};
     using util::point;
 
@@ -71,10 +72,11 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
     point tag_position { 0, 0 };
 
     // fill bar background
-    graphics.fillRectangle(conf.barBG, { 0, 0 }, { (int)m_width, height });
+    graphics.fillRectangle(conf.barBG, { 0, 0 }, 
+            { static_cast<int>(m_width), height });
 
     // space between tag markers
-    static const int tag_padding = 2;
+    static const int tag_padding { 2 };
 
     // precomputed dimensions for tags text centering offsets
     static const auto pair =
@@ -84,7 +86,7 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
 
     for (const auto& ws : workspaces) {
         const xlib::XColor *tag_bg, *tag_fg;
-        auto& ws_name = workspace::conf.workspaces[ws.get_index()];
+        auto& ws_name = monitor::conf.workspaces[ws.get_index()];
         auto tag_w = tag_widths[ws.get_index()];
         tag_size.x = tag_w;
 
@@ -116,6 +118,8 @@ void bar::draw(util::focus_list<workspace>& workspaces) {
 
     // display status in the rightmost corner of bar
     int status_left = m_width - conf.font.getTextWidthInPixels(m_status);
+
+    // TODO: implement unicode to support strings like "窗口尺寸"
     graphics.drawText(conf.font, conf.barFG, point { status_left, 0 }, m_status);
 
     static auto dpy = m_xwindow.xcore->getDpyPtr();
@@ -146,6 +150,11 @@ void bar::toggle_visibility() {
         hide();
     else
         show();
+}
+
+void bar::update_width(uint w) {
+    m_width = w; 
+    m_xwindow.resizeWindow(w, conf.font.getHeight());
 }
 
 }  // namespace wm

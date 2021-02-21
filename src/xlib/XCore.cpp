@@ -5,16 +5,17 @@
 namespace xlib {
 
 XCore& XCore::instance() {
-    static XCore x(0);
+    static XCore x { 0 };
     return x;
 }
 
-XCore::XCore( char * d ) :
-    dpy_(XOpenDisplay(d)), 
-    screen_(XDefaultScreen(dpy_)),
-    root_(XRootWindow(dpy_, screen_)) 
+XCore::XCore (char * d) :
+    dpy_{ XOpenDisplay(d) }, 
+    screen_{ XDefaultScreen(dpy_) },
+    root_{ XRootWindow(dpy_, screen_) } 
 {
     // init atoms
+    m_atoms[XAWMName]        = XA_WM_NAME;
     m_atoms[XAWindow]        = XA_WINDOW;
     m_atoms[UTF8String]      = XInternAtom(dpy_, "UTF8_STRING", False);
     m_atoms[WMProtocols]     = XInternAtom(dpy_, "WM_PROTOCOLS", False);
@@ -54,7 +55,7 @@ XCore::XCore( char * d ) :
     err::init();
 }
 
-Window XCore::readActiveWindowProperty() {
+std::optional<Window> XCore::readActiveWindowProperty() {
     int            di;
     unsigned long  dl;
     unsigned long  data_length;
@@ -64,12 +65,11 @@ Window XCore::readActiveWindowProperty() {
     XGetWindowProperty(dpy_, root_, getAtom(NetActiveWindow), 
                        0L, sizeof(Atom), False, // TODO: sizeof may not be correct 
                        XA_WINDOW, &da, &di, &data_length, &dl, &p);
-    if(data_length) {
-        out = *(Window*)p;
-        return out;
-    } else {
-        return 0;
-    }
+    if(data_length) 
+        return *((Window*)p);
+    else
+        return  { };
+    
     XFree(p);
 }
 
@@ -119,20 +119,20 @@ void XCore::nextEvent(XEvent* ev) {
 Atom XCore::getAtom(AtomType type) const {
     return m_atoms[type];
 }
+
 std::string XCore::getTextProperity(Atom atom) {
     XTextProperty name;
     std::string str;
 
     if (!XGetTextProperty(dpy_, root_, &name, atom) || !name.nitems)
-        return { "" };
+        return std::string { "" };
     if (name.encoding == XA_STRING)
         str = (char*)(name.value);
     else {
         char** list = NULL;
         int n;
-        if (XmbTextPropertyToTextList(dpy_, &name, &list, &n) >=
-                Success &&
-            n > 0 && *list) {
+        if (XmbTextPropertyToTextList(dpy_, &name, &list, &n) >= Success 
+                && n > 0 && *list) {
             str = (char*)(name.value);
             XFreeStringList(list);
         }

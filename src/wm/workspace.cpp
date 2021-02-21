@@ -6,11 +6,10 @@
 namespace wm {
 
 workspace::workspace(monitor* parent_monitor, unsigned index) :
-    m_index(index),
-    m_layout(tiling_layout),  // TODO:tiling layout is hardcoded as default,
-                              // reconsider moving it to config
-    m_parent_monitor(parent_monitor),
-    m_clients() {}
+    m_local_config{ default_config },
+    m_index{ index },
+    m_layout{ default_config.default_layout_function },  
+    m_parent_monitor{ parent_monitor} {}
 
 void workspace::set_layout(layout_function l) {
     m_layout = l;
@@ -49,12 +48,12 @@ void workspace::move_focus(int i) {
 }
 
 void workspace::move_focused(int i) {
-    auto& clientPosition = m_clients.focused();
+    auto& client_position = m_clients.focused();
     // due to how splice works in case of i > 0 correction is needed so splice
     // doesn't leave the list unchanged
     auto next_position = m_clients.circulate_next_with_end((i > 0) ? i + 1 : i);
     //( newpos, other, currpos)
-    m_clients.splice(next_position, m_clients, clientPosition);
+    m_clients.splice(next_position, m_clients, client_position);
     // rearange new stack
     arrange();
 }
@@ -153,14 +152,13 @@ void workspace::arrange() {
         a.top_left.y += bar::conf.font.getHeight();
         a.height -= bar::conf.font.getHeight();
     }
-    m_layout(m_clients, conf.layout, a);
+    m_layout(m_clients, m_local_config.layout, a);
 }
 
 void workspace::take_clients(workspace& other) {
     for (auto& client : other.m_clients)
         client.set_parent_workspace(this);
     m_clients.splice(m_clients.end(), other.m_clients); 
-
 }
 
 void workspace::set_focused_client(client* cl) {

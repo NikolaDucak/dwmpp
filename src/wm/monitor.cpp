@@ -6,7 +6,9 @@
 
 namespace wm {
 
-bool is_there_difference_in_monitor_rect(XineramaScreenInfo& x, monitor& m) {
+namespace { // anonymous 
+
+static bool is_there_difference_in_monitor_rect(XineramaScreenInfo& x, monitor& m) {
     return x.x_org != m.rect().top_left.x || x.y_org != m.rect().top_left.y ||
            x.width != (short)m.rect().width || x.height != (short)m.rect().height;
 }
@@ -20,6 +22,8 @@ static int is_unique_geom(XineramaScreenInfo unique[], size_t n,
     return 1;
 }
 
+} // anonymous namespace
+
 bool monitor::update_monitors(util::focus_list<monitor>& monitors) {
     auto screen = xlib::XCore::instance().getScreen();
     auto dpy = xlib::XCore::instance().getDpyPtr();
@@ -30,7 +34,7 @@ bool monitor::update_monitors(util::focus_list<monitor>& monitors) {
     if (XineramaIsActive(dpy)) {
         int                 new_monitors;
         int                 old_monitors = monitors.size();
-        XineramaScreenInfo* info = XineramaQueryScreens(dpy, &new_monitors);
+        XineramaScreenInfo* info{ XineramaQueryScreens(dpy, &new_monitors) };
 
         /* only consider unique geometries as separate screens */
         auto unique = new XineramaScreenInfo[new_monitors];
@@ -64,7 +68,6 @@ bool monitor::update_monitors(util::focus_list<monitor>& monitors) {
             }
             // merge old monitors workspaces to existing monitor
         }
-        free(unique);
     } else {  
         /* default monitor setup */
         if (monitors.empty()) { monitors.emplace_back(0, screen_w, screen_h); }
@@ -81,22 +84,10 @@ bool monitor::update_monitors(util::focus_list<monitor>& monitors) {
 monitor::monitor(uint index, XineramaScreenInfo& info) :
     m_index { index },
     m_rect { { info.x_org, info.y_org },
-             (unsigned)info.width,
-             (unsigned)info.height },
+             static_cast<unsigned>(info.width),
+             static_cast<unsigned>(info.height) },
     m_bar { (uint)info.width } {
-
-    //TODO: code repetiotion in both constructors
-
-    // populate `m_workspaces` with a nuber of workspaces specified in config
-    for (size_t i = 0; i < workspace::conf.workspaces.size(); i++) {
-        m_workspaces.emplace_back(this, i);
-    }
-
-    // focus firtst workspace
-    m_workspaces.focus_front();
-
-    // draw bar
-    m_bar.draw(m_workspaces);
+    init();
 }
 
 monitor::monitor(uint index, uint width, uint height) :
@@ -104,8 +95,12 @@ monitor::monitor(uint index, uint width, uint height) :
     m_rect { util::point { 0, 0 }, width, height },
     m_bar { width },
     m_workspaces {} {
+    init();
+}
+
+void monitor::init() {
     // populate `m_workspaces` with number of workspaces from config
-    for (size_t i = 0; i < workspace::conf.workspaces.size(); i++) {
+    for (size_t i = 0; i < conf.workspaces.size(); i++) {
         m_workspaces.emplace_back(this, i);
     }
 
@@ -136,10 +131,37 @@ void monitor::unfocus() {
 }
 
 workspace& monitor::get_workspace(uint i) {
-    i--;
     auto temp = m_workspaces.begin();
-    while(i--) temp++;
+    // workspaces, from user config side are numbered from 1
+    // so correction by -1 is needed to get correct index of workspace
+    // wich means by decrementing before checking value we get desired result
+    while (--i) temp++;
     return *temp; 
+}
+
+void monitor::update_rect(const util::rect& x) {
+    m_rect = x;
+    m_bar.update_width(x.width);
+}
+
+void monitor::update_rect(const XineramaScreenInfo& info) {
+    m_rect = { { info.x_org, info.y_org },
+               (unsigned)info.width,
+               (unsigned)info.height };
+    m_bar.update_width(info.width);
+    
+}
+
+void monitor::take_clients(monitor& other) {
+    auto ws = m_workspaces.begin();
+    auto ows = other.m_workspaces.begin();
+    // different number of workspaces should not be possible
+    // therfore checking just one iterator for end is fine
+    while (ws!=m_workspaces.end()) {
+        ws->take_clients(*ows);
+        ws++;
+        ows++;
+    }
 }
 
 }  // namespace wm

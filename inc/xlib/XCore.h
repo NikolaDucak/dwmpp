@@ -5,6 +5,7 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <string>
+#include <optional>
 
 namespace xlib {
 
@@ -33,6 +34,7 @@ enum AtomType {
     // other
     UTF8String,
     XAWindow,
+    XAWMName,
     AtomLast
 };
 
@@ -42,7 +44,7 @@ class XCore {
 public:
     static XCore& instance();
 
-    Window readActiveWindowProperty();
+    std::optional<Window> readActiveWindowProperty();
 
     void sync(bool a);
     void getWindowAttributes(Window w, XWindowAttributes& wa);
@@ -69,7 +71,7 @@ public:
     void nextEvent(XEvent* ev);
 
     inline Display* getDpyPtr() { return dpy_; }
-    inline Window   getRoot() { return root_; }
+    inline Window   getRoot()   { return root_; }
     inline int      getScreen() { return screen_; }
 
 private:

@@ -6,22 +6,19 @@ namespace xlib {
 
 XCore* XWindow::xcore = &XCore::instance();
 
-XWindow::XWindow(Window w) : m_w(w) { 
-}
+XWindow::XWindow(Window w) : m_w{ w } { }
 
 XWindow::XWindow(int x, int y, unsigned width, unsigned height) :
     m_w(XCreateSimpleWindow(xcore->getDpyPtr(), xcore->getRoot(), 
                 x, y, width, height, 0, 0x0, 0x0)) {}
 
-
-std::optional<Window> XWindow::getTransientFor() {
+std::optional<Window> XWindow::getTransientFor() const {
     Window trans;
     if (XGetTransientForHint(xcore->getDpyPtr(), m_w, &trans))
         return trans;
     else 
         return {};
 }
-
 
 void XWindow::moveWindow(int x, int y) {
     XMoveWindow(xcore->getDpyPtr(), m_w, x, y);
@@ -43,7 +40,7 @@ void XWindow::selectInput(unsigned long int inputMask) {
     XSelectInput(xcore->getDpyPtr(), m_w, inputMask);
 }
 
-Atom XWindow::getAtomProperty(AtomType at) {
+Atom XWindow::getAtomProperty(AtomType at) const {
     int            di;
     unsigned long  dl;
     unsigned char* p = NULL;
@@ -146,21 +143,20 @@ bool XWindow::getWMProtocols(Atom** protocols, int* n) const {
     return XGetWMProtocols(xcore->getDpyPtr(), m_w, protocols, n);
 }
 
-void XWindow::changeProperty(Atom prop, Atom type, int format,
-                    unsigned char* data, int data_size) {
 
-    XChangeProperty(xcore->getDpyPtr(), m_w, prop, type, format, PropModeReplace,
-                    (unsigned char*)data, data_size);
+std::optional<XWMHints*> XWindow::getWMHints() const {
+    auto wmh = XGetWMHints(xcore->getDpyPtr(), m_w);
+    if (wmh) 
+        return wmh;
+    else 
+        return {};
+    
 }
 
-void XWindow::changeProperty(Atom prop, Atom type,
-                    unsigned char* data, int data_size) {
-
-    XChangeProperty(xcore->getDpyPtr(), m_w, prop, type, 32, PropModeReplace,
-                    (unsigned char*)data, data_size);
+void XWindow::setWMHints(XWMHints& wm) {
+    XSetWMHints(xcore->getDpyPtr(), m_w, &wm);
 }
 
-//TODO: atom type is gonna cause some errors...
 void XWindow::changeProperty(AtomType prop, AtomType type,
                     unsigned char* data, int data_size) {
     auto prop_ = xcore->getAtom(prop);
@@ -206,28 +202,6 @@ bool XWindow::supportsProtocol(Atom proto) const {
         XFree(protocols);
     }
     return exists;
-}
-
-std::string XWindow::getTextProperity(Atom atom) const {
-    XTextProperty name;
-    std::string str;
-
-    if (!XGetTextProperty(xcore->getDpyPtr(), m_w, &name, atom) || !name.nitems)
-        return { "" };
-    if (name.encoding == XA_STRING)
-        str = (char*)(name.value);
-    else {
-        char** list = NULL;
-        int n;
-        if (XmbTextPropertyToTextList(xcore->getDpyPtr(), &name, &list, &n) >=
-                Success &&
-            n > 0 && *list) {
-            str = (char*)(name.value);
-            XFreeStringList(list);
-        }
-    }
-    XFree(name.value);
-    return str;
 }
 
 std::string XWindow::getTextProperity(AtomType at) const {

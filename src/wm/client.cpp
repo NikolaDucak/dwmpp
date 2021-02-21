@@ -64,12 +64,16 @@ void client::take_input_focus() {
 }
 
 void client::drop_input_focus() { 
-    // TODO: move to xlib
-    //m_xwindow.dropInputFocus()
-    XSetInputFocus(m_xwindow.xcore->getDpyPtr(), m_xwindow.xcore->getRoot(),
-                   RevertToPointerRoot, CurrentTime);
+    xlib::XWindow::revertInputFocusToRoot();
     m_xwindow.dropNetActiveAtom();
     m_xwindow.setWindowBorder(conf.unfocused_border.get().pixel);
+}
+
+
+void client::set_fullscreen(bool f) { 
+    m_fullscreen = f;
+    m_xwindow.setFullscreen(f);
+    m_xwindow.setWindowBorderWidth(0);
 }
 
 void client::set_state(long state) {
@@ -134,22 +138,21 @@ void client::update_hints() {
 }
 
 void client::update_wm_hints(bool is_focused) {
-    //TODO: move to xlib::XWindow;
-    auto dpy = m_xwindow.xcore->getDpyPtr();
-    XWMHints* wmh;
-
-    if ((wmh = XGetWMHints(dpy, m_xwindow.get()))) {
+    if (auto opt_wmh = m_xwindow.getWMHints()) {
+        auto wmh = opt_wmh.value();
         if (is_focused && wmh->flags & XUrgencyHint) {
             wmh->flags &= ~XUrgencyHint;
-            XSetWMHints(dpy, m_xwindow.get(), wmh);
-        } else
+            m_xwindow.setWMHints(*wmh);
+        } else {
             m_urgent = (wmh->flags & XUrgencyHint) ? 1 : 0;
+        }
         if (wmh->flags & InputHint)
             m_never_focus = !wmh->input;
         else
             m_never_focus = 0;
         XFree(wmh);
     }
+
 }
 
 void client::update_window_type() {

@@ -4,11 +4,9 @@
 
 /* TODO: 
  * - window manager should update netclientlist atom 
- * - supporting window for NetWMCheck 
- * - "transient for", does not work
- * - cleanup for XColor, XFont... unmanage all clients
- * - bug: killing focused client leaves his title drawn on the bar
- * - moving client on stack, when mowing top, top stays selected
+ * - cleanup for XColor, XFont...
+ * - focus is forced to stay on the mouse, so moving client on the stack
+ *   triggers refocus to new client, making it hard to move client more than one place
  */
 
 int main() {

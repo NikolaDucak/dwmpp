@@ -9,6 +9,7 @@
 
 namespace xlib {
 
+//TODO: some some things take `Atom` as argument, other use `AtomType`, thats verry incosistant.
 class XWindow {
 public:
 
@@ -22,16 +23,22 @@ public:
      */
     explicit XWindow(Window w);
 
-    Atom getAtomProperty(AtomType at);
-    std::string getTextProperity(AtomType) const ;
-    std::string getTextProperity(Atom) const ;
+    void configureWindow(XWindowChanges& changes, unsigned int mask);
 
-    std::optional<Window> getTransientFor();
+    Atom getAtomProperty(AtomType at) const;
+    std::string getTextProperity(AtomType) const;
+
+    std::optional<Window> getTransientFor() const ;
+
+    std::optional<XWMHints*> getWMHints() const;
+    void                     setWMHints(XWMHints& wm);
 
     void moveWindow(int x, int y);
     void resizeWindow(int w, int h);
+
     void setWindowBorder(unsigned long pixel);
     void setWindowBorderWidth(uint w);
+
     void setClassHint(XClassHint ch);
 
     void selectInput(unsigned long mask);
@@ -41,31 +48,27 @@ public:
     bool trySendEvent(AtomType a);
     void sendEvent(XEvent& ev);
     void sendEvent(XEvent& ev, int eventMask);
-    void configureWindow(XWindowChanges& changes, unsigned int mask);
+
 
     void setInputFocus();
     void raiseWindow();
-    void mapWindow();
     void mapRaised();
+    void mapWindow();
     void killClient();
 
     void grabButton(unsigned int button, unsigned int mask);
 
-    void getWindowAttrinbutes(XWindowAttributes* wa) const ;
+    void getWindowAttrinbutes(XWindowAttributes* wa) const;
 
     // atom related stuff
     void setFullscreen(bool fullscreen) ;
     void dropNetActiveAtom();
     void setNetActiveAtom();
     bool getWMProtocols(Atom** protocols, int* n) const;
-    //TODO: 3 of these can be unified
+
     void changeProperty(AtomType prop, AtomType type,
                         unsigned char* data, int data_size);
-    void changeProperty(Atom prop, Atom type,
-                        unsigned char* data, int data_size);
 
-    void changeProperty(Atom prop, Atom propertyType, int format,
-                        unsigned char* data, int data_size);
     bool supportsProtocol(Atom prot) const;
 
     // needs to be set before class usage
@@ -73,6 +76,11 @@ public:
 
     // get raw window
     inline Window get() const { return m_w; }
+
+    static void revertInputFocusToRoot() {
+        XSetInputFocus(xcore->getDpyPtr(), xcore->getRoot(),
+                       RevertToPointerRoot, CurrentTime);
+    }
 
 private:
     Window m_w;

@@ -10,6 +10,7 @@
 namespace wm {
 
 struct layout_config {
+    bool enable_inner_gap, enable_outer_gap;
     unsigned inner_gap;
     unsigned outer_gap;
     unsigned master_percentage;
@@ -27,7 +28,7 @@ void tiling_layout(util::focus_list<client>& clients, const layout_config& cfg,
                    const util::rect& area);
 
 /**
- * Resizes focused client over the whole screen area ignoring 
+ * Resizes all clients over the whole @p area and raises focused client.
  */
 void fullscreen_layout(util::focus_list<client>& clients,
                        const layout_config& cfg, const util::rect& area);
