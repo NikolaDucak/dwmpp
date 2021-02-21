@@ -73,7 +73,10 @@ void client::drop_input_focus() {
 void client::set_fullscreen(bool f) { 
     m_fullscreen = f;
     m_xwindow.setFullscreen(f);
-    m_xwindow.setWindowBorderWidth(0);
+    if (f)
+        m_xwindow.setWindowBorderWidth(0);
+    else
+        m_xwindow.setWindowBorderWidth(conf.border_width);
 }
 
 void client::set_state(long state) {
