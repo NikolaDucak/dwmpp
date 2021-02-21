@@ -70,7 +70,10 @@ public:
     void set_fullscreen(bool f) { 
         m_fullscreen = f; 
         m_xwindow.setFullscreen(f);
-        m_xwindow.setWindowBorderWidth(0);
+        if(f)
+            m_xwindow.setWindowBorderWidth(0);
+        else
+            m_xwindow.setWindowBorderWidth(conf.border_width);
     }
 
     bool is_urgent() const { return m_urgent; }

@@ -21,6 +21,8 @@ public:
     void fillRectangle(const XColor& c, point xy, point wh);
 
     void copyArea(Window w, point xy, point wh);
+    void dwmDrawtext(int x, int y, unsigned int w, unsigned int h,
+             unsigned int lpad, const char* text, int invert);
 
     static XCore* xcore;
 
