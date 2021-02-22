@@ -30,6 +30,11 @@ void XGraphics::drawText(const XFont& fnt, const XColor& clr, point xy,
     XftDrawDestroy(draw);
 }
 
+void XGraphics::dwmDraw() {
+    // draw each char separatly
+    // check if char if its supported in font list
+};
+
 void XGraphics::fillRectangle(const xlib::XColor& c, point xy, point wh) {
     auto dpy_ = xcore->getDpyPtr();
     XSetForeground(dpy_, gc_, c.get().pixel);
