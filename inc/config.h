@@ -37,7 +37,7 @@ const wm::workspace::config wm::workspace::default_config {
 };
 
 const wm::bar::config wm::bar::conf {
-    .font             { "Iosevka" },
+    .fonts            { {"Iosevka"}, {"FontAwesome"} },
     .barBG            { "#30333d" },
     .barFG            { "#898a8f" },
     .empty_tag_bg     { "#585e74" },
