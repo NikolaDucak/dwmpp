@@ -23,12 +23,15 @@ public: // static
 public:
     bar(uint width);
 
+    bool is_visible() const { return m_visible; }
     void toggle_visibility();
+
     void hide();
     void show();
-    bool is_visible() const { return m_visible; }
-    void draw(const util::focus_list<workspace>& workspaces) const;
+
     void update_width(uint w);
+
+    void draw(const util::focus_list<workspace>& workspaces) const;
 
     void set_title_string(const std::string& str) { m_title = str; }
     void set_status_string(const std::string& str) { m_status = str; }
