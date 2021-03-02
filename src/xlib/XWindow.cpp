@@ -210,15 +210,14 @@ std::string XWindow::getTextProperity(AtomType at) const {
     std::string str;
 
     if (!XGetTextProperty(xcore->getDpyPtr(), m_w, &name, atom) || !name.nitems)
-        return { "" };
+        return std::string { "" };
     if (name.encoding == XA_STRING)
         str = (char*)(name.value);
     else {
         char** list = NULL;
         int n;
-        if (XmbTextPropertyToTextList(xcore->getDpyPtr(), &name, &list, &n) >=
-                Success &&
-            n > 0 && *list) {
+        if (XmbTextPropertyToTextList(xcore->getDpyPtr(), &name, &list, &n) >= Success 
+                && n > 0 && *list) {
             str = (char*)(name.value);
             XFreeStringList(list);
         }

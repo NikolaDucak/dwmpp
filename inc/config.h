@@ -37,7 +37,7 @@ const wm::workspace::config wm::workspace::default_config {
 };
 
 const wm::bar::config wm::bar::conf {
-    .font             { "Iosevka" },
+    .fonts            { {"Iosevka Term"}, {"FontAwesome"} },
     .barBG            { "#30333d" },
     .barFG            { "#898a8f" },
     .empty_tag_bg     { "#585e74" },
@@ -49,11 +49,11 @@ const wm::bar::config wm::bar::conf {
 };
 
 
-auto increase_master = [](wm::layout_config& cfg) {
+auto increase_master = [] (wm::layout_config& cfg) {
     cfg.master_percentage = util::restrict_to_range(cfg.master_percentage+10, 10u, 90u);
 };
 
-auto decrease_master = [](wm::layout_config& cfg) {
+auto decrease_master = [] (wm::layout_config& cfg) {
     cfg.master_percentage = util::restrict_to_range(cfg.master_percentage-10, 10u, 90u);
 };
 
