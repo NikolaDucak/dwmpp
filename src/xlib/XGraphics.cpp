@@ -197,8 +197,7 @@ int XGraphics::getTextWidth(const std::string& text, std::vector<XFont>& fonts) 
     static XColor dummyColor {"#000000"};
     return drawText(point{0,0},point{0,0}, text, fonts, dummyColor);
 
-};
-
+}
 
 void XGraphics::fillRectangle(const xlib::XColor& c, point xy, point wh) {
     auto dpy_ = xcore->getDpyPtr();
