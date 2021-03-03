@@ -46,6 +46,7 @@ const wm::bar::config wm::bar::conf {
     .focused_tag_fg   { "#dd9999" },
     .unfocused_tag_bg { "#9ce5c0" },
     .unfocused_tag_fg { "#afafaf" },
+    .padding          = 10u,
 };
 
 

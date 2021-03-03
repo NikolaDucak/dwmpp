@@ -34,11 +34,12 @@ bar::precompute_tag_info(const util::focus_list<workspace>& workspaces,
     return { tag_widths, tag_text_x_offsets };
 }
 
+
 bar::bar(uint width) :
     m_visible(true),
     m_width(width),
     m_height(std::max_element(conf.fonts.begin(), conf.fonts.end(), [](auto& a, auto& b) { return a.getHeight() < b.getHeight(); })->getHeight()),
-    m_xwindow(0, 0, m_width, m_height ),
+    m_xwindow(conf.padding, conf.padding, m_width-conf.padding*2, m_height),
     m_title(""),
     m_status("dwmpp 0.01") {
     // map window to root surface and raise it above other windows
@@ -59,7 +60,7 @@ void bar::hide() {
 
 void bar::show() {
     // return window to original position
-    m_xwindow.moveWindow(0, 0);
+    m_xwindow.moveWindow(conf.padding, conf.padding);
     m_visible = true;
 }
 
@@ -122,11 +123,14 @@ void bar::draw(const util::focus_list<workspace>& workspaces) const {
     int title_left = (m_width - graphics.getTextWidth(m_title,fonts))/2;
 
     // display status in the rightmost corner of bar
-    int status_left = m_width - graphics.getTextWidth(m_status,fonts);
+    int status_left = m_width - graphics.getTextWidth(m_status,fonts) - conf.padding*2;
 
-    graphics.drawText(point { title_left, 0 }, point { (int)status_left - title_left, height }, m_title, fonts, conf.barFG);
+    graphics.drawText(point { title_left, 0 }, 
+                      point { int(status_left - title_left), height }, 
+                      m_title, fonts, conf.barFG);
     
-    graphics.drawText(point { status_left, 0 }, point { 110, height }, m_status, fonts, conf.barFG);
+    graphics.drawText(point { status_left, 0 }, point { 110, height }, 
+                      m_status, fonts, conf.barFG);
 
     // after bar drawing has been completed, buffer can be dumped to the screen
     graphics.copyArea(m_xwindow.get(), { 0, 0 }, { (int)m_width, height });

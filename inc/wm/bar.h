@@ -17,6 +17,7 @@ public: // static
         xlib::XColor empty_tag_bg, empty_tag_fg;
         xlib::XColor focused_tag_bg, focused_tag_fg;
         xlib::XColor unfocused_tag_bg, unfocused_tag_fg;
+        uint padding;
     };
     static const config conf;
 

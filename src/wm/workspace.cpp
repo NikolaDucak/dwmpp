@@ -149,8 +149,10 @@ void workspace::arrange() {
     // TODO: see if it's possible to avoid calcualting ws area
     auto a = m_parent_monitor->rect();
     if (m_parent_monitor->bar().is_visible()) {
-        a.top_left.y += m_parent_monitor->bar().get_height();
+        a.top_left.y += m_parent_monitor->bar().get_height() ;
+        a.top_left.y += bar::conf.padding;
         a.height -= m_parent_monitor->bar().get_height();
+        a.height -= bar::conf.padding;
     }
     m_layout(m_clients, m_local_config.layout, a);
 }
