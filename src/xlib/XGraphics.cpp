@@ -59,6 +59,10 @@ using util::point;
 XCore* XGraphics::xcore = &XCore::instance();
 
 XGraphics::XGraphics() {
+    // static XGraphics can be initialized
+    // before XGraphics::xcore, causing
+    // error found on gcc 8.3.0, but not on clang 10
+    auto xcore = &XCore::instance();
     auto dpy_ = xcore->getDpyPtr();
     gc_       = XCreateGC(dpy_, xcore->getRoot(), 0, NULL);
     drawable_ =

@@ -15,7 +15,7 @@ public:
     explicit XFont(FcPattern* fontpattern);
 
     auto get() { return xfont_; }
-    const auto get() const { return xfont_; }
+    auto get() const { return xfont_; }
     auto getPattern() { return pattern_; }
     int getHeight() const { return height_; }
 
