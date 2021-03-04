@@ -123,14 +123,14 @@ void bar::draw(const util::focus_list<workspace>& workspaces) const {
     int title_left = (m_width - graphics.getTextWidth(m_title,fonts))/2;
 
     // display status in the rightmost corner of bar
-    int status_left = m_width - graphics.getTextWidth(m_status,fonts) - conf.padding*2;
+    int status_left = m_width - graphics.getTextWidth(m_status,fonts) - conf.padding * 2;
 
     graphics.drawText(point { title_left, 0 }, 
                       point { int(status_left - title_left), height }, 
                       m_title, fonts, conf.barFG);
     
-    graphics.drawText(point { status_left, 0 }, point { 110, height }, 
-                      m_status, fonts, conf.barFG);
+    graphics.drawText(point { status_left, 0 }, point { (int)m_width - status_left, height }, 
+                       m_status, fonts, conf.barFG);
 
     // after bar drawing has been completed, buffer can be dumped to the screen
     graphics.copyArea(m_xwindow.get(), { 0, 0 }, { (int)m_width, height });

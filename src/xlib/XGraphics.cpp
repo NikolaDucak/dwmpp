@@ -1,6 +1,5 @@
 #include "xlib/XGraphics.h"
 #include <X11/Xlib.h>
-#include <iostream>
 
 #define UTF_INVALID 0xFFFD
 #define UTF_SIZ 4
@@ -130,8 +129,9 @@ int XGraphics::drawText(point xy, point wh, const std::string& textstr, std::vec
             auto ew = usedfont->getTextExtents(utf8str,utf8strlen);
             int len;
             /* shorten text if necessary */
-            for (len = MIN(utf8strlen, sizeof(buf) - 1); len && ew > w; len--)
-                ew = usedfont->getTextExtents(utf8str,utf8strlen);
+            for (len = MIN(utf8strlen, sizeof(buf) - 1); len && ew > w; len--){
+                ew = usedfont->getTextExtents(utf8str,len);
+            }
 
             if (len) {
                 memcpy(buf, utf8str, len);
@@ -140,8 +140,9 @@ int XGraphics::drawText(point xy, point wh, const std::string& textstr, std::vec
                     for (auto i = len; i && i > len - 3; buf[--i] = '.') ; /* NOP */
 
                 auto ty = y + (h - usedfont->getHeight()) / 2 + usedfont->get()->ascent;
-                if(render)
+                if (render)
                     XftDrawStringUtf8(d, &color, usedfont->get(), x, ty, (XftChar8*)buf, len);
+                
                 x += ew;
                 w -= ew;
             }
