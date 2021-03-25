@@ -8,30 +8,20 @@ by editing the source code and recompiling. But unlike DWM it does
 not follow the suckless philosophy of not exceeding 2000 SLOC and is 
 written in C++.
 
-DWMPP is currently in deep stages of development and does not provide
-all the neccesary features for a window manager!
+Currently DWMPP is in a usable state, but is rich with bugs.
 
 ## Building
 Dependencies:
 - xorg
 - make
-- g++-8
-- libx11-deb
+- clang++-10
+- libx11-dev
 - libxfg-dev
 - libxinerma-dev
 
-If you want to use `debug_run.sh` script debuging/testing you need to have:
-- xephyr
-
-
 You can install them with the following command on a Debian based distro:
 ```bash
-sudo apt install xorg make g++-8 libx11-dev libxft-dev libxinerama-dev xorg
+sudo apt install xorg make g++-8 libx11-dev libxft-dev libxinerama-dev
 ```
-and for xephyr:
-```bash
-sudo apt install xserver-xephyr
-```
-
 After you have sorted out the dependencies `make` will create a binary.
 
